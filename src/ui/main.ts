@@ -1,5 +1,14 @@
+import './debate-cinematic.css';
+import { DebatePlayback, loadSceneSettings, sceneSettingsHtml, attachSceneControls } from './debate-playback.ts';
+import { configureAccordDemo } from '../core/accord-demo.ts';
+import { configureBuildDemo } from '../core/build-demo.ts';
+import { DOCTRINES, type Direction } from '../core/build.ts';
 // 화면 표시 전용. 규칙은 core/ 에만 있고 여기서는 상태를 그리고 사용자 입력을 규칙 함수로 넘긴다.
 import './style.css';
+import { esc } from './html.ts';
+import { chooseDoctrine, GROWTH } from '../core/build.ts';
+import { doctrineView, handleSocialAction, relationsHtml, socialView } from './social-view.ts';
+import { configureSocialDemo } from '../core/social-run.ts';
 import { CARDS } from '../data/cards.ts';
 import { ENCOUNTERS, ENEMIES } from '../data/enemies.ts';
 import { EVENTS } from '../data/events.ts';
@@ -54,6 +63,7 @@ import type { BattleState, CardDef, Difficulty, GeneralInst, MapNode, MetaState,
 
 // ───────────── 상태 ─────────────
 
+let storageFallback = false;
 function storage(): KV {
   try {
     const t = '__t';
@@ -61,6 +71,7 @@ function storage(): KV {
     localStorage.removeItem(t);
     return localStorage;
   } catch {
+    storageFallback = true;
     return memoryKV();
   }
 }
@@ -89,7 +100,7 @@ const ui: UIState = {
   selected: null,
   hover: null,
   modal: null,
-  toast: loadedRun.ok || loadedRun.reason === 'none' ? null : '이전 저장 데이터가 호환되지 않아 불러오지 않았습니다.',
+  toast: storageFallback ? '브라우저 저장소를 사용할 수 없어 임시로 진행합니다. 새로고침하면 원정이 사라집니다.' : loadedRun.ok || loadedRun.reason === 'none' ? null : loadedRun.reason === 'version' ? '저장 버전을 변환할 수 없습니다. 새 원정을 시작할 수 있습니다.' : '저장 데이터가 손상되어 불러오지 않았습니다. 새 원정을 시작할 수 있습니다.',
   endRecorded: false,
   unlockMsgs: [],
   seedInput: '',
@@ -97,10 +108,8 @@ const ui: UIState = {
 const savedRun: RunState | null = loadedRun.ok ? loadedRun.data : null;
 
 const app = document.getElementById('app')!;
-
-function esc(s: string | number): string {
-  return String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);
-}
+const debatePlayback = new DebatePlayback(app, loadSceneSettings(kv, window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false));
+attachSceneControls(app, () => ui.run?.pending.kind === 'debate' ? ui.run.pending.state : null, debatePlayback);
 
 let toastTimer = 0;
 function toast(msg: string): void {
@@ -119,12 +128,12 @@ function persist(): void {
     if (!ui.endRecorded) {
       ui.endRecorded = true;
       ui.unlockMsgs = recordRunEnd(ui.meta, run, run.screen === 'victory');
-      saveMeta(kv, ui.meta);
+      if (!saveMeta(kv, ui.meta)) toast('기록을 저장하지 못했습니다. 저장 공간이나 브라우저 권한을 확인하세요.');
       clearRun(kv);
     }
     return;
   }
-  saveRun(kv, run);
+  if (!saveRun(kv, run)) toast('원정을 저장하지 못했습니다. 새로고침 전에 저장 공간이나 브라우저 권한을 확인하세요.');
 }
 
 // ───────────── 공용 조각 ─────────────
@@ -165,6 +174,8 @@ function hud(run: RunState, b: BattleState | null): string {
   const hp = b ? b.hp : run.hp;
   const food = b ? b.food : run.food;
   const lord = LORDS[run.lordId];
+  if(run.pending.kind==='debate') {const state=run.pending.state;return `<div class="hud panel cinematic-hud"><span class="lord">${esc(lord.name)}</span><span>군량 <b>${food}</b></span><span>집중 <b>${state.resolve}</b></span><span>논점 ${state.round}/${state.maxRounds}</span>${state.negotiation?`<span class="hud-tools">情報 ${state.negotiation.reports} · 信用 ${state.negotiation.credentials}</span>`:''}<span class="grow"></span><details class="hud-details"><summary>원정 상세</summary><div class="hud-popup"><p>병력 ${hp}/${run.maxHp} · ${run.floor+1}층</p>${relationsHtml(run)}</div></details><button class="btn small ghost" data-a="modal" data-m="deck">덱</button><button class="btn small ghost" data-a="modal" data-m="help">규칙</button><button class="btn small ghost abandon-control" data-a="modal" data-m="abandon">포기</button></div>`;}
+
   return `<div class="hud panel">
     <span class="lord">${esc(lord.name)}</span>
     <span class="stat"><span class="muted small">병력</span><b>${hp}</b><span class="muted">/ ${run.maxHp}</span></span>
@@ -220,6 +231,10 @@ function lordsView(): string {
         )
         .join('')}
     </div>
+    <button class="btn" data-a="accord-demo">설전·협정 검증 원정 (시드 51001)</button><button class="btn ghost" data-a="social-demo">검증 원정 시작 (시드 31001)</button>
+    <div class="row"><button class="btn" data-a="debate-scene-demo" data-id="guojia">설전 무대 검증 · 곽가 (51001)</button><button class="btn" data-a="debate-scene-demo" data-id="chengong">설전 무대 검증 · 진궁 (51001)</button></div>
+    <p class="tiny muted">검증용 군량·장수: 1층 무장 대결, 2층 영입 설전, 3~4층 외교. 일반 원정에는 적용하지 않습니다.</p>
+    <div class="row">${Object.entries(DOCTRINES).map(([id, d]) => '<button class="btn" data-a="build-demo" data-id="' + id + '">빌드 검증: ' + d.name + '</button>').join('')}</div><p class="tiny">시드 41001 · 세 방향의 동일 지도 비교. 1·3·5층 성장, 4·6층 대결. 보상을 직접 선택합니다.</p>
   </div>`;
 }
 
@@ -228,6 +243,7 @@ function lordsView(): string {
 const FLOOR_H = 78;
 
 function mapView(run: RunState): string {
+  if (run.floor === -1 && !run.build.doctrines.length && !run.history.some(h => h.startsWith('검증 원정:'))) return doctrineView();
   const reach = new Set(availableMoves(run).map((n) => `${n.floor}:${n.col}`));
   const floors = run.map.slice().reverse();
   const H = floors.length * FLOOR_H;
@@ -276,6 +292,7 @@ function mapView(run: RunState): string {
     </div>
     <div style="display:grid;gap:12px;align-content:start">
       ${armyPanel(run)}
+      ${relationsHtml(run)}
       <div class="panel"><h3>원정 기록</h3><div class="small muted" style="margin-top:6px">${run.history.slice(-7).map((h) => `<div>· ${esc(h)}</div>`).join('')}</div></div>
     </div>
   </div>`;
@@ -378,6 +395,7 @@ function battleView(run: RunState, b: BattleState): string {
       <span class="chip">${esc(NODE_NAME[node.type])}</span>
       <span class="chip">지형: ${esc(terr.name)}</span>${terr.rules.filter((r) => !r.startsWith('이동')).map((r) => `<span class="chip">${esc(r)}</span>`).join('')}
       <span class="grow"></span><span class="muted">제 ${b.turn}턴</span></div>
+    ${b.build ? `<div class="panel small build-status">반격 준비 ${b.build.tokens.riposte}/2 · 돌파 준비 ${b.build.tokens.charge}/2 · 정보 ${b.build.tokens.insight}/2 — 이 전투에서 유지, 준비 종류별 공격당 1회 소비. 성장 효과는 배치·동요 조건을 따릅니다.</div>` : ''}
     <div class="enemies">${enemies}</div>
     <div class="formation">${rowBox('front')}${rowBox('rear')}</div>
     <div id="preview">${previewHtml(b)}</div>
@@ -448,6 +466,8 @@ function previewHtml(b: BattleState): string {
 // ───────────── 노드 화면 ─────────────
 
 function nodeView(run: RunState): string {
+  const social = socialView(run);
+  if (social !== null) return social;
   const p = run.pending;
   switch (p.kind) {
     case 'reward': {
@@ -497,7 +517,7 @@ function nodeView(run: RunState): string {
         <h1>진형이 가득 찼다</h1>
         <p class="story">${esc(inc.name)}(${esc(inc.role)})을(를) 들이려면 한 명을 내보내야 한다.</p>
         <div class="panel small">${esc(inc.ability)}</div>
-        <div class="choice-grid">${run.generals.map((g) => `<button class="option gen-card" data-a="replace" data-id="${g.id}"><span class="head">${esc(GENERALS[g.id].name)} 내보내기</span><span class="small">${esc(GENERALS[g.id].ability)}</span></button>`).join('')}</div>
+        <div class="choice-grid">${run.generals.map((g) => `<button class="option gen-card" data-a="replace" data-id="${g.id}"><span class="head">${esc(GENERALS[g.id].name)} 내보내기</span><span class="small">${esc(GENERALS[g.id].ability)}${run.build.growth[g.id] ? '<br>잃는 원정 성장: ' + GROWTH[run.build.growth[g.id].branch].name + ' ' + run.build.growth[g.id].level + '단계' : ''}</span></button>`).join('')}</div>
         <div class="row" style="justify-content:center"><button class="btn" data-a="replace" data-id="">${esc(inc.name)}을(를) 들이지 않는다</button></div>
       </div>`;
     }
@@ -533,6 +553,7 @@ function nodeView(run: RunState): string {
         <div class="choice-grid">
           <button class="option" data-a="supply" data-c="food"><span class="head">군량 수레</span><span class="small">군량 +6</span></button>
           <button class="option" data-a="supply" data-c="hp"><span class="head">의약·증원</span><span class="small">병력 +12</span></button>
+          <button class="option" data-a="social-action" data-kind="supply-parley"><span class="head">설전으로 보급 협상</span><span class="small">기본 군량 +6 / 도전 비용 1 / 성공 +9·부분 성공 군량 +5·병력 +6·실패 군량 +4. 조건 확인 후 수락.</span></button>
         </div>
       </div>`;
     case 'event': {
@@ -564,6 +585,7 @@ function nodeView(run: RunState): string {
     case 'none':
       return `<div class="node-screen"><button class="btn primary" data-a="leave">지도로</button></div>`;
   }
+  return '';
 }
 
 function endView(run: RunState): string {
@@ -609,6 +631,12 @@ function modalView(): string {
       <p class="tiny muted" style="margin-top:12px">인물의 성격과 능력은 게임적 해석이며 역사 고증이 아닙니다.</p>`;
   } else if (ui.modal === 'help') {
     body = `<h2>규칙 안내</h2><div class="small" style="display:grid;gap:8px">
+      <p><b>무장 대결</b> — 지정 편성에서 원정당 최대 2회 제안. 4회 행동, 상대 다음 행동 공개. 승리 방비6·무승부 방비2·패배/기권 첫 턴 지휘력-1. 거절 무료.</p>
+      <p><b>설전</b> — 대표의 적성·특성으로 관심사에 대응. 군량1을 지불해 4회 논의. 합의10·신뢰2면 성공, 합의6·신뢰1이면 부분 성공. 결과 뒤 조건 수락·포기 가능.</p>
+      <p><b>외교</b> — 관계는 원정 안에서만 유지. 장소당 거래1회·설전1회. 통행 협정은 이동 비용을 줄이고, 지원은 다음 전투에 1회 적용. 거래 화면에서 비용·기간·관계·보상 포기를 확인.</p>
+      <p><b>무장 대결</b> — 지정 편성에서 원정당 최대 2회 제안. 4회 행동, 상대 다음 행동 공개. 승리 방비6·무승부 방비2·패배/기권 첫 턴 지휘력-1. 거절 무료.</p>
+      <p><b>설전</b> — 대표의 적성·특성으로 관심사에 대응. 군량1로 4회 논의. 합의10·신뢰2면 성공, 합의6·신뢰1이면 부분 성공. 결과 뒤 조건 수락·포기 가능.</p>
+      <p><b>외교</b> — 관계는 원정 안에서만 유지. 장소당 거래1회·설전1회. 통행 협정은 이동 비용을 줄이고, 지원은 다음 전투에 1회 적용. 거래 화면에서 비용·기간·관계·보상 포기를 확인.</p>
       <p><b>목표</b> — 8층 지도를 거쳐 낙양의 동탁을 쓰러뜨린다. 병력이 0이 되면 원정 실패.</p>
       <p><b>병력·군량</b> — 병력은 원정 내내 이어지는 체력. 군량은 이동(산길 2), 휴식, 시장, 징발에 쓰는 유일한 원정 자원.</p>
       <p><b>전투</b> — 매 턴 지휘력 3, 카드 5장. 武(공격)·防(방어)·策(계책) 전법을 쓴다. 한 턴에 카드를 쓸 때마다 <b>기세</b>가 1 오르고 턴마다 초기화된다.</p>
@@ -616,7 +644,7 @@ function modalView(): string {
       <p><b>장수</b> — 최대 4명(열마다 2명). 장수는 카드가 아니라 항상 전장에 있는 능력이다. 능력마다 작동하는 열이 있다. 지도에서는 무료로, 전투 중에는 지휘력 1로 열을 바꾼다.</p>
       <p><b>적 턴 순서</b> — 왼쪽 적부터: 방비 소멸 → 화상 피해(방비 무시) 후 화상 1 감소 → 혼란이면 행동 취소 → 의도 실행 → 반격.</p>
       <p><b>카드 처리 순서</b> — 지휘력 지불 → 기세 +1 → 효과를 적힌 순서대로 → 장수 능력(전열→후열) → 군주 규칙. 대상이 이미 쓰러졌으면 그 효과는 무효(로그에 표시).</p>
-      <p><b>피해 계산</b> — 기본 + 가산(정보·연노 기계·진궁·평야/서량마 기병) → 배수(일기토·추격) → 적 방비 → 체력. 모든 계산식은 전투 기록에 남는다.</p>
+      <p><b>피해 계산</b> — 기본 + 가산(정보·연노 기계·진궁·평야/서량마 기병) → 배수(무장 대결·추격) → 적 방비 → 체력. 모든 계산식은 전투 기록에 남는다.</p>
       <p><b>지형</b> — ${Object.values(TERRAINS).map((t) => `${esc(t.name)}: ${esc(t.rules.join(', '))}`).join(' / ')}</p>
     </div>`;
   } else if (ui.modal === 'abandon') {
@@ -645,7 +673,12 @@ function render(): void {
   }
   html += modalView();
   if (ui.toast) html += `<div class="toast">${esc(ui.toast)}</div>`;
+  debatePlayback.cancel();
   app.innerHTML = html;
+  if (ui.run?.pending.kind === 'debate' && ui.view === 'run') {
+    app.querySelector('.scene-utilities')?.insertAdjacentHTML('beforeend', sceneSettingsHtml(debatePlayback.settings) + '<button class="btn small skip-control" data-skip-debate>연출 건너뛰기</button>');
+    debatePlayback.applySettings();
+  }
   const log = document.getElementById('log');
   if (log) log.scrollTop = log.scrollHeight;
 }
@@ -721,6 +754,36 @@ app.addEventListener('click', (ev) => {
   const i = Number(el.dataset.i);
   const id = el.dataset.id ?? '';
   switch (a) {
+    case 'doctrine': runAct(r => chooseDoctrine(r, id)); return;
+    case 'social-action': {
+      const general = document.querySelector<HTMLSelectElement>('#social-general')?.value ?? '';
+      const run = ui.run; if (!run) return;
+      const kind = el.dataset.kind ?? '', choice = el.dataset.choice ?? '';
+      const check = handleSocialAction(run, kind, general, choice, Number(el.dataset.round), ['#tactic-one', '#tactic-two'].map(q => document.querySelector<HTMLSelectElement>(q)?.value ?? '').filter(Boolean));
+      if (!check.ok && check.reason) toast(check.reason);
+      persist(); render();
+      if (check.ok && kind === 'debate-action' && run.pending.kind === 'debate') {
+        void debatePlayback.play(check.events ?? [], structuredClone(run.pending.state), choice);
+        const focus = app.querySelector<HTMLElement>('[data-hand-focus]') ?? app.querySelector<HTMLElement>('[data-kind="finish-debate"]');
+        focus?.focus();
+      }
+      return;
+    }
+    case 'accord-demo':
+      ui.run = newRun(51001, 'caocao'); configureAccordDemo(ui.run); ui.view = 'run'; ui.endRecorded = false; ui.unlockMsgs = []; ui.selected = null; persist(); render(); return;
+    case 'debate-scene-demo':
+      if (!['guojia','chengong'].includes(id)) return;
+      ui.run = newRun(51001, 'caocao'); configureAccordDemo(ui.run);
+      ui.run.generals = [{id:'dianwei',row:'front'},{id,row:'rear'}];
+      ui.view = 'run'; ui.endRecorded = false; ui.unlockMsgs = []; ui.selected = null; persist(); render(); return;
+    case 'build-demo':
+      ui.run = newRun(41001, 'caocao'); configureBuildDemo(ui.run, id as Direction);
+      ui.view = 'run'; ui.endRecorded = false; ui.unlockMsgs = []; ui.selected = null; persist(); render(); return;
+    case 'social-demo':
+      ui.run = newRun(31001, 'caocao');
+      configureSocialDemo(ui.run);
+      ui.view = 'run'; ui.endRecorded = false; ui.unlockMsgs = []; ui.selected = null;
+      persist(); render(); return;
     case 'continue':
       if (savedRun) {
         ui.run = savedRun;

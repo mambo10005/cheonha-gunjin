@@ -1,0 +1,30 @@
+{
+  "id": "guojia",
+  "quality": "generated",
+  "width": 512,
+  "height": 512,
+  "poses": {
+    "neutral": "/assets/debate/portraits/guojia/neutral.webp",
+    "speak": "/assets/debate/portraits/guojia/speak.webp",
+    "press": "/assets/debate/portraits/guojia/press.webp",
+    "countered": "/assets/debate/portraits/guojia/countered.webp",
+    "concede": "/assets/debate/portraits/guojia/concede.webp",
+    "victory": "/assets/debate/portraits/guojia/victory.webp"
+  },
+  "placeholder": "/assets/debate/portraits/guojia/low.webp",
+  "fallback": "/assets/debate/portraits/guojia/neutral.webp",
+  "crop": {
+    "desktop": "50% 50%",
+    "mobile": "50% 18%"
+  },
+  "faceAnchor": [
+    50,
+    24
+  ],
+  "mirror": false,
+  "palette": "#799dba",
+  "silhouette": "정돈된 좁은 소매",
+  "prop": "죽간·봉인 서신",
+  "age": "젊은 성인",
+  "material": "먹청 비단·청동"
+}

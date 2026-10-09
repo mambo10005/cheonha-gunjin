@@ -1,0 +1,92 @@
+[
+  {
+    "file": "public\\assets\\debate\\portraits\\guojia\\neutral.webp",
+    "width": 512,
+    "height": 512,
+    "bytes": 47866,
+    "alpha": true
+  },
+  {
+    "file": "public\\assets\\debate\\portraits\\guojia\\speak.webp",
+    "width": 512,
+    "height": 512,
+    "bytes": 57550,
+    "alpha": true
+  },
+  {
+    "file": "public\\assets\\debate\\portraits\\guojia\\press.webp",
+    "width": 512,
+    "height": 512,
+    "bytes": 51122,
+    "alpha": true
+  },
+  {
+    "file": "public\\assets\\debate\\portraits\\guojia\\countered.webp",
+    "width": 512,
+    "height": 512,
+    "bytes": 54006,
+    "alpha": true
+  },
+  {
+    "file": "public\\assets\\debate\\portraits\\guojia\\concede.webp",
+    "width": 512,
+    "height": 512,
+    "bytes": 46304,
+    "alpha": true
+  },
+  {
+    "file": "public\\assets\\debate\\portraits\\guojia\\victory.webp",
+    "width": 512,
+    "height": 512,
+    "bytes": 49538,
+    "alpha": true
+  },
+  {
+    "file": "public\\assets\\debate\\portraits\\merchant\\neutral.webp",
+    "width": 512,
+    "height": 512,
+    "bytes": 50540,
+    "alpha": true
+  },
+  {
+    "file": "public\\assets\\debate\\portraits\\merchant\\speak.webp",
+    "width": 512,
+    "height": 512,
+    "bytes": 55336,
+    "alpha": true
+  },
+  {
+    "file": "public\\assets\\debate\\portraits\\merchant\\press.webp",
+    "width": 512,
+    "height": 512,
+    "bytes": 51068,
+    "alpha": true
+  },
+  {
+    "file": "public\\assets\\debate\\portraits\\merchant\\countered.webp",
+    "width": 512,
+    "height": 512,
+    "bytes": 48462,
+    "alpha": true
+  },
+  {
+    "file": "public\\assets\\debate\\portraits\\merchant\\concede.webp",
+    "width": 512,
+    "height": 512,
+    "bytes": 53686,
+    "alpha": true
+  },
+  {
+    "file": "public\\assets\\debate\\portraits\\merchant\\victory.webp",
+    "width": 512,
+    "height": 512,
+    "bytes": 50930,
+    "alpha": true
+  },
+  {
+    "file": "public\\assets\\debate\\backgrounds\\camp.webp",
+    "width": 1535,
+    "height": 864,
+    "bytes": 138846
+  }
+]

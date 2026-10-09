@@ -28,7 +28,7 @@ def({ id: 'bitter', name: '고육계', cost: 0, family: 'chaek', tags: [], targe
 
 // ── 희귀 ──
 def({ id: 'ironcav', name: '철기 돌파', cost: 2, family: 'mu', tags: ['cavalry'], target: 'none', rarity: 'rare', effects: [{ k: 'dmgAll', n: 7 }] });
-def({ id: 'duel', name: '일기토', cost: 2, family: 'mu', tags: [], target: 'enemy', rarity: 'rare', effects: [{ k: 'dmgMomentumDouble', n: 11, threshold: 3 }] });
+def({ id: 'duel', name: '무장 대결', cost: 2, family: 'mu', tags: [], target: 'enemy', rarity: 'rare', effects: [{ k: 'dmgMomentumDouble', n: 11, threshold: 3 }] });
 def({ id: 'counterstrike', name: '역습', cost: 1, family: 'mu', tags: [], target: 'enemy', rarity: 'common', synergy: ['bang'], effects: [{ k: 'dmgBlock' }] });
 def({ id: 'flank', name: '측면 기습', cost: 1, family: 'mu', tags: ['cavalry'], target: 'enemy', rarity: 'rare', effects: [{ k: 'dmg', n: 5 }, { k: 'draw', n: 1 }] });
 def({ id: 'ironwall', name: '철벽', cost: 2, family: 'bang', tags: [], target: 'none', rarity: 'rare', effects: [{ k: 'block', row: 'front', n: 12 }] });

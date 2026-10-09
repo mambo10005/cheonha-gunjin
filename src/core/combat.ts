@@ -14,11 +14,12 @@
 //   6) 플레이어 턴 시작: 방비 소멸(조인: 전열 절반 유지) → 반격 초기화 → 지휘력·기세 초기화 → 카드 뽑기
 //
 // ■ 피해 계산 (적에게)
-//   기본값 + 가산(정보, 연노 기계, 진궁, 평야·서량마 기병 보너스) → 배수(일기토, 추격) → 적 방비 → 체력
+//   기본값 + 가산(정보, 연노 기계, 진궁, 평야·서량마 기병 보너스) → 배수(무장 대결, 추격) → 적 방비 → 체력
 //
 // ■ 무한 연쇄 방지
 //   지휘력/카드 획득 능력은 모두 턴당 횟수 제한이 있다. 추가로 한 턴의 처리 예산(budget)을 넘으면 처리를 멈춘다.
 
+import { makeRuntime, nextBuildTurn, triggerBuild, type ExpeditionBuild, type Trigger } from './build.ts';
 import { CARDS } from '../data/cards.ts';
 import { ENEMIES } from '../data/enemies.ts';
 import { GENERALS, ROW_CAPACITY } from '../data/generals.ts';
@@ -43,6 +44,8 @@ export const MAX_HAND = 10;
 export const TURN_BUDGET = 400;
 
 export interface BattleSetup {
+  build?: ExpeditionBuild;
+  opening?: { block: number; damage: number; energyPenalty: number };
   rng: number;
   hp: number;
   maxHp: number;
@@ -153,6 +156,7 @@ function chooseIntent(b: BattleState, e: EnemyState): void {
 
 export function createBattle(s: BattleSetup): BattleState {
   const b: BattleState = {
+    build: s.build ? makeRuntime(s.build, [...s.generals.filter(g => g.row === 'front'), ...s.generals.filter(g => g.row === 'rear')].map(g => g.id)) : undefined,
     rng: s.rng,
     turn: 0,
     energy: 0,
@@ -190,6 +194,7 @@ export function createBattle(s: BattleSetup): BattleState {
     for (const e of b.enemies) e.block += 10;
     log(b, '성채: 적이 방비 10을 갖고 시작한다.', 'info');
   }
+  startPlayerTurn(b);
   if (generalActive(b, 'haozhao')) {
     const n = b.terrain === 'fortress' ? 12 : 6;
     gainBlock(b, 'front', n, '학소');
@@ -199,7 +204,12 @@ export function createBattle(s: BattleSetup): BattleState {
     log(b, '동맹 원군이 먼저 들이친다!', 'general');
     for (const e of aliveEnemies(b)) applyDamageToEnemy(b, e, 12, '원군', '12', null);
   }
-  startPlayerTurn(b);
+  if (s.opening) {
+    if (s.opening.block) gainBlock(b, 'front', s.opening.block, '대결·외교 시작 효과');
+    b.energy = Math.max(0, b.energy - s.opening.energyPenalty);
+    if (s.opening.energyPenalty) log(b, '대결 피로: 첫 턴 지휘력 -1. 다음 턴 해제.', 'warn');
+    if (s.opening.damage) for (const e of aliveEnemies(b)) applyDamageToEnemy(b, e, s.opening.damage, '외교 지원', String(s.opening.damage), null);
+  }
   return b;
 }
 
@@ -244,6 +254,8 @@ export function drawCards(b: BattleState, n: number): void {
 
 function startPlayerTurn(b: BattleState): void {
   b.turn++;
+  if (b.build) nextBuildTurn(b.build);
+  delete b.buildLastFamily;
   b.budget = TURN_BUDGET;
   const keepFront = generalActive(b, 'caoren') ? Math.floor(b.block.front / 2) : 0;
   if (keepFront > 0) log(b, `조인: 전열 방비 ${keepFront} 유지.`, 'general');
@@ -353,7 +365,13 @@ export function playCard(b: BattleState, handIdx: number, target: PlayTarget = {
   }
   const ctx: PlayCtx = { def: d, target, bonus, bonusText: bonusParts.join(' '), retrigger: false };
 
+  if (b.build && d.family === 'mu') {
+    if (b.buildLastFamily && b.buildLastFamily !== 'mu') applyBuild(b, 'setup', target.enemy);
+    b.buildBonus = applyBuild(b, 'attack', target.enemy);
+  }
   resolveEffects(b, ctx);
+  b.buildBonus = 0;
+  b.buildLastFamily = d.family;
   if (b.result === 'ongoing') afterCardHooks(b, ctx);
   if (b.result === 'ongoing' && hasRelic(b, 'drum') && !b.flags.drumUsed && b.momentum >= 4) {
     b.flags.drumUsed = true;
@@ -429,7 +447,7 @@ function resolveEffect(b: BattleState, eff: Effect, ctx: PlayCtx): void {
       const e = targetEnemy(b, ctx);
       if (!e) return;
       const mult = b.momentum >= eff.threshold ? 2 : 1;
-      cardDamage(b, e, eff.n, ctx, mult, mult === 2 ? `×2 일기토(기세 ${b.momentum})` : '');
+      cardDamage(b, e, eff.n, ctx, mult, mult === 2 ? `×2 무장 대결(기세 ${b.momentum})` : '');
       return;
     }
     case 'breakBlock': {
@@ -499,6 +517,7 @@ function resolveEffect(b: BattleState, eff: Effect, ctx: PlayCtx): void {
       if (!e || e.intent?.kind !== 'attack' || e.intent.row === 'both') return;
       const to: Row = e.intent.row === 'front' ? 'rear' : 'front';
       e.intent = { ...e.intent, row: to };
+      applyBuild(b, 'changed', e.uid);
       log(b, `${e.name}의 공격 대상이 ${ROW_NAME[to]}으로 바뀌었다.`, 'player');
       return;
     }
@@ -506,6 +525,7 @@ function resolveEffect(b: BattleState, eff: Effect, ctx: PlayCtx): void {
       const e = targetEnemy(b, ctx);
       if (!e) return;
       e.turncoat = true;
+      if (e.intent?.kind === 'attack') applyBuild(b, 'changed', e.uid);
       log(b, `${e.name}에게 이간계: 다음 공격이 아군을 향한다.`, 'player');
       return;
     }
@@ -513,6 +533,7 @@ function resolveEffect(b: BattleState, eff: Effect, ctx: PlayCtx): void {
       const e = targetEnemy(b, ctx);
       if (!e) return;
       e.confused = true;
+      if (e.intent?.kind === 'attack') applyBuild(b, 'changed', e.uid);
       log(b, `${e.name}이(가) 혼란에 빠졌다: 다음 행동 취소.`, 'player');
       return;
     }
@@ -523,8 +544,11 @@ function resolveEffect(b: BattleState, eff: Effect, ctx: PlayCtx): void {
 
 /** 카드에서 나오는 피해. 가산 → 배수 → 방비 → 체력 순. */
 function cardDamage(b: BattleState, e: EnemyState, base: number, ctx: PlayCtx, mult: number, note: string): void {
-  let amount = base;
+  const buildBonus = ctx.retrigger ? 0 : (b.buildBonus ?? 0);
+  let amount = base + buildBonus;
+  b.buildBonus = 0;
   const parts = [`${base}${note && note.startsWith('(') ? note : ''}`];
+  if (buildBonus) parts.push(`+${buildBonus} 원정 연쇄`);
   if (ctx.bonus > 0) {
     amount += ctx.bonus;
     parts.push(ctx.bonusText);
@@ -860,6 +884,7 @@ function hitPlayerRow(b: BattleState, e: EnemyState, r: Row, amount: number, ter
   const blocked = Math.min(b.block[r], amount);
   b.block[r] -= blocked;
   const loss = amount - blocked;
+  if (blocked > 0 && loss === 0) applyBuild(b, 'guarded', e.uid);
   const tb = terrainBonus ? ` (산길 +${terrainBonus})` : '';
   log(b, `${e.name} → ${ROW_NAME[r]}: ${amount}${tb}${blocked ? `, 방비 ${blocked} 흡수` : ''} → 병력 -${loss}`, 'enemy');
   if (loss > 0) {
@@ -932,4 +957,15 @@ export function enemyIntentNote(e: EnemyState): string {
   if (e.turncoat) notes.push('이간계: 아군 공격');
   if (e.burn > 0) notes.push(e.burn >= e.hp ? `화상 ${e.burn}: 행동 전 쓰러짐` : `화상 ${e.burn}: 행동 전 피해`);
   return notes.join(' · ');
+}
+
+function applyBuild(b: BattleState, trigger: Trigger, target?: number): number {
+  if (!b.build) return 0;
+  const out = triggerBuild(b.build, trigger, undefined, b.generals.filter(g => generalActive(b, g.id)).map(g => g.id));
+  for (const text of out.log) log(b, text, 'general');
+  if (out.block) { gainBlock(b, 'front', out.block, '원정 성장'); gainBlock(b, 'rear', out.block, '원정 성장'); }
+  if (out.draw) drawCards(b, out.draw);
+  const enemy = b.enemies.find(e => e.uid === target && !e.dead);
+  if (out.weaken && enemy?.intent?.kind === 'attack') { enemy.intent = { ...enemy.intent, dmg: Math.max(0, enemy.intent.dmg - out.weaken) }; log(b, enemy.name + ': 돌파 후 이번 의도 피해 -' + out.weaken, 'general'); }
+  return out.damage;
 }

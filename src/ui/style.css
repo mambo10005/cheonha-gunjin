@@ -809,6 +809,13 @@ h3 {
   color: var(--muted);
 }
 
+.social-screen { display: grid; gap: 14px; }
+.activity-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); gap: 12px; }
+.activity-grid .panel { display: grid; align-content: start; gap: 8px; }
+.activity-log { font-size: 13px; line-height: 1.7; }
+.social-status { line-height: 1.7; }
+.representatives { display: grid; gap: 5px; margin: 8px 0; }
+#social-general { background: var(--ink-3); color: var(--paper); padding: 8px; max-width: 100%; }
 @media (max-width: 560px) {
   #app {
     padding: 8px 16px 32px;
@@ -854,3 +861,7 @@ h3 {
     grid-column: 1 / -1;
   }
 }
+
+.build-status { border-left: 3px solid var(--gold); }
+.activity-log div:has(+ div) { padding-bottom: 5px; }
+.social-screen select { max-width: 100%; padding: 8px; }

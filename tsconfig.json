@@ -12,7 +12,7 @@
     "noUnusedLocals": true,
     "noFallthroughCasesInSwitch": true,
     "skipLibCheck": true,
-    "types": []
+    "types": ["node"]
   },
-  "include": ["src/core", "src/data", "src/ui"]
+  "include": ["src", "tests"]
 }

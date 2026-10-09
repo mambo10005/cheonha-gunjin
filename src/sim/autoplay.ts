@@ -1,6 +1,9 @@
+import { activeAgreements, reachableNodes } from '../core/accords.ts';
+import { chooseDoctrine } from '../core/build.ts';
 // 헤드리스 자동 플레이. 규칙 엔진만 사용하므로 UI 없이 Node에서 돌아간다.
 // 탐욕적(1수 앞) 봇이며 사람의 판단·재미를 대신하지 않는다. 밸런스 이상치를 찾는 용도.
 import { CARDS } from '../data/cards.ts';
+import { socialBotStep } from './social-policy.ts';
 import { EVENTS } from '../data/events.ts';
 import { GENERALS } from '../data/generals.ts';
 import { aliveEnemies, canPlay, cardDef, endTurn, incomingPreview, playCard } from '../core/combat.ts';
@@ -126,13 +129,17 @@ export function simulateRun(
   onBattleEnd?: (b: BattleState, run: RunState) => void,
 ): SimResult {
   const run = newRun(seed, lordId, difficulty, unlocked);
+  chooseDoctrine(run, ['bastion', 'breakthrough', 'scheme'][seed % 3]);
   let turns = 0;
   let killedBy: string | null = null;
   for (let step = 0; step < 2000; step++) {
     if (run.screen === 'victory' || run.screen === 'defeat') break;
     if (run.screen === 'map') {
       const moves = availableMoves(run);
-      const best = moves.reduce((a, n) => (nodeScore(run, n.type) > nodeScore(run, a.type) ? n : a));
+      const obligations=activeAgreements(run).flatMap(a=>[a.target,...(a.supply && a.stage==='waiting'?[a.supply]:[])]);
+      const compliant=moves.filter(n=>obligations.every(c=>c.floor<n.floor || c.floor===n.floor && c.col===n.col || c.floor>n.floor && reachableNodes(run,n).some(r=>r.floor===c.floor && r.col===c.col)));
+      const options=compliant.length?compliant:moves;
+      const best = options.reduce((a, n) => (nodeScore(run, n.type) > nodeScore(run, a.type) ? n : a));
       moveTo(run, best.col);
       continue;
     }
@@ -148,6 +155,7 @@ export function simulateRun(
       finishBattle(run);
       continue;
     }
+    if (socialBotStep(run)) continue;
     const p = run.pending;
     switch (p.kind) {
       case 'reward': {
@@ -173,7 +181,7 @@ export function simulateRun(
         else restDrill(run);
         break;
       case 'supply':
-        supplyChoose(run, run.hp / run.maxHp < 0.5 ? 'hp' : 'food');
+        supplyChoose(run, activeAgreements(run).some(a=>a.clause==='escort' && a.stage==='waiting' && a.supply?.floor===run.floor && a.supply.col===run.col) ? 'food' : run.hp / run.maxHp < 0.5 ? 'hp' : 'food');
         break;
       case 'event': {
         if (p.resultText) {
@@ -201,7 +209,7 @@ export function simulateRun(
     won: run.screen === 'victory',
     floor: run.floor,
     hp: run.hp,
-    killedBy,
+    killedBy: killedBy ?? (run.screen === 'defeat' ? '군량 고갈' : null),
     generals: run.generals.map((g) => GENERALS[g.id].name),
     turns,
   };

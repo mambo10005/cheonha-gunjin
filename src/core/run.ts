@@ -1,4 +1,6 @@
+import { accordsOnMove, accordsOnSupply, accordsBattleOpening, accordsAfterBattle, accordsOnDismiss } from './accords.ts';
 // 원정(런) 진행 규칙. 전투 상태(BattleState)와 원정 상태(RunState)를 분리해서 다룬다.
+import { defaultBuild, offerGrowth } from './build.ts';
 import { CARDS, LORD_DECKS, REWARD_POOL } from '../data/cards.ts';
 import { ENCOUNTERS } from '../data/enemies.ts';
 import { EVENTS } from '../data/events.ts';
@@ -7,6 +9,9 @@ import { LORDS } from '../data/lords.ts';
 import { RELICS } from '../data/relics.ts';
 import { TERRAINS } from '../data/terrain.ts';
 import { createBattle } from './combat.ts';
+import { defaultSocial } from './diplomacy.ts';
+import { enterSocialEvent, offerDuel } from './social-run.ts';
+import { SOCIAL_EVENTS } from '../data/social.ts';
 import { nextFloat, pick, sample, shuffle } from './rng.ts';
 import type {
   Affinity,
@@ -22,7 +27,7 @@ import type {
   Terrain,
 } from './types.ts';
 
-export const RUN_VERSION = 1;
+export const RUN_VERSION = 4;
 export const START_HP = 60;
 export const START_FOOD = 10;
 export const BOSS_FLOOR = 7;
@@ -60,6 +65,8 @@ export function newRun(seed: number, lordId: string, difficulty: Difficulty = 0,
   const lord = LORDS[lordId];
   if (!lord) throw new Error(`알 수 없는 군주: ${lordId}`);
   const run: RunState = {
+    build: defaultBuild(),
+    social: defaultSocial(),
     version: RUN_VERSION,
     seed,
     rng: seed >>> 0 || 1,
@@ -102,7 +109,10 @@ export function generateMap(run: RunState): MapNode[][] {
   const early = Object.values(ENCOUNTERS).filter((e) => e.tier === 'early').map((e) => e.id);
   const late = Object.values(ENCOUNTERS).filter((e) => e.tier === 'late').map((e) => e.id);
   const elites = Object.values(ENCOUNTERS).filter((e) => e.tier === 'elite').map((e) => e.id);
+  // 원정 길이는 유지. 기존 사건 3곳 중 최대 2곳만 신규 활동으로 바꾼다.
   let events = shuffle(run, Object.keys(EVENTS));
+  const socialEvents = shuffle(run, Object.keys(SOCIAL_EVENTS));
+  let socialCount = 0;
   FLOOR_PLAN.forEach((plan, f) => {
     const types = shuffle(run, plan.slice());
     const row: MapNode[] = types.map((type, col) => {
@@ -112,6 +122,7 @@ export function generateMap(run: RunState): MapNode[][] {
       if (type === 'event') {
         if (events.length === 0) events = shuffle(run, Object.keys(EVENTS));
         node.eventId = events.pop();
+        if (socialCount < 2 && nextFloat(run) < 0.6) { node.eventId = socialEvents.pop(); socialCount++; }
       }
       return node;
     });
@@ -147,7 +158,17 @@ export interface Result {
 export function moveTo(run: RunState, col: number): Result {
   const target = availableMoves(run).find((n) => n.col === col);
   if (!target) return { ok: false, reason: '갈 수 없는 길이다' };
-  const cost = TERRAINS[target.terrain].moveCost;
+  if ([0, 2, 4].includes(run.floor) && run.build.doctrines.length && !run.build.claimed.includes(`camp:${run.floor}`)) {
+    run.screen = 'node'; offerGrowth(run, `camp:${run.floor}`, { kind: 'none' }); return { ok: true };
+  }
+  accordsOnMove(run, target);
+  const passage = run.social.passage;
+  const cost = Math.max(0, TERRAINS[target.terrain].moveCost - (passage?.discount ?? 0));
+  if (passage) {
+    passage.moves--;
+    run.history.push(`통행 협정: 이번 이동 군량 비용 -${passage.discount}, 남은 ${passage.moves}회.`);
+    if (passage.moves <= 0) run.social.passage = null;
+  }
   const paid = Math.min(cost, run.food);
   run.food -= paid;
   const missing = cost - paid;
@@ -173,7 +194,7 @@ function enterNode(run: RunState, node: MapNode): void {
     case 'battle':
     case 'elite':
     case 'boss':
-      startBattle(run, node);
+      if (!offerDuel(run, node)) beginBattle(run, node);
       return;
     case 'recruit':
       run.pending = { kind: 'recruit', options: recruitOptions(run, run.lordId === 'caocao' ? 3 : 2) };
@@ -188,16 +209,20 @@ function enterNode(run: RunState, node: MapNode): void {
       run.pending = { kind: 'supply' };
       break;
     case 'event':
+      if (enterSocialEvent(run, node.eventId!)) return;
       run.pending = { kind: 'event', eventId: node.eventId! };
       break;
   }
   run.screen = 'node';
 }
 
-function startBattle(run: RunState, node: MapNode): void {
+export function beginBattle(run: RunState, node: MapNode, duelOpening = { block: 0, energyPenalty: 0 }): void {
+  const accord = accordsBattleOpening(run);
+  const support = run.social.support;
   const enc = ENCOUNTERS[node.encounterId!];
   const battleSeed = Math.floor(nextFloat(run) * 2 ** 31) + 1;
   run.battle = createBattle({
+    build: run.build,
     rng: battleSeed,
     hp: run.hp,
     maxHp: run.maxHp,
@@ -211,7 +236,11 @@ function startBattle(run: RunState, node: MapNode): void {
     enemies: enc.enemies,
     difficulty: run.difficulty,
     allyBlessing: run.flags.allyBlessing,
+    opening: { block: duelOpening.block + (support?.block ?? 0) + accord.block, damage: (support?.damage ?? 0) + accord.damage, energyPenalty: duelOpening.energyPenalty },
   });
+  run.battle.rewardReduction = support?.rewardPenalty ?? 0;
+  if (support) { run.social.support = null; run.history.push('군사 지원을 이번 전투에 1회 적용했다.'); }
+  run.pending = { kind: 'none' };
   run.flags.allyBlessing = false;
   run.screen = 'battle';
 }
@@ -228,6 +257,7 @@ export function finishBattle(run: RunState): Result {
   run.lastBattleSummary = summarizeBattle(run);
   run.battle = null;
   if (b.result === 'lose') {
+    accordsAfterBattle(run, false);
     run.screen = 'defeat';
     run.defeatReason = analyzeDefeat(b.stats, enc.name);
     run.history.push(`${enc.name}에게 패배했다.`);
@@ -235,6 +265,7 @@ export function finishBattle(run: RunState): Result {
   }
   run.history.push(`${enc.name} 격파 (병력 ${run.hp}/${run.maxHp})`);
   if (node.type === 'boss') {
+    accordsAfterBattle(run, true);
     run.screen = 'victory';
     return { ok: true };
   }
@@ -248,6 +279,7 @@ export function finishBattle(run: RunState): Result {
     n -= 1;
     run.flags.rewardPenalty--;
   }
+  n = Math.max(1, n - (b.rewardReduction ?? 0));
   const pending: Pending = { kind: 'reward', food, cards: rewardCards(run, n), picked: false };
   if (node.type === 'elite') {
     const owned = new Set(run.relics);
@@ -255,6 +287,7 @@ export function finishBattle(run: RunState): Result {
     if (opts.length > 0) pending.extra = { type: 'relic', options: opts, picked: false };
   }
   run.pending = pending;
+  accordsAfterBattle(run, true);
   run.screen = 'node';
   return { ok: true };
 }
@@ -373,7 +406,7 @@ export function addGeneral(run: RunState, id: string): Result {
 }
 
 /** 영입 시도. 진형이 가득 차면 교체 화면으로 넘긴다. */
-function offerGeneral(run: RunState, id: string, then: Pending): void {
+export function offerGeneral(run: RunState, id: string, then: Pending): void {
   if (run.generals.length >= MAX_GENERALS) {
     run.pending = { kind: 'replaceGeneral', incoming: id, then };
   } else {
@@ -406,6 +439,8 @@ export function replaceGeneral(run: RunState, dismissId: string | null): Result 
     if (idx < 0) return { ok: false, reason: '없는 장수' };
     const row = run.generals[idx].row;
     run.history.push(`${GENERALS[dismissId].name}이(가) 군을 떠났다.`);
+    accordsOnDismiss(run, dismissId);
+    delete run.build.growth[dismissId];
     run.generals.splice(idx, 1);
     run.generals.push({ id: p.incoming, row });
     run.history.push(`장수 ${GENERALS[p.incoming].name} 합류`);
@@ -485,6 +520,7 @@ export function supplyChoose(run: RunState, choice: 'food' | 'hp'): Result {
   if (run.pending.kind !== 'supply') return { ok: false, reason: '보급 중이 아니다' };
   if (choice === 'food') {
     run.food += 6;
+    accordsOnSupply(run);
     run.history.push('보급: 군량 +6');
   } else {
     const before = run.hp;
@@ -529,8 +565,12 @@ function settle(run: RunState): void {
 export function leaveNode(run: RunState): Result {
   if (run.screen !== 'node') return { ok: false, reason: '노드에 있지 않다' };
   const p = run.pending;
+  if (['growth', 'duelOffer', 'duel', 'debate', 'parley', 'diplomacy', 'council'].includes(p.kind)) return { ok: false, reason: '활동의 선택이나 결과 확인을 먼저 끝내세요.' };
   if (p.kind === 'replaceGeneral' || p.kind === 'deckPick') return { ok: false, reason: '먼저 선택을 끝내세요' };
   if (p.kind === 'event' && !p.resultText) return { ok: false, reason: '선택지를 고르세요' };
+  if ([0, 2, 4].includes(run.floor) && run.build.doctrines.length && !run.build.claimed.includes(`camp:${run.floor}`)) {
+    offerGrowth(run, `camp:${run.floor}`, { kind: 'none' }); return { ok: true };
+  }
   run.pending = { kind: 'none' };
   run.screen = 'map';
   return { ok: true };

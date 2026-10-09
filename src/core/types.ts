@@ -1,5 +1,7 @@
 // 게임 전반에서 쓰는 순수 데이터 타입. 화면(UI) 코드는 이 파일을 참조만 한다.
 
+import type { ExpeditionBuild, BuildRuntime } from './build.ts';
+import type { ActivityProfile, SocialPending, SocialState } from './social-types.ts';
 export type Row = 'front' | 'rear';
 /** 전법 계열: 武(공격) · 防(방어) · 策(계책) */
 export type Family = 'mu' | 'bang' | 'chaek';
@@ -65,6 +67,7 @@ export interface CardInst {
 export type RowReq = 'front' | 'rear' | 'any';
 
 export interface GeneralDef {
+  activities?: ActivityProfile;
   id: string;
   name: string;
   faction: string;
@@ -148,6 +151,10 @@ export interface BattleFlags {
 }
 
 export interface BattleState {
+  build?: BuildRuntime;
+  buildLastFamily?: Family;
+  buildBonus?: number;
+  rewardReduction?: number;
   rng: number;
   turn: number;
   energy: number;
@@ -199,7 +206,7 @@ export interface MapNode {
   eventId?: string;
 }
 
-export type Pending =
+export type Pending = { kind: 'growth'; token: string; then: Pending; general?: string } | SocialPending
   | { kind: 'none' }
   | { kind: 'reward'; food: number; cards: string[]; picked: boolean; extra?: { type: 'relic' | 'general'; options: string[]; picked: boolean } }
   | { kind: 'recruit'; options: string[] }
@@ -213,6 +220,8 @@ export type Pending =
 export type RunScreen = 'map' | 'battle' | 'node' | 'victory' | 'defeat';
 
 export interface RunState {
+  build: ExpeditionBuild;
+  social: SocialState;
   version: number;
   seed: number;
   rng: number;

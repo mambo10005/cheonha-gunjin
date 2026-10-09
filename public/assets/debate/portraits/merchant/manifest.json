@@ -1,0 +1,30 @@
+{
+  "id": "merchant",
+  "quality": "generated",
+  "width": 512,
+  "height": 512,
+  "poses": {
+    "neutral": "/assets/debate/portraits/merchant/neutral.webp",
+    "speak": "/assets/debate/portraits/merchant/speak.webp",
+    "press": "/assets/debate/portraits/merchant/press.webp",
+    "countered": "/assets/debate/portraits/merchant/countered.webp",
+    "concede": "/assets/debate/portraits/merchant/concede.webp",
+    "victory": "/assets/debate/portraits/merchant/victory.webp"
+  },
+  "placeholder": "/assets/debate/portraits/merchant/low.webp",
+  "fallback": "/assets/debate/portraits/merchant/neutral.webp",
+  "crop": {
+    "desktop": "50% 50%",
+    "mobile": "50% 18%"
+  },
+  "faceAnchor": [
+    50,
+    24
+  ],
+  "mirror": false,
+  "palette": "#bca07e",
+  "silhouette": "넓고 낮은 소매",
+  "prop": "장부·인장함",
+  "age": "중년",
+  "material": "자주색 린넨·목재"
+}

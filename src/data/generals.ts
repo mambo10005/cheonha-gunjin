@@ -1,4 +1,5 @@
 import type { GeneralDef } from '../core/types.ts';
+import { GENERAL_PROFILES } from './social.ts';
 
 // 장수 능력의 실제 처리는 core/combat.ts의 장수 훅에 있다. ability 문구와 처리 코드를 함께 수정할 것.
 // 역사 인물의 성격은 게임적 해석이며 사실 고증이 아니다.
@@ -67,15 +68,16 @@ export const GENERALS: Record<string, GeneralDef> = {
     id: 'chengong', name: '진궁', faction: '군웅', role: '계책→공격 연계', row: 'rear', affinity: 'scheme', scholar: true, unlock: true,
     ability: '후열에서: 策 카드를 쓸 때마다 이번 턴 다음 武 카드 피해 +4(최대 +12).',
     weakness: '武 카드와 策 카드를 둘 다 들고 있어야 한다.',
-    pairs: '군령, 허보, 일기토',
+    pairs: '군령, 허보, 무장 대결',
   },
   machao: {
     id: 'machao', name: '마초', faction: '군웅', role: '선봉 기세', row: 'front', affinity: 'cavalry', unlock: true,
     ability: '전열에서: 기병 카드를 쓰면 기세 +1 추가. 전투 첫 턴 지휘력 +1.',
     weakness: '기병 카드가 없으면 첫 턴 보너스뿐이다.',
-    pairs: '돌격, 일기토, 여포',
+    pairs: '돌격, 무장 대결, 여포',
   },
 };
 
 export const MAX_GENERALS = 4;
+for (const [id, profile] of Object.entries(GENERAL_PROFILES)) GENERALS[id].activities = profile;
 export const ROW_CAPACITY = 2;
