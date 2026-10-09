@@ -19,6 +19,7 @@
   --radius: 10px;
   --serif: 'Gowun Batang', 'Noto Serif KR', serif;
   --sans: 'Noto Sans KR', system-ui, sans-serif;
+  color-scheme: dark;
 }
 
 * {
@@ -810,7 +811,7 @@ h3 {
 
 @media (max-width: 560px) {
   #app {
-    padding: 8px 8px 32px;
+    padding: 8px 16px 32px;
   }
   .hand {
     gap: 6px;
