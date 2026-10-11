@@ -192,7 +192,7 @@ test('저장: 버전1 지도·전투 마이그레이션, 기존 카드 ID 유지
   for (const combat of [false, true]) {
     const r = newRun(55, 'caocao'); r.deck.push({ uid: r.nextUid++, id: 'duel' }); if (combat) moveTo(r, 0);
     const old = structuredClone(r) as unknown as Record<string, unknown>; old.version = 1; delete old.social;
-    const kv = memoryKV(); kv.setItem(RUN_KEY, JSON.stringify({ version: 1, data: old })); const loaded = loadRun(kv); assert.ok(loaded.ok); if (loaded.ok) { assert.equal(loaded.data.version, 4); assert.deepEqual(loaded.data.social, {...defaultSocial(),protocol:'legacy'}); assert.ok(loaded.data.deck.some(c => c.id === 'duel')); }
+    const kv = memoryKV(); kv.setItem(RUN_KEY, JSON.stringify({ version: 1, data: old })); const loaded = loadRun(kv); assert.ok(loaded.ok); if (loaded.ok) { assert.equal(loaded.data.version, 6); assert.deepEqual(loaded.data.social, {...defaultSocial(),protocol:'legacy'}); assert.ok(loaded.data.deck.some(c => c.id === 'duel')); }
   }
 });
 test('저장: 불완전 상태·알 수 없는 ID·모순 상태·저장소 오류에 안전', () => {

@@ -1,0 +1,146 @@
+[
+  {
+    "name": "01-plains-start",
+    "width": 1440,
+    "height": 900,
+    "verification": "static DOM only; browser not tested"
+  },
+  {
+    "name": "02-one-general-empty-rear",
+    "width": 1440,
+    "height": 900,
+    "verification": "static DOM only; browser not tested"
+  },
+  {
+    "name": "03-card-selected",
+    "width": 1440,
+    "height": 900,
+    "verification": "static DOM only; browser not tested"
+  },
+  {
+    "name": "04-target-preview",
+    "width": 1440,
+    "height": 900,
+    "verification": "static DOM only; browser not tested"
+  },
+  {
+    "name": "05-front-guard-preview",
+    "width": 1440,
+    "height": 900,
+    "verification": "static DOM only; browser not tested"
+  },
+  {
+    "name": "06-three-front-intents",
+    "width": 1440,
+    "height": 900,
+    "verification": "static DOM only; browser not tested"
+  },
+  {
+    "name": "07-guard",
+    "width": 1440,
+    "height": 900,
+    "verification": "static DOM only; browser not tested"
+  },
+  {
+    "name": "08-counter-prepared",
+    "width": 1440,
+    "height": 900,
+    "verification": "static DOM only; browser not tested"
+  },
+  {
+    "name": "09-counter-fired",
+    "width": 1440,
+    "height": 900,
+    "verification": "static DOM only; browser not tested"
+  },
+  {
+    "name": "10-intent-changed",
+    "width": 1440,
+    "height": 900,
+    "verification": "static DOM only; browser not tested"
+  },
+  {
+    "name": "11-swapped",
+    "width": 1440,
+    "height": 900,
+    "verification": "static DOM only; browser not tested"
+  },
+  {
+    "name": "12-ability",
+    "width": 1440,
+    "height": 900,
+    "verification": "static DOM only; browser not tested"
+  },
+  {
+    "name": "13-unit-defeated",
+    "width": 1440,
+    "height": 900,
+    "verification": "static DOM only; browser not tested"
+  },
+  {
+    "name": "14-boss-phase",
+    "width": 1440,
+    "height": 900,
+    "verification": "static DOM only; browser not tested"
+  },
+  {
+    "name": "15-elite",
+    "width": 1440,
+    "height": 900,
+    "verification": "static DOM only; browser not tested"
+  },
+  {
+    "name": "16-victory",
+    "width": 1440,
+    "height": 900,
+    "verification": "static DOM only; browser not tested"
+  },
+  {
+    "name": "17-defeat",
+    "width": 1440,
+    "height": 900,
+    "verification": "static DOM only; browser not tested"
+  },
+  {
+    "name": "18-laptop",
+    "width": 1280,
+    "height": 720,
+    "verification": "static DOM only; browser not tested"
+  },
+  {
+    "name": "19-tablet",
+    "width": 1024,
+    "height": 768,
+    "verification": "static DOM only; browser not tested"
+  },
+  {
+    "name": "20-mobile",
+    "width": 390,
+    "height": 844,
+    "verification": "static DOM only; browser not tested"
+  },
+  {
+    "name": "21-high-contrast",
+    "width": 1440,
+    "height": 900,
+    "verification": "static DOM only; browser not tested"
+  },
+  {
+    "name": "22-reduced",
+    "width": 1440,
+    "height": 900,
+    "verification": "static DOM only; browser not tested"
+  },
+  {
+    "name": "23-missing-portraits",
+    "width": 1440,
+    "height": 900,
+    "verification": "static DOM only; browser not tested"
+  },
+  {
+    "name": "24-large-mobile",
+    "width": 390,
+    "height": 844,
+    "verification": "static DOM only; browser not tested"
+  }
+]

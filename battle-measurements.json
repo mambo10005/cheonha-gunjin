@@ -1,0 +1,21 @@
+{
+  "seed": 91001,
+  "iterations": 150,
+  "preview": {
+    "meanMs": 0.6390433333333415,
+    "p95Ms": 0.7771000000000186
+  },
+  "incoming": {
+    "meanMs": 0.2734613333333406,
+    "p95Ms": 0.4634000000000924
+  },
+  "htmlGeneration": {
+    "meanMs": 1.3749339999999968,
+    "p95Ms": 4.402600000000348
+  },
+  "eventCount": 27,
+  "generatedImageBytes": 5877163,
+  "eventQueueJSONBytes": 71288,
+  "cohortFigures": 12,
+  "note": "Node CPU samples only, including structured cloning. Not browser frame rate, memory peak, pointer latency or mobile device performance. Headless evaluation keeps its historical lightweight incoming estimate."
+}

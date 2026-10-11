@@ -1,0 +1,12 @@
+import {performance} from 'node:perf_hooks';
+import {writeFileSync,statSync} from 'node:fs';
+import {newRun} from '../src/core/run.ts';
+import {configureBattleDemo} from '../src/core/battle-demo.ts';
+import {captureCombat} from '../src/core/combat-events.ts';
+import {incomingPreview,previewBattleState,endTurn,playCard} from '../src/core/combat.ts';
+import {battleScene} from '../src/ui/battle-scene.ts';
+const run=newRun(91001,'caocao');configureBattleDemo(run);const base=run.battle!;
+const measure=(fn:()=>unknown)=>{const times:number[]=[];for(let i=0;i<150;i++){const start=performance.now();fn();times.push(performance.now()-start);}times.sort((a,b)=>a-b);return {meanMs:times.reduce((a,b)=>a+b)/times.length,p95Ms:times[Math.floor(times.length*.95)]};};
+const b=structuredClone(base);playCard(b,2);const {events}=captureCombat(b,()=>endTurn(b));
+const report={seed:91001,iterations:150,preview:measure(()=>previewBattleState(base,1,{row:'front'})),incoming:measure(()=>incomingPreview(base)),htmlGeneration:measure(()=>battleScene(base,{selected:1,target:{row:'front'}})),eventCount:events.length,generatedImageBytes:['public/assets/battle/dianwei-v1.png','public/assets/battle/plains-v1.png'].reduce((total,path)=>total+statSync(path).size,0),eventQueueJSONBytes:Buffer.byteLength(JSON.stringify(events)),cohortFigures:12,note:'Node CPU samples only, including structured cloning. Not browser frame rate, memory peak, pointer latency or mobile device performance. Headless evaluation keeps its historical lightweight incoming estimate.'};
+writeFileSync('battle-measurements.json',JSON.stringify(report,null,2));console.log(JSON.stringify(report,null,2));

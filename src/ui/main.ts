@@ -1,5 +1,21 @@
+import {connectIntentArrows} from './battle-arrows.ts';
+import {WorldScreen} from './world-screen.ts';
+import {newWorldCampaign,bindCampaign,reconcileWorld,retreatWorld,marchWorld} from '../core/world.ts';
+import {loadCampaign,importLegacyCampaign} from '../core/campaign-save.ts';
+import {CityScreen} from './city-screen.ts';
+import {newCityCampaign,campaignBattleOutcome} from '../core/city.ts';
+import {CITY_DEFS} from '../data/cities.ts';
+import './battle-cinematic.css';
+import {battleScene} from './battle-scene.ts';
+import {configureBattleDemo} from '../core/battle-demo.ts';
+import {captureCombat, type CombatEvent} from '../core/combat-events.ts';
+import {ExpeditionMap} from './expedition-map.ts';
+import {configureRegionalDemo} from '../core/geography.ts';
 import './debate-cinematic.css';
 import { DebatePlayback, loadSceneSettings, sceneSettingsHtml, attachSceneControls } from './debate-playback.ts';
+import {configureDeckDemo} from '../core/debate-deck-demo.ts';
+import {deckPreparationHtml} from './debate-deck-view.ts';
+import {activityButton} from './html.ts';
 import { configureAccordDemo } from '../core/accord-demo.ts';
 import { configureBuildDemo } from '../core/build-demo.ts';
 import { DOCTRINES, type Direction } from '../core/build.ts';
@@ -10,7 +26,6 @@ import { chooseDoctrine, GROWTH } from '../core/build.ts';
 import { doctrineView, handleSocialAction, relationsHtml, socialView } from './social-view.ts';
 import { configureSocialDemo } from '../core/social-run.ts';
 import { CARDS } from '../data/cards.ts';
-import { ENCOUNTERS, ENEMIES } from '../data/enemies.ts';
 import { EVENTS } from '../data/events.ts';
 import { GENERALS } from '../data/generals.ts';
 import { LORDS } from '../data/lords.ts';
@@ -19,34 +34,27 @@ import { TERRAINS } from '../data/terrain.ts';
 import {
   canPlay,
   cardDef,
-  effectiveCost,
   endTurn,
-  enemyIntentNote,
-  generalStatus,
-  incomingPreview,
   moveGeneral,
   needsTarget,
   playCard,
-  previewPlay,
-  swapCost,
+  previewBattleState,
   toggleGeneralRow,
 } from '../core/combat.ts';
-import { describeCard, FAMILY_LABEL, intentText, ROW_NAME, TAG_NAME } from '../core/describe.ts';
+import { describeCard, FAMILY_LABEL, TAG_NAME } from '../core/describe.ts';
 import {
-  availableMoves,
   BOSS_FLOOR,
   buyCard,
   buyRelic,
   chooseEvent,
   chooseRecruit,
-  currentNode,
   deckPick,
   eventOptionAllowed,
   finishBattle,
   leaveNode,
   moveTo,
   newRun,
-  NODE_NAME,
+  newRegionalRun,
   pickRewardCard,
   pickRewardExtra,
   randomSeed,
@@ -59,7 +67,7 @@ import {
   supplyChoose,
 } from '../core/run.ts';
 import { clearRun, loadMeta, loadRun, memoryKV, saveMeta, saveRun, type KV } from '../core/save.ts';
-import type { BattleState, CardDef, Difficulty, GeneralInst, MapNode, MetaState, PlayTarget, Row, RunState } from '../core/types.ts';
+import type { BattleState, CardDef, Difficulty, MetaState, PlayTarget, Row, RunState } from '../core/types.ts';
 
 // ───────────── 상태 ─────────────
 
@@ -92,6 +100,8 @@ interface UIState {
 
 const kv = storage();
 const loadedRun = loadRun(kv);
+const loadedCampaign=loadCampaign(kv);
+const devTools=import.meta.env.DEV;
 const ui: UIState = {
   view: 'title',
   run: null,
@@ -108,6 +118,9 @@ const ui: UIState = {
 const savedRun: RunState | null = loadedRun.ok ? loadedRun.data : null;
 
 const app = document.getElementById('app')!;
+const worldScreen=new WorldScreen(app,()=>ui.run,fn=>runAct(fn),()=>render());
+const cityScreen=new CityScreen(app,()=>ui.run,fn=>runAct(fn),()=>render());
+const expeditionMap = new ExpeditionMap(app, kv, () => ui.run, () => render(), col => runAct(r => moveTo(r, col)));
 const debatePlayback = new DebatePlayback(app, loadSceneSettings(kv, window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false));
 attachSceneControls(app, () => ui.run?.pending.kind === 'debate' ? ui.run.pending.state : null, debatePlayback);
 
@@ -124,6 +137,12 @@ function toast(msg: string): void {
 function persist(): void {
   const run = ui.run;
   if (!run) return;
+  if(run.campaign){
+    if(run.campaign.world){reconcileWorld(run);bindCampaign(run);if(run.screen==='defeat')retreatWorld(run);}
+    else if(run.screen==='defeat')campaignBattleOutcome(run,false,0);
+    if(!saveRun(kv,run))toast('도시 캠페인을 저장하지 못했습니다. 저장 공간을 확인하세요.');
+    return;
+  }
   if (run.screen === 'victory' || run.screen === 'defeat') {
     if (!ui.endRecorded) {
       ui.endRecorded = true;
@@ -138,7 +157,7 @@ function persist(): void {
 
 // ───────────── 공용 조각 ─────────────
 
-function cardHtml(d: CardDef, opts: { action?: string; idx?: number; cost?: number; disabled?: boolean; selected?: boolean; big?: boolean; dim?: boolean; extra?: string } = {}): string {
+function cardHtml(d: CardDef, opts: { action?: string; idx?: number; cost?: number; disabled?: boolean; selected?: boolean; big?: boolean; dim?: boolean; quantity?: number } = {}): string {
   const cost = opts.cost ?? d.cost;
   const tag = opts.action ? 'button' : 'div';
   const attrs = opts.action ? ` data-a="${opts.action}" data-i="${opts.idx ?? ''}"${opts.disabled ? ' disabled' : ''}` : '';
@@ -148,40 +167,25 @@ function cardHtml(d: CardDef, opts: { action?: string; idx?: number; cost?: numb
     <span class="cost${cost < d.cost ? ' discount' : ''}">${d.unplayable ? '✕' : cost}</span>
     <span class="cname">${esc(d.name)}</span>
     <span class="fam ${d.family}">${FAMILY_LABEL[d.family]}</span>
-    <span class="desc">${esc(describeCard(d))}${opts.extra ?? ''}</span>
+    <span class="desc">${esc(describeCard(d))}</span>
     <span class="tags">${tags}</span>
+    ${opts.quantity !== undefined ? `<span class="card-quantity">보유 <b>${opts.quantity}장</b></span>` : ''}
   </${tag}>`;
 }
 
-function generalHtml(g: GeneralInst, opts: { status?: string; button?: string } = {}): string {
-  const d = GENERALS[g.id];
-  const off = opts.status && opts.status !== 'active';
-  const statusChip =
-    opts.status === 'wrongRow'
-      ? `<span class="chip warn">${d.row === 'front' ? '전열' : '후열'}에서만 작동</span>`
-      : opts.status === 'shaken'
-        ? '<span class="chip danger">동요: 능력 정지</span>'
-        : opts.status === 'active'
-          ? '<span class="chip ok">작동</span>'
-          : '';
-  return `<div class="gen${off ? ' off' : ''}">
-    <div class="row"><span class="name">${esc(d.name)}</span><span class="chip">${esc(d.faction)}</span><span class="chip">${esc(d.role)}</span>${statusChip}<span class="grow"></span>${opts.button ?? ''}</div>
-    <div class="ability">${esc(d.ability)}</div>
-  </div>`;
-}
-
 function hud(run: RunState, b: BattleState | null): string {
+  if (run.screen === 'map') return expeditionMap.hud(run);
   const hp = b ? b.hp : run.hp;
   const food = b ? b.food : run.food;
-  const lord = LORDS[run.lordId];
-  if(run.pending.kind==='debate') {const state=run.pending.state;return `<div class="hud panel cinematic-hud"><span class="lord">${esc(lord.name)}</span><span>군량 <b>${food}</b></span><span>집중 <b>${state.resolve}</b></span><span>논점 ${state.round}/${state.maxRounds}</span>${state.negotiation?`<span class="hud-tools">情報 ${state.negotiation.reports} · 信用 ${state.negotiation.credentials}</span>`:''}<span class="grow"></span><details class="hud-details"><summary>원정 상세</summary><div class="hud-popup"><p>병력 ${hp}/${run.maxHp} · ${run.floor+1}층</p>${relationsHtml(run)}</div></details><button class="btn small ghost" data-a="modal" data-m="deck">덱</button><button class="btn small ghost" data-a="modal" data-m="help">규칙</button><button class="btn small ghost abandon-control" data-a="modal" data-m="abandon">포기</button></div>`;}
+  const lord = run.campaign?.world?{...LORDS[run.lordId],name:run.campaign.world.factionName}:LORDS[run.lordId];
+  if(run.pending.kind==='debate') {const state=run.pending.state;return `<div class="hud panel cinematic-hud"><span class="lord">${esc(lord.name)}</span><span>군량 <b>${food}</b></span><span>집중 <b>${state.resolve}</b></span><span>논점 ${state.round}/${state.maxRounds}</span>${state.negotiation?`<span class="hud-tools">정보 ${state.negotiation.reports} · 신용 ${state.negotiation.credentials}</span>`:''}<span class="grow"></span><details class="hud-details"><summary>원정 상세</summary><div class="hud-popup"><p>병력 ${hp}/${run.maxHp} · ${run.floor+1}층</p>${relationsHtml(run)}</div></details><button class="btn small ghost" data-a="modal" data-m="deck">덱</button><button class="btn small ghost" data-a="modal" data-m="help">규칙</button><button class="btn small ghost abandon-control" data-a="modal" data-m="abandon">포기</button></div>`;}
 
   return `<div class="hud panel">
     <span class="lord">${esc(lord.name)}</span>
     <span class="stat"><span class="muted small">병력</span><b>${hp}</b><span class="muted">/ ${run.maxHp}</span></span>
     <span class="hpbar"><i style="width:${Math.max(0, (hp / run.maxHp) * 100)}%"></i></span>
     <span class="stat"><span class="muted small">군량</span><b>${food}</b></span>
-    <span class="stat"><span class="muted small">진군</span><b>${Math.max(0, run.floor + 1)}</b><span class="muted">/ ${BOSS_FLOOR + 1}</span></span>
+    <span class="stat"><span class="muted small">진군</span><b>${run.campaign?.world?.operation?.index??Math.max(0, run.floor + 1)}</b><span class="muted">/ ${run.campaign?.world?.operation?.route.length??BOSS_FLOOR + 1}</span></span>
     ${run.difficulty ? '<span class="chip danger">험로</span>' : ''}
     <span class="grow"></span>
     ${run.relics.map((r) => `<span class="chip" title="${esc(RELICS[r].text)}">${esc(RELICS[r].name)}</span>`).join('')}
@@ -196,11 +200,15 @@ function hud(run: RunState, b: BattleState | null): string {
 function titleView(): string {
   const m = ui.meta;
   return `<div class="title-screen"><div>
-    <div class="title-mark">천하군진<span class="seal">陣</span></div>
-    <div class="title-sub">장수를 모으고, 진형을 짜고, 계책으로 뒤집는 삼국지 원정</div>
+    <div class="title-mark">천하군진<span class="seal">진</span></div>
+    <div class="title-sub">도시에서 거병하고, 인재와 군단을 모아 하남의 패권을 다투는 삼국지 전략</div>
     <div class="title-actions">
       ${savedRun && !ui.run ? `<button class="btn primary" data-a="continue">이어하기 — ${esc(LORDS[savedRun.lordId].name)}, ${savedRun.floor + 1}층</button>` : ''}
-      <button class="btn ${savedRun ? '' : 'primary'}" data-a="to-lords">새 원정</button>
+      ${loadedCampaign.ok?'<button class="btn primary" data-a="world-continue">천하 캠페인 이어하기</button>':''}
+      <button class="btn primary" data-a="world-new">천하 캠페인 시작</button>
+      ${loadedCampaign.ok||loadedCampaign.reason==='none'?'':'<p>본편 저장을 읽지 못했습니다. 원본을 보존했습니다. 손상 또는 버전 불일치를 확인하세요.</p>'}
+      ${savedRun?.campaign&&!savedRun.campaign.world?'<button class="btn" data-a="world-import">기존 도시 저장을 본편으로 변환</button><p>도시·자원·배치·원정을 보존하며, 구 저장을 삭제하지 않습니다.</p>':''}
+      <details><summary>원정 도전 · 짧은 연습</summary><button class="btn" data-a="to-lords">원정 도전 시작</button><p>본편과 저장을 분리한 단일 원정 연습입니다.</p></details>
       <button class="btn" data-a="modal" data-m="codex">도감</button>
       <button class="btn ghost" data-a="modal" data-m="help">규칙 안내</button>
     </div>
@@ -215,7 +223,7 @@ function lordsView(): string {
         <button class="btn small ${ui.difficulty === 1 ? 'primary' : ''}" data-a="diff" data-d="1">험로 (적 체력 +20%, 시작 군량 -3)</button></div>`
     : '<p class="muted small">첫 승리 시 난이도 「험로」와 새 장수가 해금됩니다.</p>';
   return `<div class="node-screen" style="max-width:980px">
-    <div class="row"><h1 class="grow">군주를 고르십시오</h1><button class="btn ghost" data-a="to-title">돌아가기</button></div>
+    <div class="row"><h1 class="grow">원정 도전 · 군주 선택</h1><button class="btn ghost" data-a="to-title">돌아가기</button></div>
     ${diff}
     <div class="row small"><label class="muted" for="seed">시드(비우면 무작위)</label>
       <input id="seed" data-input="seed" value="${esc(ui.seedInput)}" inputmode="numeric" style="background:var(--ink-3);border:1px solid var(--line);color:var(--paper);border-radius:6px;padding:4px 8px;width:140px" /></div>
@@ -231,236 +239,42 @@ function lordsView(): string {
         )
         .join('')}
     </div>
-    <button class="btn" data-a="accord-demo">설전·협정 검증 원정 (시드 51001)</button><button class="btn ghost" data-a="social-demo">검증 원정 시작 (시드 31001)</button>
+    ${devTools?`<div class="row"><button class="btn" data-a="city-campaign">도시 정벌·운영 캠페인 (기본 시드 101001)</button></div><p class="small">형양 → 성고·공현. 기존 단일 원정과 별도 모드. 위의 시드 입력을 사용할 수 있습니다.</p>
+    <div class="row"><button class="btn primary" data-a="battle-demo">군진 전투 체험 (91001)</button></div><div class="row"><button class="btn primary" data-a="geography-demo">역사 지리 원정 · 낙양 (81001)</button></div><div class="row"><button class="btn" data-a="deck-debate-demo" data-id="guojia">설전 덱 원정 · 곽가 (61001)</button><button class="btn" data-a="deck-debate-demo" data-id="chengong">설전 덱 원정 · 진궁 (61001)</button></div><button class="btn" data-a="accord-demo">설전·협정 검증 원정 (시드 51001)</button><button class="btn ghost" data-a="social-demo">검증 원정 시작 (시드 31001)</button>
     <div class="row"><button class="btn" data-a="debate-scene-demo" data-id="guojia">설전 무대 검증 · 곽가 (51001)</button><button class="btn" data-a="debate-scene-demo" data-id="chengong">설전 무대 검증 · 진궁 (51001)</button></div>
     <p class="tiny muted">검증용 군량·장수: 1층 무장 대결, 2층 영입 설전, 3~4층 외교. 일반 원정에는 적용하지 않습니다.</p>
-    <div class="row">${Object.entries(DOCTRINES).map(([id, d]) => '<button class="btn" data-a="build-demo" data-id="' + id + '">빌드 검증: ' + d.name + '</button>').join('')}</div><p class="tiny">시드 41001 · 세 방향의 동일 지도 비교. 1·3·5층 성장, 4·6층 대결. 보상을 직접 선택합니다.</p>
+    <div class="row">${Object.entries(DOCTRINES).map(([id, d]) => '<button class="btn" data-a="build-demo" data-id="' + id + '">빌드 검증: ' + d.name + '</button>').join('')}</div><p class="tiny">시드 41001 · 세 방향의 동일 지도 비교. 1·3·5층 성장, 4·6층 대결. 보상을 직접 선택합니다.</p>`:''}
   </div>`;
 }
 
 // ───────────── 지도 ─────────────
 
-const FLOOR_H = 78;
-
 function mapView(run: RunState): string {
   if (run.floor === -1 && !run.build.doctrines.length && !run.history.some(h => h.startsWith('검증 원정:'))) return doctrineView();
-  const reach = new Set(availableMoves(run).map((n) => `${n.floor}:${n.col}`));
-  const floors = run.map.slice().reverse();
-  const H = floors.length * FLOOR_H;
-  const xOf = (n: MapNode) => (n.type === 'boss' ? 150 : (n.col + 0.5) * 100);
-  const yOf = (f: number) => (BOSS_FLOOR - f + 0.5) * FLOOR_H;
-  let lines = '';
-  for (const row of run.map) {
-    for (const n of row) {
-      if (n.floor >= BOSS_FLOOR) continue;
-      for (const c of n.next) {
-        const m = run.map[n.floor + 1][c];
-        const onPath = n.floor === run.floor && n.col === run.col;
-        lines += `<line x1="${xOf(n)}" y1="${yOf(n.floor)}" x2="${xOf(m)}" y2="${yOf(m.floor)}" stroke="${onPath ? '#d6a84a' : '#4a3c2f'}" stroke-width="${onPath ? 2.5 : 1.5}" vector-effect="non-scaling-stroke" stroke-dasharray="${onPath ? '' : '4 4'}"/>`;
-      }
-    }
-  }
-  const rows = floors
-    .map((row) => {
-      const f = row[0].floor;
-      const nodes = row
-        .map((n) => {
-          const key = `${n.floor}:${n.col}`;
-          const here = n.floor === run.floor && n.col === run.col;
-          const cls = ['node', `type-${n.type}`, reach.has(key) ? 'reach' : '', here ? 'here' : '', n.floor < run.floor ? 'past' : '', n.type === 'boss' ? 'boss' : '', !reach.has(key) && !here ? 'dim' : ''].join(' ');
-          const terr = TERRAINS[n.terrain];
-          const enc = n.encounterId ? ENCOUNTERS[n.encounterId].name : '';
-          const sub = n.type === 'battle' || n.type === 'elite' || n.type === 'boss' ? `${terr.name} · ${enc}` : terr.name;
-          const cost = terr.moveCost > 1 ? ` · 군량 ${terr.moveCost}` : '';
-          const style = n.type === 'boss' ? 'grid-column: 1 / span 3' : '';
-          const tag = reach.has(key) ? 'button' : 'div';
-          return `<${tag} class="${cls}" style="${style}" ${reach.has(key) ? `data-a="move" data-col="${n.col}"` : ''} title="${esc(terr.rules.join(' / '))}">
-            <span class="t">${esc(NODE_NAME[n.type])}</span><span class="terr">${esc(sub + cost)}</span></${tag}>`;
-        })
-        .join('');
-      return `<div class="map-floor"><span class="floor-label">${f === BOSS_FLOOR ? '결전' : `${f + 1}층`}</span>${nodes}</div>`;
-    })
-    .join('');
-  const map = `<div class="map-wrap" style="padding-left:34px"><div style="position:relative">
-    <svg class="map-svg" viewBox="0 0 300 ${H}" preserveAspectRatio="none" style="height:${H}px">${lines}</svg>
-    ${rows}
-  </div></div>`;
-  return `<div class="map-layout">
-    <div class="panel">
-      <div class="row"><h2 class="grow">원정 지도 — 낙양으로</h2><span class="muted small">빛나는 칸으로 진군 (산길은 군량 2)</span></div>
-      ${map}
-    </div>
-    <div style="display:grid;gap:12px;align-content:start">
-      ${armyPanel(run)}
-      ${relationsHtml(run)}
-      <div class="panel"><h3>원정 기록</h3><div class="small muted" style="margin-top:6px">${run.history.slice(-7).map((h) => `<div>· ${esc(h)}</div>`).join('')}</div></div>
-    </div>
-  </div>`;
-}
-
-function armyPanel(run: RunState): string {
-  const gens = run.generals
-    .map((g, i) => {
-      const def = GENERALS[g.id];
-      const wrong = def.row !== 'any' && def.row !== g.row;
-      return generalHtml(g, {
-        status: wrong ? 'wrongRow' : 'active',
-        button: `<button class="btn small" data-a="map-swap" data-i="${i}">${ROW_NAME[g.row]} → ${ROW_NAME[g.row === 'front' ? 'rear' : 'front']}</button>`,
-      });
-    })
-    .join('');
-  return `<div class="panel"><div class="row"><h3 class="grow">군단 (${run.generals.length}/4)</h3><span class="muted tiny">열마다 2명 · 지도에서는 무료 재배치</span></div>
-    <div class="gen-list" style="margin-top:8px">${gens}</div></div>`;
+  return expeditionMap.view(run);
 }
 
 // ───────────── 전투 ─────────────
 
-function battleView(run: RunState, b: BattleState): string {
-  const node = currentNode(run)!;
-  const terr = TERRAINS[b.terrain];
-  const sel = ui.selected !== null ? b.hand[ui.selected] : null;
-  const selDef = sel ? cardDef(sel) : null;
-  const tgt = selDef ? needsTarget(selDef) : null;
-  const inc = incomingPreview(b);
-
-  const enemies = b.enemies
-    .map((e) => {
-      const def = ENEMIES[e.defId];
-      const targetable = tgt === 'enemy' && !e.dead && canPlay(b, ui.selected!, { enemy: e.uid }).ok;
-      const it = e.intent;
-      const intentCls = it?.kind === 'attack' ? 'intent' : 'intent nonattack';
-      const icon = it?.kind === 'attack' ? '⚔' : it?.kind === 'block' ? '⛨' : it?.kind === 'summon' ? '⚑' : it?.kind === 'cleanse' ? '✦' : '▲';
-      const note = enemyIntentNote(e);
-      return `<button class="enemy${targetable ? ' targetable' : ''}${e.dead ? ' dead' : ''}" ${targetable ? `data-a="target-enemy" data-uid="${e.uid}" data-hover-enemy="${e.uid}"` : 'disabled'}>
-        <div class="row"><span class="ename grow">${esc(e.name)}</span>${def.boss ? '<span class="chip danger">보스</span>' : ''}${e.phase === 2 ? '<span class="chip danger">2단계</span>' : ''}</div>
-        <div class="bar"><i style="width:${(Math.max(0, e.hp) / e.maxHp) * 100}%"></i></div>
-        <div class="statline small"><span>체력 ${Math.max(0, e.hp)}/${e.maxHp}</span>${e.block ? `<span class="chip">방비 ${e.block}</span>` : ''}${e.str ? `<span class="chip danger">힘 +${e.str}</span>` : ''}${e.burn ? `<span class="chip fire">화상 ${e.burn}</span>` : ''}</div>
-        ${e.dead ? '<div class="muted">격파</div>' : `<div class="${intentCls}">${icon} ${esc(intentText(it, it?.kind === 'attack' ? e.str : 0))}</div>`}
-        ${note && !e.dead ? `<div class="tiny" style="color:var(--warn)">${esc(note)}</div>` : ''}
-        ${def.trait ? `<div class="tiny muted">${esc(def.trait)}</div>` : ''}
-      </button>`;
-    })
-    .join('');
-
-  const rowBox = (r: Row) => {
-    const gens = b.generals
-      .map((g, i) => ({ g, i }))
-      .filter((x) => x.g.row === r)
-      .map(({ g, i }) => {
-        const cost = swapCost(b);
-        return generalHtml(g, {
-          status: generalStatus(b, g),
-          button: `<button class="btn small" data-a="battle-swap" data-i="${i}" ${b.energy < cost ? 'disabled' : ''} title="다른 열로 이동">이동 ${cost === 0 ? '(무료)' : `(지휘력 ${cost})`}</button>`,
-        });
-      })
-      .join('');
-    const targetable = tgt === 'row';
-    const n = inc[r];
-    return `<div class="rowbox${targetable ? ' targetable' : ''}" ${targetable ? `data-a="target-row" data-row="${r}" data-hover-row="${r}" role="button" tabindex="0"` : ''}>
-      <div class="row"><h3 class="grow">${ROW_NAME[r]}</h3>
-        <span class="chip">방비 ${b.block[r]}</span>
-        ${b.counter[r] ? `<span class="chip ok">반격 +${b.counter[r]}</span>` : ''}
-        ${r === 'rear' && b.shakenRear ? '<span class="chip danger">동요</span>' : ''}</div>
-      <div class="incoming ${n.net === 0 ? 'safe' : ''}">예상 피해 <b>${n.net}</b> <span class="muted">(공격 ${n.raw} − 방비 ${n.blocked})</span></div>
-      <div class="rowgens">${gens || '<span class="muted small">배치된 장수 없음</span>'}</div>
-      ${targetable ? `<div class="small" style="color:var(--gold)">여기를 눌러 ${esc(selDef!.name)} 사용</div>` : ''}
-    </div>`;
-  };
-
-  const hand = b.hand
-    .map((c, i) => {
-      const d = cardDef(c);
-      const ok = canPlay(b, i).ok;
-      return cardHtml(d, { action: 'card', idx: i, cost: effectiveCost(b, c), dim: !ok, selected: ui.selected === i });
-    })
-    .join('');
-
-  const endOverlay =
-    b.result !== 'ongoing'
-      ? `<div class="overlay"><div class="modal" style="text-align:center">
-        <h2 style="font-size:34px">${b.result === 'win' ? '승리' : '패배'}</h2>
-        <p>${b.result === 'win' ? `${esc(ENCOUNTERS[b.encounterId].name)}을(를) 물리쳤다.` : '병력이 무너졌다.'}</p>
-        <p class="muted small">${b.turn}턴 · 준 피해 ${b.stats.damageDealt} · 받은 피해 전열 ${b.stats.rowTaken.front} / 후열 ${b.stats.rowTaken.rear}</p>
-        <button class="btn primary" data-a="finish-battle">${b.result === 'win' ? '전리품 확인' : '결과 보기'}</button>
-      </div></div>`
-      : '';
-
-  const logHtml = b.log
-    .slice(-80)
-    .map((l) => `<div class="${l.kind}">${esc(l.text)}</div>`)
-    .join('');
-
-  return `<div class="battle">
-    <div class="terrain-bar panel"><b style="font-family:var(--serif)">${esc(ENCOUNTERS[b.encounterId].name)}</b>
-      <span class="chip">${esc(NODE_NAME[node.type])}</span>
-      <span class="chip">지형: ${esc(terr.name)}</span>${terr.rules.filter((r) => !r.startsWith('이동')).map((r) => `<span class="chip">${esc(r)}</span>`).join('')}
-      <span class="grow"></span><span class="muted">제 ${b.turn}턴</span></div>
-    ${b.build ? `<div class="panel small build-status">반격 준비 ${b.build.tokens.riposte}/2 · 돌파 준비 ${b.build.tokens.charge}/2 · 정보 ${b.build.tokens.insight}/2 — 이 전투에서 유지, 준비 종류별 공격당 1회 소비. 성장 효과는 배치·동요 조건을 따릅니다.</div>` : ''}
-    <div class="enemies">${enemies}</div>
-    <div class="formation">${rowBox('front')}${rowBox('rear')}</div>
-    <div id="preview">${previewHtml(b)}</div>
-    <div class="handbar panel">
-      <div style="display:grid;gap:6px;justify-items:center">
-        <div class="orb">${b.energy}<small>지휘력</small></div>
-        <span class="chip">기세 ${b.momentum}</span>
-      </div>
-      <div class="hand">${hand || '<span class="muted">손패가 없다</span>'}</div>
-      <div class="side-actions">
-        <button class="btn primary" data-a="end-turn">턴 종료 <span class="kbd">E</span></button>
-        ${ui.selected !== null ? '<button class="btn small" data-a="deselect">선택 취소 <span class="kbd">Esc</span></button>' : ''}
-        <div class="pile-info">뽑을 더미 ${b.draw.length} · 버림 ${b.discard.length} · 소멸 ${b.exhausted.length}</div>
-      </div>
-    </div>
-    <div class="battle-bottom">
-      <div class="panel small muted">
-        <b style="color:var(--paper)">조작</b> · 카드를 누르면 선택, 대상(적 또는 열)을 누르면 사용. 대상이 없는 카드는 한 번 더 누르면 사용. 숫자 키 1~9로 카드 선택.
-        <br/>적 의도는 이번 적 턴에 실제로 할 행동입니다. 의도의 대상 열에 방비를 쌓거나, 허보·이간계·교란으로 의도를 바꾸세요.
-        <br/>후열이 실제 피해를 받으면 다음 턴 후열 장수가 <b style="color:var(--danger)">동요</b>(능력 정지)합니다.
-      </div>
-      <div class="log" id="log">${logHtml}</div>
-    </div>
-    ${endOverlay}
-  </div>`;
+let battleBusy=false;
+let battleFrame:BattleState|null=null;
+let battleCurrentEvent:CombatEvent|undefined;
+let battleTimer=0;
+let battleQueue:CombatEvent[]=[];
+function battleView(_run:RunState,b:BattleState):string {
+ const settings=debatePlayback.settings;
+ return battleScene(battleFrame??b,{selected:ui.selected,target:ui.hover,busy:battleBusy,event:battleCurrentEvent,reduced:settings.reduced,particles:settings.particles,contrast:settings.highContrast,textScale:settings.textSize/100,speed:settings.speed});
 }
-
-function previewHtml(b: BattleState): string {
-  if (ui.selected === null || b.result !== 'ongoing') return '';
-  const c = b.hand[ui.selected];
-  if (!c) return '';
-  const d = cardDef(c);
-  const tgt = needsTarget(d);
-  const base = canPlay(b, ui.selected);
-  if (!base.ok) return `<div class="preview">「${esc(d.name)}」 — <span style="color:var(--danger)">${esc(base.reason ?? '')}</span></div>`;
-  let target: PlayTarget | null = null;
-  if (tgt === null) target = {};
-  else if (ui.hover) target = ui.hover;
-  else if (tgt === 'enemy') {
-    const valid = b.enemies.filter((e) => !e.dead && canPlay(b, ui.selected!, { enemy: e.uid }).ok);
-    if (valid.length === 1) target = { enemy: valid[0].uid };
-  }
-  if (!target) {
-    return `<div class="preview">「${esc(d.name)}」 선택됨 — ${tgt === 'enemy' ? '대상 적을 고르세요 (마우스를 올리면 결과 미리보기)' : '방비를 쌓을 열을 고르세요'}</div>`;
-  }
-  const pv = previewPlay(b, ui.selected, target);
-  if (!pv.ok) return `<div class="preview">「${esc(d.name)}」 — <span style="color:var(--danger)">${esc(pv.reason ?? '')}</span></div>`;
-  const diffs: string[] = [];
-  for (const e of pv.enemies) {
-    const parts: string[] = [];
-    if (e.hp[0] !== e.hp[1]) parts.push(`체력 ${e.hp[0]}→${Math.max(0, e.hp[1])}`);
-    if (e.block[0] !== e.block[1]) parts.push(`방비 ${e.block[0]}→${e.block[1]}`);
-    if (e.burn[0] !== e.burn[1]) parts.push(`화상 ${e.burn[0]}→${e.burn[1]}`);
-    if (e.dead) parts.push('<b style="color:var(--gold)">격파</b>');
-    if (parts.length) diffs.push(`${esc(e.name)}: ${parts.join(', ')}`);
-  }
-  const p = pv.player;
-  if (p.front[0] !== p.front[1]) diffs.push(`전열 방비 ${p.front[0]}→${p.front[1]}`);
-  if (p.rear[0] !== p.rear[1]) diffs.push(`후열 방비 ${p.rear[0]}→${p.rear[1]}`);
-  if (p.hp[0] !== p.hp[1]) diffs.push(`병력 ${p.hp[0]}→${p.hp[1]}`);
-  const confirm = tgt === null ? ' — <b>한 번 더 누르면 사용</b>' : '';
-  const calc = pv.logs.filter((l) => l.includes('→') || l.includes('+') || l.includes(':')).slice(0, 8);
-  return `<div class="preview"><b>미리보기 · ${esc(d.name)}</b>${confirm}
-    <div>${diffs.length ? diffs.join(' · ') : '<span class="muted">눈에 보이는 변화 없음 (카드 뽑기·기세 등)</span>'}</div>
-    <ul class="tiny muted">${calc.map((l) => `<li>${esc(l)}</li>`).join('')}</ul></div>`;
+function skipBattle():void {
+ window.clearTimeout(battleTimer);battleQueue=[];battleBusy=false;battleFrame=null;battleCurrentEvent=undefined;render();
+ app.querySelector<HTMLElement>('[data-a="card"]')?.focus();
+}
+function nextBattleEvent():void {
+ const event=battleQueue.shift();if(!event){skipBattle();return;}
+ battleFrame=event.state;battleCurrentEvent=event;render();
+ // Each frame comes from the engine snapshot; timers can never commit an action.
+ const delay=debatePlayback.settings.speed==='fast'?65:event.visualPriority===3?440:event.visualPriority===2?260:120;
+ battleTimer=window.setTimeout(nextBattleEvent,delay);
 }
 
 // ───────────── 노드 화면 ─────────────
@@ -469,6 +283,7 @@ function nodeView(run: RunState): string {
   const social = socialView(run);
   if (social !== null) return social;
   const p = run.pending;
+  const workshop=run.debateBuild.enabled&&!run.debateBuild.claimed.includes(`deck:${run.floor}:${run.col}`)?deckPreparationHtml(run)+'<label>설전 학습 대표 <select id="social-general">'+run.generals.map(g=>'<option value="'+g.id+'">'+GENERALS[g.id].name+'</option>').join('')+'</select></label>'+activityButton('deck-workshop','서원 학습 · 군량 2로 설전 덱 성장') : '';
   switch (p.kind) {
     case 'reward': {
       const cards = p.cards
@@ -539,7 +354,7 @@ function nodeView(run: RunState): string {
     }
     case 'rest':
       return `<div class="node-screen">
-        <h1>휴식과 재편</h1>
+        ${workshop}<h1>휴식과 재편</h1>
         <p class="story">강가에 진을 치고 하룻밤 쉬어 간다.</p>
         <div class="choice-grid">
           <button class="option" data-a="rest-heal" ${run.food < REST_FOOD ? 'disabled' : ''}><span class="head">휴식</span><span class="small">군량 ${REST_FOOD} 소비, 병력 ${Math.ceil(run.maxHp * 0.3)} 회복</span></button>
@@ -548,7 +363,7 @@ function nodeView(run: RunState): string {
       </div>`;
     case 'supply':
       return `<div class="node-screen">
-        <h1>보급 거점</h1>
+        ${workshop}<h1>보급 거점</h1>
         <p class="story">아군 보급대와 만났다. 수레 하나를 고른다.</p>
         <div class="choice-grid">
           <button class="option" data-a="supply" data-c="food"><span class="head">군량 수레</span><span class="small">군량 +6</span></button>
@@ -612,9 +427,10 @@ function modalView(): string {
   if (ui.modal === 'deck' && ui.run) {
     const counts = new Map<string, number>();
     for (const c of ui.run.deck) counts.set(c.id, (counts.get(c.id) ?? 0) + 1);
-    body = `<h2>덱 (${ui.run.deck.length}장)</h2>
+    body = `<h2>덱 · 총 ${ui.run.deck.length}장 · ${counts.size}종류</h2>
+      <p class="muted small">같은 카드는 한 칸에 모아 표시합니다. 카드 아래의 ‘보유’는 덱에 들어 있는 카드 수량입니다.</p>
       ${ui.run.battle ? `<p class="muted small">이번 전투: 뽑을 더미 ${ui.run.battle.draw.length} · 손패 ${ui.run.battle.hand.length} · 버림 ${ui.run.battle.discard.length} · 소멸 ${ui.run.battle.exhausted.length}</p>` : ''}
-      <div class="deck-grid">${[...counts.entries()].map(([id, n]) => cardHtml(CARDS[id], { extra: n > 1 ? ` <b>×${n}</b>` : '' })).join('')}</div>`;
+      <div class="deck-grid deck-inventory">${[...counts.entries()].map(([id, n]) => cardHtml(CARDS[id], { quantity: n })).join('')}</div>`;
   } else if (ui.modal === 'codex') {
     const unlocked = new Set(ui.meta.unlockedGenerals);
     body = `<h2>도감</h2><h3 style="margin:10px 0 6px">장수</h3><div class="gen-list">
@@ -639,7 +455,7 @@ function modalView(): string {
       <p><b>외교</b> — 관계는 원정 안에서만 유지. 장소당 거래1회·설전1회. 통행 협정은 이동 비용을 줄이고, 지원은 다음 전투에 1회 적용. 거래 화면에서 비용·기간·관계·보상 포기를 확인.</p>
       <p><b>목표</b> — 8층 지도를 거쳐 낙양의 동탁을 쓰러뜨린다. 병력이 0이 되면 원정 실패.</p>
       <p><b>병력·군량</b> — 병력은 원정 내내 이어지는 체력. 군량은 이동(산길 2), 휴식, 시장, 징발에 쓰는 유일한 원정 자원.</p>
-      <p><b>전투</b> — 매 턴 지휘력 3, 카드 5장. 武(공격)·防(방어)·策(계책) 전법을 쓴다. 한 턴에 카드를 쓸 때마다 <b>기세</b>가 1 오르고 턴마다 초기화된다.</p>
+      <p><b>전투</b> — 매 턴 지휘력 3, 카드 5장. 공격·방어·계책 전법을 쓴다. 한 턴에 카드를 쓸 때마다 <b>기세</b>가 1 오르고 턴마다 초기화된다.</p>
       <p><b>전열과 후열</b> — 적은 의도에 표시된 열을 공격한다. 방비는 열마다 따로 쌓인다. 후열이 실제 피해를 받으면 다음 턴 후열 장수가 동요(능력 정지)한다.</p>
       <p><b>장수</b> — 최대 4명(열마다 2명). 장수는 카드가 아니라 항상 전장에 있는 능력이다. 능력마다 작동하는 열이 있다. 지도에서는 무료로, 전투 중에는 지휘력 1로 열을 바꾼다.</p>
       <p><b>적 턴 순서</b> — 왼쪽 적부터: 방비 소멸 → 화상 피해(방비 무시) 후 화상 1 감소 → 혼란이면 행동 취소 → 의도 실행 → 반격.</p>
@@ -663,9 +479,14 @@ function render(): void {
   else if (ui.view === 'lords') html = lordsView();
   else if (ui.run) {
     const run = ui.run;
-    if (run.screen === 'victory' || run.screen === 'defeat') html = endView(run);
+    const world=worldScreen.view(run);
+    const city=world===null?cityScreen.view(run):null;
+    if(world!==null)html=world;
+    else if(city!==null)html=(run.campaign?.world?'<button class="btn world-back" data-world="map">전도로 돌아가기</button>':'')+city;
+    else if (run.screen === 'victory' || run.screen === 'defeat') html = endView(run);
     else {
       html = hud(run, run.battle);
+      if(run.campaign)html=`<div class="campaign-route-label">${run.campaign.world?esc(run.campaign.world.factionName)+" · "+run.campaign.world.turn+"턴":"구 도시 캠페인"} · 정벌 목표 ${CITY_DEFS[run.campaign.target].name} · 점령 ${run.campaign.captured.length}/3 · 성외 활동 후 성문에서 접근·정벌 방식을 결정합니다.</div>`+html;
       if (run.screen === 'map') html += mapView(run);
       else if (run.screen === 'battle' && run.battle) html += battleView(run, run.battle);
       else html += nodeView(run);
@@ -675,6 +496,7 @@ function render(): void {
   if (ui.toast) html += `<div class="toast">${esc(ui.toast)}</div>`;
   debatePlayback.cancel();
   app.innerHTML = html;
+  redrawBattleArrows();
   if (ui.run?.pending.kind === 'debate' && ui.view === 'run') {
     app.querySelector('.scene-utilities')?.insertAdjacentHTML('beforeend', sceneSettingsHtml(debatePlayback.settings) + '<button class="btn small skip-control" data-skip-debate>연출 건너뛰기</button>');
     debatePlayback.applySettings();
@@ -683,27 +505,34 @@ function render(): void {
   if (log) log.scrollTop = log.scrollHeight;
 }
 
-function refreshPreview(): void {
-  const el = document.getElementById('preview');
-  const b = ui.run?.battle;
-  if (el && b) el.innerHTML = previewHtml(b);
+function redrawBattleArrows():void {
+ const b=battleFrame??ui.run?.battle;if(!b||ui.run?.screen!=='battle')return;const c=ui.selected===null?null:b.hand[ui.selected];const target=ui.hover??(c&&needsTarget(cardDef(c))===null?{}:null);const shown=c&&target?previewBattleState(b,ui.selected!,target):null;connectIntentArrows(app,shown??b);
+}
+window.addEventListener('resize',redrawBattleArrows);
+function refreshPreview():void {
+ const b=ui.run?.battle;if(!b||battleBusy)return;
+ const focused=app.querySelector<HTMLElement>(':focus');const selector=focused?.dataset.uid?`[data-uid="${focused.dataset.uid}"]`:focused?.dataset.row?`[data-row="${focused.dataset.row}"]`:null;
+ const old=app.querySelector('.cinematic-battle');if(old)old.outerHTML=battleView(ui.run!,b);
+ redrawBattleArrows();if(selector)app.querySelector<HTMLElement>(selector)?.focus();
 }
 
 // ───────────── 입력 ─────────────
 
 function battleAct(fn: (b: BattleState) => { ok: boolean; reason?: string } | void): void {
-  const b = ui.run?.battle;
-  if (!b) return;
-  const r = fn(b);
-  if (r && !r.ok && r.reason) toast(r.reason);
-  ui.hover = null;
-  persist();
-  render();
+ const b=ui.run?.battle;if(!b||battleBusy)return;
+ const {result,events}=captureCombat(b,()=>fn(b));
+ if(result&&!result.ok&&result.reason)toast(result.reason);
+ ui.hover=null;ui.selected=null;
+ // The entire rules transaction is saved before the first presentation frame.
+ persist();
+ const durable=ui.run?.campaign?.world?(()=>{const s=loadCampaign(kv);return s.ok&&JSON.stringify(s.data.activeExpedition!.battle)===JSON.stringify(b);})():(()=>{const s=loadRun(kv);return s.ok&&JSON.stringify(s.data.battle)===JSON.stringify(b);})();
+ if(!durable||debatePlayback.settings.reduced||debatePlayback.settings.speed==='instant'||!events.length){render();return;}
+ battleBusy=true;battleQueue=events;nextBattleEvent();
 }
 
 function clickCard(i: number): void {
   const b = ui.run?.battle;
-  if (!b || b.result !== 'ongoing') return;
+  if (!b || b.result !== 'ongoing'||battleBusy) return;
   const c = b.hand[i];
   if (!c) return;
   const d = cardDef(c);
@@ -737,7 +566,7 @@ function runAct(fn: (run: RunState) => { ok: boolean; reason?: string } | void):
 
 function startRun(lordId: string): void {
   const seedNum = ui.seedInput.trim() ? Number(ui.seedInput.replace(/\D/g, '')) || 1 : randomSeed();
-  ui.run = newRun(seedNum, lordId, ui.difficulty, ui.meta.unlockedGenerals);
+  ui.run = newRegionalRun(seedNum, lordId, ui.difficulty, ui.meta.unlockedGenerals);
   ui.view = 'run';
   ui.endRecorded = false;
   ui.unlockMsgs = [];
@@ -751,9 +580,16 @@ app.addEventListener('click', (ev) => {
   if (!el) return;
   if (el.dataset.a === 'close-modal-bg' && (ev.target as HTMLElement).closest('[data-stop]')) return;
   const a = el.dataset.a!;
+  if(a==='skip-battle'){skipBattle();return;}
+  if(battleBusy){toast('연출 중입니다. 건너뛰기로 즉시 계속할 수 있습니다.');return;}
   const i = Number(el.dataset.i);
   const id = el.dataset.id ?? '';
   switch (a) {
+    case 'world-new': ui.run=newWorldCampaign().activeExpedition!;ui.view='run';ui.endRecorded=false;ui.modal=null;persist();render();return;
+    case 'world-continue': if(loadedCampaign.ok){ui.run=loadedCampaign.data.activeExpedition!;ui.view='run';bindCampaign(ui.run);}render();return;
+    case 'world-import': if(savedRun){const converted=importLegacyCampaign(kv,savedRun);if(converted.ok){ui.run=converted.data.activeExpedition!;ui.view='run';}else toast('안전한 변환을 확인할 수 없습니다. 기존 저장의 이어하기를 사용하세요. 원본은 보존했습니다.');}render();return;
+    case 'city-campaign':
+      ui.run=newCityCampaign(ui.seedInput.trim()?Number(ui.seedInput.replace(/\D/g,''))||101001:101001);ui.view='run';ui.endRecorded=false;ui.unlockMsgs=[];ui.selected=null;persist();render();return;
     case 'doctrine': runAct(r => chooseDoctrine(r, id)); return;
     case 'social-action': {
       const general = document.querySelector<HTMLSelectElement>('#social-general')?.value ?? '';
@@ -769,6 +605,20 @@ app.addEventListener('click', (ev) => {
       }
       return;
     }
+    case 'battle-demo':
+      ui.run=newRun(91001,'caocao');configureBattleDemo(ui.run);ui.view='run';ui.endRecorded=false;ui.unlockMsgs=[];ui.selected=null;persist();render();return;
+    case 'inspect-enemy':
+      toast('전법을 먼저 선택하면 유효한 적 대상과 결과를 확인할 수 있습니다.');return;
+    case 'execute-card': {
+      const b=ui.run?.battle,sel=ui.selected;if(!b||sel===null)return;const d=cardDef(b.hand[sel]);
+      if(needsTarget(d)!==null&&!ui.hover){toast('목표를 먼저 선택하세요.');return;}
+      battleAct(bb=>playCard(bb,sel,ui.hover??{}));return;
+    }
+    case 'geography-demo':
+      ui.run=newRegionalRun(81001,'caocao');configureRegionalDemo(ui.run);ui.view='run';ui.endRecorded=false;ui.unlockMsgs=[];ui.selected=null;persist();render();return;
+    case 'deck-debate-demo':
+      if(!['guojia','chengong'].includes(id))return;
+      ui.run=newRun(61001,'caocao');configureDeckDemo(ui.run,id);ui.view='run';ui.endRecorded=false;ui.unlockMsgs=[];ui.selected=null;persist();render();return;
     case 'accord-demo':
       ui.run = newRun(51001, 'caocao'); configureAccordDemo(ui.run); ui.view = 'run'; ui.endRecorded = false; ui.unlockMsgs = []; ui.selected = null; persist(); render(); return;
     case 'debate-scene-demo':
@@ -819,12 +669,13 @@ app.addEventListener('click', (ev) => {
         ui.run.defeatReason = ['원정을 스스로 포기했다.'];
         ui.run.battle = null;
       }
+      if(ui.run?.campaign?.world){retreatWorld(ui.run);}
       ui.modal = null;
       persist();
       break;
     case 'move':
       ui.selected = null;
-      runAct((r) => moveTo(r, Number(el.dataset.col)));
+      runAct((r) => r.campaign?.world?marchWorld(r,Number(el.dataset.col)):moveTo(r, Number(el.dataset.col)));
       return;
     case 'map-swap':
       runAct((r) => {
@@ -839,6 +690,7 @@ app.addEventListener('click', (ev) => {
       ui.hover = null;
       break;
     case 'target-enemy': {
+      if(window.innerWidth<=700&&ui.selected!==null){ui.hover={enemy:Number(el.dataset.uid)};refreshPreview();return;}
       const sel = ui.selected;
       if (sel === null) return;
       ui.selected = null;
@@ -846,6 +698,7 @@ app.addEventListener('click', (ev) => {
       return;
     }
     case 'target-row': {
+      if(window.innerWidth<=700&&ui.selected!==null){ui.hover={row:el.dataset.row as Row};refreshPreview();return;}
       const sel = ui.selected;
       if (sel === null) return;
       ui.selected = null;
@@ -913,7 +766,7 @@ app.addEventListener('click', (ev) => {
 app.addEventListener('mouseover', (ev) => {
   const el = (ev.target as HTMLElement).closest<HTMLElement>('[data-hover-enemy],[data-hover-row]');
   const b = ui.run?.battle;
-  if (!b || ui.selected === null) return;
+  if (!b || ui.selected === null||battleBusy) return;
   const next: PlayTarget | null = el
     ? el.dataset.hoverEnemy
       ? { enemy: Number(el.dataset.hoverEnemy) }
@@ -925,13 +778,22 @@ app.addEventListener('mouseover', (ev) => {
   refreshPreview();
 });
 
+app.addEventListener('change',ev=>{
+ const el=ev.target as HTMLInputElement;if(el.dataset.battleLog){app.querySelectorAll<HTMLElement>('[data-log-kind]').forEach(x=>x.hidden=el.value!=='all'&&el.value!==x.dataset.logKind);return;}
+ const key=el.dataset.battleSetting;if(!key)return;
+ const settings=debatePlayback.settings;if(key==='reduced'||key==='particles'||key==='highContrast')settings[key]=el.checked;else if(key==='speed'&&['normal','fast','instant'].includes(el.value))settings.speed=el.value as 'normal'|'fast'|'instant';else if(key==='textSize')settings.textSize=Math.max(100,Math.min(150,Number(el.value)));
+ try{kv.setItem('cheonha-gunjin.presentation',JSON.stringify(settings));}catch{toast('화면 설정 저장 실패');}
+ if(battleBusy&&(settings.reduced||settings.speed==='instant'))skipBattle();else render();
+});
+app.addEventListener('error',ev=>{const el=ev.target as HTMLImageElement;if(el.matches?.('[data-battle-portrait],[data-battle-background],[data-city-portrait]')){el.remove();}},true);
 app.addEventListener('input', (ev) => {
   const el = ev.target as HTMLInputElement;
   if (el.dataset.input === 'seed') ui.seedInput = el.value;
 });
 
 window.addEventListener('keydown', (ev) => {
-  if ((ev.target as HTMLElement).tagName === 'INPUT') return;
+  if(['INPUT','SELECT','TEXTAREA'].includes((ev.target as HTMLElement).tagName))return;
+  if(battleBusy){if(ev.key==='Escape'){ev.preventDefault();skipBattle();}return;}
   const b = ui.run?.battle;
   if (ev.key === 'Escape') {
     if (ui.modal) ui.modal = null;
@@ -943,6 +805,11 @@ window.addEventListener('keydown', (ev) => {
     return;
   }
   if (!b || b.result !== 'ongoing' || ui.modal || ui.run?.screen !== 'battle') return;
+  if((ev.key==='ArrowLeft'||ev.key==='ArrowRight')&&ui.selected!==null){
+    ev.preventDefault();const type=needsTarget(cardDef(b.hand[ui.selected]));const targets:PlayTarget[]=type==='enemy'?b.enemies.filter(e=>canPlay(b,ui.selected!,{enemy:e.uid}).ok).map(e=>({enemy:e.uid})):type==='row'?[{row:'front'},{row:'rear'}]:[{}];
+    if(!targets.length){toast('유효한 목표가 없습니다.');return;}const idx=targets.findIndex(t=>JSON.stringify(t)===JSON.stringify(ui.hover));ui.hover=targets[idx<0?(ev.key==='ArrowRight'?0:targets.length-1):(idx+(ev.key==='ArrowRight'?1:-1)+targets.length)%targets.length];refreshPreview();return;
+  }
+  if(ev.key==='Enter'&&ui.selected!==null){ev.preventDefault();const idx=ui.selected;const type=needsTarget(cardDef(b.hand[idx]));if(type===null||ui.hover)battleAct(bb=>playCard(bb,idx,ui.hover??{}));else toast('목표를 먼저 고르세요.');return;}
   if (ev.key === 'e' || ev.key === 'E') {
     ui.selected = null;
     battleAct((bb) => endTurn(bb));

@@ -1,0 +1,5630 @@
+{
+  "summary": {
+    "runs": 56,
+    "success": 56,
+    "errors": [],
+    "restores": 4409,
+    "meanDeck": 11.410714285714286,
+    "jointRuns": 7,
+    "jointPlayRuns": 7,
+    "exclusions": 182,
+    "officerMetrics": {
+      "dianwei": {
+        "name": "전위",
+        "recruitedRuns": 10,
+        "recruitmentRate": 0.17857142857142858,
+        "equippedRuns": 9,
+        "usedRuns": 9,
+        "plays": 23,
+        "growth": 6
+      },
+      "caoren": {
+        "name": "조인",
+        "recruitedRuns": 35,
+        "recruitmentRate": 0.625,
+        "equippedRuns": 4,
+        "usedRuns": 4,
+        "plays": 7,
+        "growth": 2
+      },
+      "chengpu": {
+        "name": "정보",
+        "recruitedRuns": 41,
+        "recruitmentRate": 0.7321428571428571,
+        "equippedRuns": 32,
+        "usedRuns": 34,
+        "plays": 105,
+        "growth": 27
+      },
+      "xunyu": {
+        "name": "순욱",
+        "recruitedRuns": 39,
+        "recruitmentRate": 0.6964285714285714,
+        "equippedRuns": 33,
+        "usedRuns": 37,
+        "plays": 79,
+        "growth": 18
+      },
+      "lusu": {
+        "name": "노숙",
+        "recruitedRuns": 18,
+        "recruitmentRate": 0.32142857142857145,
+        "equippedRuns": 17,
+        "usedRuns": 18,
+        "plays": 53,
+        "growth": 14
+      },
+      "local_captain": {
+        "name": "향촌 훈련관",
+        "recruitedRuns": 47,
+        "recruitmentRate": 0.8392857142857143,
+        "equippedRuns": 43,
+        "usedRuns": 44,
+        "plays": 99,
+        "growth": 22
+      },
+      "local_scribe": {
+        "name": "하남 서리",
+        "recruitedRuns": 35,
+        "recruitmentRate": 0.625,
+        "equippedRuns": 10,
+        "usedRuns": 10,
+        "plays": 19,
+        "growth": 3
+      },
+      "local_broker": {
+        "name": "나루 중개인",
+        "recruitedRuns": 15,
+        "recruitmentRate": 0.26785714285714285,
+        "equippedRuns": 11,
+        "usedRuns": 11,
+        "plays": 30,
+        "growth": 6
+      }
+    },
+    "byPolicy": {
+      "relations": {
+        "runs": 8,
+        "success": 8,
+        "meanDeck": 12,
+        "grades": {
+          "conditional": 1,
+          "great": 7
+        }
+      },
+      "military": {
+        "runs": 8,
+        "success": 8,
+        "meanDeck": 12,
+        "grades": {
+          "great": 4,
+          "success": 4
+        }
+      },
+      "intel": {
+        "runs": 8,
+        "success": 8,
+        "meanDeck": 12,
+        "grades": {
+          "great": 5,
+          "conditional": 3
+        }
+      },
+      "small": {
+        "runs": 8,
+        "success": 8,
+        "meanDeck": 9,
+        "grades": {
+          "great": 7,
+          "conditional": 1
+        }
+      },
+      "generalist": {
+        "runs": 8,
+        "success": 8,
+        "meanDeck": 11.75,
+        "grades": {
+          "great": 7,
+          "conditional": 1
+        }
+      },
+      "joint": {
+        "runs": 8,
+        "success": 8,
+        "meanDeck": 11.125,
+        "grades": {
+          "great": 6,
+          "conditional": 2
+        }
+      },
+      "random": {
+        "runs": 8,
+        "success": 8,
+        "meanDeck": 12,
+        "grades": {
+          "great": 6,
+          "conditional": 2
+        }
+      }
+    },
+    "interpretation": "규칙 기반 자동 정책 표본입니다. 인재 간 인과적 성능 비교, 난이도 적정성, 인간의 재미 및 실제 브라우저 검증이 아닙니다."
+  },
+  "runs": [
+    {
+      "seed": 131001,
+      "policy": "relations",
+      "success": true,
+      "grade": "conditional",
+      "steps": 82,
+      "restores": 82,
+      "errors": [],
+      "recruits": 5,
+      "deck": 12,
+      "excluded": 3,
+      "growth": {
+        "expert": 2
+      },
+      "joints": [],
+      "jointPlays": 0,
+      "officers": [
+        {
+          "id": "caoren",
+          "major": true,
+          "trust": 60,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 0,
+          "plays": 0
+        },
+        {
+          "id": "chengpu",
+          "major": true,
+          "trust": 60,
+          "loyalty": 80,
+          "growth": "expert",
+          "equipped": 2,
+          "plays": 3
+        },
+        {
+          "id": "xunyu",
+          "major": true,
+          "trust": 55,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 2,
+          "plays": 2
+        },
+        {
+          "id": "local_captain",
+          "major": false,
+          "trust": 60,
+          "loyalty": 60,
+          "growth": "expert",
+          "equipped": 2,
+          "plays": 3
+        },
+        {
+          "id": "local_scribe",
+          "major": false,
+          "trust": 60,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 0,
+          "plays": 0
+        }
+      ],
+      "stats": {
+        "recruits": 5,
+        "equips": {
+          "role_military_a": 1,
+          "person_local_captain_a": 1,
+          "role_network_a": 1,
+          "person_xunyu_a": 1,
+          "role_supply_a": 1,
+          "person_chengpu_a": 1
+        },
+        "plays": {
+          "support_local_captain": 1,
+          "cache": 3,
+          "recommend": 2,
+          "support_xunyu": 1,
+          "manifesto": 1,
+          "support_chengpu": 1,
+          "clues": 1,
+          "person_chengpu_a": 1,
+          "role_military_a": 1,
+          "person_local_captain_a": 1,
+          "food": 1,
+          "role_supply_b": 1,
+          "person_xunyu_a": 1
+        },
+        "excluded": 3,
+        "growth": {
+          "expert": 2
+        },
+        "jointPlays": 0,
+        "loyaltyCosts": 0,
+        "officerPlays": {
+          "local_captain": 3,
+          "xunyu": 2,
+          "chengpu": 3
+        },
+        "officerEquips": {
+          "local_captain": 2,
+          "xunyu": 2,
+          "chengpu": 2
+        }
+      }
+    },
+    {
+      "seed": 131001,
+      "policy": "military",
+      "success": true,
+      "grade": "great",
+      "steps": 68,
+      "restores": 68,
+      "errors": [],
+      "recruits": 3,
+      "deck": 12,
+      "excluded": 3,
+      "growth": {
+        "authority": 3
+      },
+      "joints": [],
+      "jointPlays": 0,
+      "officers": [
+        {
+          "id": "dianwei",
+          "major": true,
+          "trust": 50,
+          "loyalty": 80,
+          "growth": "authority",
+          "equipped": 2,
+          "plays": 2
+        },
+        {
+          "id": "chengpu",
+          "major": true,
+          "trust": 50,
+          "loyalty": 60,
+          "growth": "authority",
+          "equipped": 2,
+          "plays": 2
+        },
+        {
+          "id": "local_captain",
+          "major": false,
+          "trust": 55,
+          "loyalty": 80,
+          "growth": "authority",
+          "equipped": 2,
+          "plays": 3
+        }
+      ],
+      "stats": {
+        "recruits": 3,
+        "equips": {
+          "role_military_a": 2,
+          "person_local_captain_b": 1,
+          "person_dianwei_b": 1,
+          "role_supply_a": 1,
+          "person_chengpu_b": 1
+        },
+        "plays": {
+          "support_local_captain": 1,
+          "cache": 3,
+          "support_dianwei": 1,
+          "food": 1,
+          "fatigue": 1,
+          "support_chengpu": 1,
+          "clues": 1,
+          "role_military_a": 1,
+          "person_chengpu_b": 1,
+          "raise": 1,
+          "person_local_captain_b": 1,
+          "person_dianwei_b": 1
+        },
+        "excluded": 3,
+        "growth": {
+          "authority": 3
+        },
+        "jointPlays": 0,
+        "loyaltyCosts": 0,
+        "officerPlays": {
+          "local_captain": 3,
+          "dianwei": 2,
+          "chengpu": 2
+        },
+        "officerEquips": {
+          "local_captain": 2,
+          "dianwei": 2,
+          "chengpu": 2
+        }
+      }
+    },
+    {
+      "seed": 131001,
+      "policy": "intel",
+      "success": true,
+      "grade": "great",
+      "steps": 83,
+      "restores": 83,
+      "errors": [],
+      "recruits": 5,
+      "deck": 12,
+      "excluded": 3,
+      "growth": {
+        "expert": 2
+      },
+      "joints": [],
+      "jointPlays": 0,
+      "officers": [
+        {
+          "id": "caoren",
+          "major": true,
+          "trust": 55,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 0,
+          "plays": 0
+        },
+        {
+          "id": "chengpu",
+          "major": true,
+          "trust": 55,
+          "loyalty": 80,
+          "growth": "expert",
+          "equipped": 2,
+          "plays": 3
+        },
+        {
+          "id": "xunyu",
+          "major": true,
+          "trust": 50,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 2,
+          "plays": 2
+        },
+        {
+          "id": "lusu",
+          "major": true,
+          "trust": 55,
+          "loyalty": 80,
+          "growth": "expert",
+          "equipped": 2,
+          "plays": 3
+        },
+        {
+          "id": "local_scribe",
+          "major": false,
+          "trust": 55,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 0,
+          "plays": 0
+        }
+      ],
+      "stats": {
+        "recruits": 5,
+        "equips": {
+          "role_intel_a": 1,
+          "person_lusu_a": 1,
+          "role_network_a": 1,
+          "person_xunyu_a": 1,
+          "role_supply_a": 1,
+          "person_chengpu_a": 1
+        },
+        "plays": {
+          "support_lusu": 1,
+          "clerk": 2,
+          "clues": 2,
+          "support_xunyu": 1,
+          "manifesto": 1,
+          "rumor": 1,
+          "support_chengpu": 1,
+          "cache": 2,
+          "person_chengpu_a": 1,
+          "role_intel_a": 1,
+          "role_supply_b": 1,
+          "role_intel_b": 1,
+          "role_network_a": 1
+        },
+        "excluded": 3,
+        "growth": {
+          "expert": 2
+        },
+        "jointPlays": 0,
+        "loyaltyCosts": 0,
+        "officerPlays": {
+          "lusu": 3,
+          "xunyu": 2,
+          "chengpu": 3
+        },
+        "officerEquips": {
+          "lusu": 2,
+          "xunyu": 2,
+          "chengpu": 2
+        }
+      }
+    },
+    {
+      "seed": 131001,
+      "policy": "small",
+      "success": true,
+      "grade": "great",
+      "steps": 74,
+      "restores": 74,
+      "errors": [],
+      "recruits": 5,
+      "deck": 9,
+      "excluded": 3,
+      "growth": {
+        "expert": 1
+      },
+      "joints": [],
+      "jointPlays": 0,
+      "officers": [
+        {
+          "id": "caoren",
+          "major": true,
+          "trust": 60,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 0,
+          "plays": 0
+        },
+        {
+          "id": "chengpu",
+          "major": true,
+          "trust": 50,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 0,
+          "plays": 1
+        },
+        {
+          "id": "xunyu",
+          "major": true,
+          "trust": 50,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 1,
+          "plays": 1
+        },
+        {
+          "id": "local_captain",
+          "major": false,
+          "trust": 60,
+          "loyalty": 60,
+          "growth": "expert",
+          "equipped": 2,
+          "plays": 3
+        },
+        {
+          "id": "local_scribe",
+          "major": false,
+          "trust": 60,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 0,
+          "plays": 0
+        }
+      ],
+      "stats": {
+        "recruits": 5,
+        "equips": {
+          "role_military_a": 1,
+          "person_local_captain_a": 1,
+          "role_network_a": 1
+        },
+        "plays": {
+          "support_local_captain": 1,
+          "cache": 3,
+          "recommend": 1,
+          "support_xunyu": 1,
+          "manifesto": 1,
+          "support_chengpu": 1,
+          "clues": 2,
+          "person_local_captain_a": 1,
+          "food": 1,
+          "role_military_b": 1,
+          "coin": 1
+        },
+        "excluded": 3,
+        "growth": {
+          "expert": 1
+        },
+        "jointPlays": 0,
+        "loyaltyCosts": 0,
+        "officerPlays": {
+          "local_captain": 3,
+          "xunyu": 1,
+          "chengpu": 1
+        },
+        "officerEquips": {
+          "local_captain": 2,
+          "xunyu": 1
+        }
+      }
+    },
+    {
+      "seed": 131001,
+      "policy": "generalist",
+      "success": true,
+      "grade": "great",
+      "steps": 75,
+      "restores": 75,
+      "errors": [],
+      "recruits": 4,
+      "deck": 12,
+      "excluded": 3,
+      "growth": {
+        "expert": 1
+      },
+      "joints": [],
+      "jointPlays": 0,
+      "officers": [
+        {
+          "id": "caoren",
+          "major": true,
+          "trust": 60,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 0,
+          "plays": 0
+        },
+        {
+          "id": "local_captain",
+          "major": false,
+          "trust": 50,
+          "loyalty": 50,
+          "growth": null,
+          "equipped": 2,
+          "plays": 1
+        },
+        {
+          "id": "local_scribe",
+          "major": false,
+          "trust": 50,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 2,
+          "plays": 1
+        },
+        {
+          "id": "local_broker",
+          "major": false,
+          "trust": 55,
+          "loyalty": 80,
+          "growth": "expert",
+          "equipped": 2,
+          "plays": 2
+        }
+      ],
+      "stats": {
+        "recruits": 4,
+        "equips": {
+          "role_military_a": 1,
+          "person_local_captain_a": 1,
+          "role_funds_a": 1,
+          "person_local_broker_a": 1,
+          "role_cause_a": 1,
+          "person_local_scribe_a": 1
+        },
+        "plays": {
+          "support_local_captain": 1,
+          "cache": 3,
+          "recommend": 2,
+          "support_local_broker": 1,
+          "coin": 1,
+          "support_local_scribe": 1,
+          "clues": 1,
+          "role_funds_a": 1
+        },
+        "excluded": 3,
+        "growth": {
+          "expert": 1
+        },
+        "jointPlays": 0,
+        "loyaltyCosts": 0,
+        "officerPlays": {
+          "local_captain": 1,
+          "local_broker": 2,
+          "local_scribe": 1
+        },
+        "officerEquips": {
+          "local_captain": 2,
+          "local_broker": 2,
+          "local_scribe": 2
+        }
+      }
+    },
+    {
+      "seed": 131001,
+      "policy": "joint",
+      "success": true,
+      "grade": "great",
+      "steps": 83,
+      "restores": 83,
+      "errors": [],
+      "recruits": 4,
+      "deck": 11,
+      "excluded": 5,
+      "growth": {
+        "expert": 2
+      },
+      "joints": [
+        "joint_supply"
+      ],
+      "jointPlays": 3,
+      "officers": [
+        {
+          "id": "caoren",
+          "major": true,
+          "trust": 60,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 0,
+          "plays": 0
+        },
+        {
+          "id": "chengpu",
+          "major": true,
+          "trust": 70,
+          "loyalty": 80,
+          "growth": "expert",
+          "equipped": 3,
+          "plays": 5
+        },
+        {
+          "id": "xunyu",
+          "major": true,
+          "trust": 55,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 2,
+          "plays": 2
+        },
+        {
+          "id": "local_captain",
+          "major": false,
+          "trust": 70,
+          "loyalty": 60,
+          "growth": "expert",
+          "equipped": 3,
+          "plays": 5
+        }
+      ],
+      "stats": {
+        "recruits": 4,
+        "equips": {
+          "role_military_a": 1,
+          "person_local_captain_a": 1,
+          "role_network_a": 1,
+          "person_xunyu_a": 1,
+          "role_supply_a": 1,
+          "person_chengpu_a": 1,
+          "joint_supply": 1
+        },
+        "plays": {
+          "support_local_captain": 1,
+          "cache": 3,
+          "recommend": 1,
+          "support_xunyu": 1,
+          "manifesto": 1,
+          "support_chengpu": 1,
+          "clues": 1,
+          "joint_supply": 3,
+          "person_local_captain_a": 1,
+          "food": 1,
+          "coin": 1,
+          "person_chengpu_a": 1,
+          "person_xunyu_a": 1
+        },
+        "excluded": 5,
+        "growth": {
+          "expert": 2
+        },
+        "jointPlays": 3,
+        "loyaltyCosts": 0,
+        "officerPlays": {
+          "local_captain": 5,
+          "xunyu": 2,
+          "chengpu": 5
+        },
+        "officerEquips": {
+          "local_captain": 3,
+          "xunyu": 2,
+          "chengpu": 3
+        }
+      }
+    },
+    {
+      "seed": 131001,
+      "policy": "random",
+      "success": true,
+      "grade": "great",
+      "steps": 83,
+      "restores": 83,
+      "errors": [],
+      "recruits": 4,
+      "deck": 12,
+      "excluded": 3,
+      "growth": {
+        "expert": 2
+      },
+      "joints": [],
+      "jointPlays": 0,
+      "officers": [
+        {
+          "id": "dianwei",
+          "major": true,
+          "trust": 60,
+          "loyalty": 60,
+          "growth": "expert",
+          "equipped": 2,
+          "plays": 3
+        },
+        {
+          "id": "chengpu",
+          "major": true,
+          "trust": 70,
+          "loyalty": 80,
+          "growth": "expert",
+          "equipped": 2,
+          "plays": 5
+        },
+        {
+          "id": "xunyu",
+          "major": true,
+          "trust": 60,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 0,
+          "plays": 0
+        },
+        {
+          "id": "local_captain",
+          "major": false,
+          "trust": 50,
+          "loyalty": 50,
+          "growth": null,
+          "equipped": 2,
+          "plays": 1
+        }
+      ],
+      "stats": {
+        "recruits": 4,
+        "equips": {
+          "role_supply_a": 1,
+          "person_chengpu_a": 1,
+          "role_military_a": 2,
+          "person_dianwei_a": 1,
+          "person_local_captain_a": 1
+        },
+        "plays": {
+          "support_chengpu": 1,
+          "cache": 3,
+          "coin": 2,
+          "support_dianwei": 1,
+          "clues": 1,
+          "food": 1,
+          "person_chengpu_a": 2,
+          "role_supply_a": 1,
+          "support_local_captain": 1,
+          "role_military_a": 1,
+          "person_dianwei_a": 1,
+          "role_supply_b": 1,
+          "recommend": 1
+        },
+        "excluded": 3,
+        "growth": {
+          "expert": 2
+        },
+        "jointPlays": 0,
+        "loyaltyCosts": 0,
+        "officerPlays": {
+          "chengpu": 5,
+          "dianwei": 3,
+          "local_captain": 1
+        },
+        "officerEquips": {
+          "chengpu": 2,
+          "dianwei": 2,
+          "local_captain": 2
+        }
+      }
+    },
+    {
+      "seed": 131002,
+      "policy": "relations",
+      "success": true,
+      "grade": "great",
+      "steps": 81,
+      "restores": 81,
+      "errors": [],
+      "recruits": 5,
+      "deck": 12,
+      "excluded": 3,
+      "growth": {
+        "expert": 3
+      },
+      "joints": [],
+      "jointPlays": 0,
+      "officers": [
+        {
+          "id": "chengpu",
+          "major": true,
+          "trust": 60,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 0,
+          "plays": 0
+        },
+        {
+          "id": "xunyu",
+          "major": true,
+          "trust": 60,
+          "loyalty": 80,
+          "growth": "expert",
+          "equipped": 2,
+          "plays": 3
+        },
+        {
+          "id": "lusu",
+          "major": true,
+          "trust": 65,
+          "loyalty": 80,
+          "growth": "expert",
+          "equipped": 2,
+          "plays": 4
+        },
+        {
+          "id": "local_captain",
+          "major": false,
+          "trust": 55,
+          "loyalty": 60,
+          "growth": "expert",
+          "equipped": 2,
+          "plays": 2
+        },
+        {
+          "id": "local_scribe",
+          "major": false,
+          "trust": 60,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 0,
+          "plays": 0
+        }
+      ],
+      "stats": {
+        "recruits": 5,
+        "equips": {
+          "role_intel_a": 1,
+          "person_lusu_a": 1,
+          "role_military_a": 1,
+          "person_local_captain_a": 1,
+          "role_network_a": 1,
+          "person_xunyu_a": 1
+        },
+        "plays": {
+          "support_lusu": 1,
+          "clues": 2,
+          "support_local_captain": 1,
+          "manifesto": 1,
+          "support_xunyu": 1,
+          "role_intel_a": 1,
+          "person_lusu_a": 1,
+          "role_intel_b": 1,
+          "person_xunyu_a": 1,
+          "coin": 1,
+          "role_military_a": 1,
+          "role_network_b": 1
+        },
+        "excluded": 3,
+        "growth": {
+          "expert": 3
+        },
+        "jointPlays": 0,
+        "loyaltyCosts": 0,
+        "officerPlays": {
+          "lusu": 4,
+          "local_captain": 2,
+          "xunyu": 3
+        },
+        "officerEquips": {
+          "lusu": 2,
+          "local_captain": 2,
+          "xunyu": 2
+        }
+      }
+    },
+    {
+      "seed": 131002,
+      "policy": "military",
+      "success": true,
+      "grade": "success",
+      "steps": 69,
+      "restores": 69,
+      "errors": [],
+      "recruits": 4,
+      "deck": 12,
+      "excluded": 3,
+      "growth": {
+        "authority": 1
+      },
+      "joints": [],
+      "jointPlays": 0,
+      "officers": [
+        {
+          "id": "dianwei",
+          "major": true,
+          "trust": 50,
+          "loyalty": 80,
+          "growth": "authority",
+          "equipped": 2,
+          "plays": 2
+        },
+        {
+          "id": "xunyu",
+          "major": true,
+          "trust": 50,
+          "loyalty": 50,
+          "growth": null,
+          "equipped": 2,
+          "plays": 2
+        },
+        {
+          "id": "local_captain",
+          "major": false,
+          "trust": 45,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 2,
+          "plays": 1
+        },
+        {
+          "id": "local_scribe",
+          "major": false,
+          "trust": 55,
+          "loyalty": 50,
+          "growth": null,
+          "equipped": 0,
+          "plays": 0
+        }
+      ],
+      "stats": {
+        "recruits": 4,
+        "equips": {
+          "role_military_a": 2,
+          "person_dianwei_b": 1,
+          "person_local_captain_b": 1,
+          "role_network_a": 1,
+          "person_xunyu_b": 1
+        },
+        "plays": {
+          "support_dianwei": 1,
+          "cache": 2,
+          "raise": 2,
+          "clues": 2,
+          "support_local_captain": 1,
+          "manifesto": 1,
+          "support_xunyu": 1,
+          "person_dianwei_b": 1,
+          "food": 1,
+          "coin": 1,
+          "role_network_a": 1
+        },
+        "excluded": 3,
+        "growth": {
+          "authority": 1
+        },
+        "jointPlays": 0,
+        "loyaltyCosts": 0,
+        "officerPlays": {
+          "dianwei": 2,
+          "local_captain": 1,
+          "xunyu": 2
+        },
+        "officerEquips": {
+          "dianwei": 2,
+          "local_captain": 2,
+          "xunyu": 2
+        }
+      }
+    },
+    {
+      "seed": 131002,
+      "policy": "intel",
+      "success": true,
+      "grade": "great",
+      "steps": 78,
+      "restores": 78,
+      "errors": [],
+      "recruits": 4,
+      "deck": 12,
+      "excluded": 3,
+      "growth": {
+        "expert": 2
+      },
+      "joints": [],
+      "jointPlays": 0,
+      "officers": [
+        {
+          "id": "chengpu",
+          "major": true,
+          "trust": 55,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 0,
+          "plays": 0
+        },
+        {
+          "id": "xunyu",
+          "major": true,
+          "trust": 50,
+          "loyalty": 80,
+          "growth": "expert",
+          "equipped": 2,
+          "plays": 2
+        },
+        {
+          "id": "lusu",
+          "major": true,
+          "trust": 55,
+          "loyalty": 80,
+          "growth": "expert",
+          "equipped": 2,
+          "plays": 3
+        },
+        {
+          "id": "local_captain",
+          "major": false,
+          "trust": 45,
+          "loyalty": 50,
+          "growth": null,
+          "equipped": 2,
+          "plays": 1
+        }
+      ],
+      "stats": {
+        "recruits": 4,
+        "equips": {
+          "role_intel_a": 1,
+          "person_lusu_a": 1,
+          "role_military_a": 1,
+          "person_local_captain_a": 1,
+          "role_network_a": 1,
+          "person_xunyu_a": 1
+        },
+        "plays": {
+          "support_lusu": 1,
+          "clerk": 3,
+          "clues": 1,
+          "support_local_captain": 1,
+          "cache": 2,
+          "manifesto": 1,
+          "support_xunyu": 1,
+          "role_intel_a": 1,
+          "person_xunyu_a": 1,
+          "coin": 1,
+          "role_intel_b": 1
+        },
+        "excluded": 3,
+        "growth": {
+          "expert": 2
+        },
+        "jointPlays": 0,
+        "loyaltyCosts": 0,
+        "officerPlays": {
+          "lusu": 3,
+          "local_captain": 1,
+          "xunyu": 2
+        },
+        "officerEquips": {
+          "lusu": 2,
+          "local_captain": 2,
+          "xunyu": 2
+        }
+      }
+    },
+    {
+      "seed": 131002,
+      "policy": "small",
+      "success": true,
+      "grade": "great",
+      "steps": 77,
+      "restores": 77,
+      "errors": [],
+      "recruits": 5,
+      "deck": 9,
+      "excluded": 3,
+      "growth": {
+        "expert": 1
+      },
+      "joints": [],
+      "jointPlays": 0,
+      "officers": [
+        {
+          "id": "chengpu",
+          "major": true,
+          "trust": 60,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 0,
+          "plays": 0
+        },
+        {
+          "id": "xunyu",
+          "major": true,
+          "trust": 50,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 0,
+          "plays": 1
+        },
+        {
+          "id": "lusu",
+          "major": true,
+          "trust": 75,
+          "loyalty": 80,
+          "growth": "expert",
+          "equipped": 2,
+          "plays": 6
+        },
+        {
+          "id": "local_captain",
+          "major": false,
+          "trust": 50,
+          "loyalty": 50,
+          "growth": null,
+          "equipped": 1,
+          "plays": 1
+        },
+        {
+          "id": "local_scribe",
+          "major": false,
+          "trust": 60,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 0,
+          "plays": 0
+        }
+      ],
+      "stats": {
+        "recruits": 5,
+        "equips": {
+          "role_intel_a": 1,
+          "person_lusu_a": 1,
+          "role_military_a": 1
+        },
+        "plays": {
+          "support_lusu": 1,
+          "clues": 2,
+          "support_local_captain": 1,
+          "manifesto": 1,
+          "support_xunyu": 1,
+          "role_intel_a": 1,
+          "person_lusu_a": 3,
+          "role_intel_b": 1,
+          "cache": 1,
+          "food": 1
+        },
+        "excluded": 3,
+        "growth": {
+          "expert": 1
+        },
+        "jointPlays": 0,
+        "loyaltyCosts": 0,
+        "officerPlays": {
+          "lusu": 6,
+          "local_captain": 1,
+          "xunyu": 1
+        },
+        "officerEquips": {
+          "lusu": 2,
+          "local_captain": 1
+        }
+      }
+    },
+    {
+      "seed": 131002,
+      "policy": "generalist",
+      "success": true,
+      "grade": "great",
+      "steps": 75,
+      "restores": 75,
+      "errors": [],
+      "recruits": 4,
+      "deck": 12,
+      "excluded": 3,
+      "growth": {
+        "expert": 1
+      },
+      "joints": [],
+      "jointPlays": 0,
+      "officers": [
+        {
+          "id": "lusu",
+          "major": true,
+          "trust": 65,
+          "loyalty": 80,
+          "growth": "expert",
+          "equipped": 2,
+          "plays": 4
+        },
+        {
+          "id": "local_captain",
+          "major": false,
+          "trust": 50,
+          "loyalty": 50,
+          "growth": null,
+          "equipped": 2,
+          "plays": 1
+        },
+        {
+          "id": "local_scribe",
+          "major": false,
+          "trust": 50,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 2,
+          "plays": 1
+        },
+        {
+          "id": "local_broker",
+          "major": false,
+          "trust": 60,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 0,
+          "plays": 0
+        }
+      ],
+      "stats": {
+        "recruits": 4,
+        "equips": {
+          "role_intel_a": 1,
+          "person_lusu_a": 1,
+          "role_military_a": 1,
+          "person_local_captain_a": 1,
+          "role_cause_a": 1,
+          "person_local_scribe_a": 1
+        },
+        "plays": {
+          "support_lusu": 1,
+          "clues": 2,
+          "support_local_captain": 1,
+          "manifesto": 1,
+          "support_local_scribe": 1,
+          "role_intel_a": 1,
+          "person_lusu_a": 1,
+          "role_intel_b": 1
+        },
+        "excluded": 3,
+        "growth": {
+          "expert": 1
+        },
+        "jointPlays": 0,
+        "loyaltyCosts": 0,
+        "officerPlays": {
+          "lusu": 4,
+          "local_captain": 1,
+          "local_scribe": 1
+        },
+        "officerEquips": {
+          "lusu": 2,
+          "local_captain": 2,
+          "local_scribe": 2
+        }
+      }
+    },
+    {
+      "seed": 131002,
+      "policy": "joint",
+      "success": true,
+      "grade": "great",
+      "steps": 80,
+      "restores": 80,
+      "errors": [],
+      "recruits": 3,
+      "deck": 11,
+      "excluded": 5,
+      "growth": {
+        "expert": 3
+      },
+      "joints": [
+        "joint_supply"
+      ],
+      "jointPlays": 1,
+      "officers": [
+        {
+          "id": "chengpu",
+          "major": true,
+          "trust": 60,
+          "loyalty": 80,
+          "growth": "expert",
+          "equipped": 3,
+          "plays": 3
+        },
+        {
+          "id": "xunyu",
+          "major": true,
+          "trust": 55,
+          "loyalty": 80,
+          "growth": "expert",
+          "equipped": 2,
+          "plays": 2
+        },
+        {
+          "id": "local_captain",
+          "major": false,
+          "trust": 55,
+          "loyalty": 60,
+          "growth": "expert",
+          "equipped": 3,
+          "plays": 2
+        }
+      ],
+      "stats": {
+        "recruits": 3,
+        "equips": {
+          "role_supply_a": 1,
+          "person_chengpu_a": 1,
+          "role_military_a": 1,
+          "person_local_captain_a": 1,
+          "joint_supply": 1,
+          "role_network_a": 1,
+          "person_xunyu_a": 1
+        },
+        "plays": {
+          "support_chengpu": 1,
+          "cache": 5,
+          "food": 1,
+          "support_local_captain": 1,
+          "manifesto": 2,
+          "support_xunyu": 1,
+          "recommend": 1,
+          "joint_supply": 1,
+          "role_network_a": 1,
+          "person_chengpu_a": 1,
+          "coin": 1
+        },
+        "excluded": 5,
+        "growth": {
+          "expert": 3
+        },
+        "jointPlays": 1,
+        "loyaltyCosts": 0,
+        "officerPlays": {
+          "chengpu": 3,
+          "local_captain": 2,
+          "xunyu": 2
+        },
+        "officerEquips": {
+          "chengpu": 3,
+          "local_captain": 3,
+          "xunyu": 2
+        }
+      }
+    },
+    {
+      "seed": 131002,
+      "policy": "random",
+      "success": true,
+      "grade": "great",
+      "steps": 75,
+      "restores": 75,
+      "errors": [],
+      "recruits": 4,
+      "deck": 12,
+      "excluded": 3,
+      "growth": {
+        "expert": 1
+      },
+      "joints": [],
+      "jointPlays": 0,
+      "officers": [
+        {
+          "id": "caoren",
+          "major": true,
+          "trust": 55,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 2,
+          "plays": 2
+        },
+        {
+          "id": "chengpu",
+          "major": true,
+          "trust": 60,
+          "loyalty": 80,
+          "growth": "expert",
+          "equipped": 2,
+          "plays": 3
+        },
+        {
+          "id": "xunyu",
+          "major": true,
+          "trust": 50,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 2,
+          "plays": 1
+        },
+        {
+          "id": "local_scribe",
+          "major": false,
+          "trust": 60,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 0,
+          "plays": 0
+        }
+      ],
+      "stats": {
+        "recruits": 4,
+        "equips": {
+          "role_supply_a": 1,
+          "person_chengpu_a": 1,
+          "role_cause_a": 1,
+          "person_caoren_a": 1,
+          "role_network_a": 1,
+          "person_xunyu_a": 1
+        },
+        "plays": {
+          "support_chengpu": 1,
+          "cache": 1,
+          "food": 1,
+          "support_caoren": 1,
+          "manifesto": 1,
+          "support_xunyu": 1,
+          "recommend": 1,
+          "clues": 1,
+          "person_chengpu_a": 1,
+          "role_supply_a": 1,
+          "role_cause_a": 1
+        },
+        "excluded": 3,
+        "growth": {
+          "expert": 1
+        },
+        "jointPlays": 0,
+        "loyaltyCosts": 0,
+        "officerPlays": {
+          "chengpu": 3,
+          "caoren": 2,
+          "xunyu": 1
+        },
+        "officerEquips": {
+          "chengpu": 2,
+          "caoren": 2,
+          "xunyu": 2
+        }
+      }
+    },
+    {
+      "seed": 131003,
+      "policy": "relations",
+      "success": true,
+      "grade": "great",
+      "steps": 80,
+      "restores": 80,
+      "errors": [],
+      "recruits": 5,
+      "deck": 12,
+      "excluded": 3,
+      "growth": {
+        "expert": 1
+      },
+      "joints": [],
+      "jointPlays": 0,
+      "officers": [
+        {
+          "id": "caoren",
+          "major": true,
+          "trust": 60,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 0,
+          "plays": 0
+        },
+        {
+          "id": "chengpu",
+          "major": true,
+          "trust": 55,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 2,
+          "plays": 2
+        },
+        {
+          "id": "xunyu",
+          "major": true,
+          "trust": 65,
+          "loyalty": 80,
+          "growth": "expert",
+          "equipped": 2,
+          "plays": 4
+        },
+        {
+          "id": "local_captain",
+          "major": false,
+          "trust": 50,
+          "loyalty": 50,
+          "growth": null,
+          "equipped": 2,
+          "plays": 1
+        },
+        {
+          "id": "local_scribe",
+          "major": false,
+          "trust": 60,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 0,
+          "plays": 0
+        }
+      ],
+      "stats": {
+        "recruits": 5,
+        "equips": {
+          "role_network_a": 1,
+          "person_xunyu_a": 1,
+          "role_military_a": 1,
+          "person_local_captain_a": 1,
+          "role_supply_a": 1,
+          "person_chengpu_a": 1
+        },
+        "plays": {
+          "support_xunyu": 1,
+          "manifesto": 2,
+          "support_local_captain": 1,
+          "cache": 2,
+          "recommend": 2,
+          "person_xunyu_a": 2,
+          "support_chengpu": 1,
+          "role_network_b": 1,
+          "clues": 1,
+          "coin": 1,
+          "person_chengpu_a": 1
+        },
+        "excluded": 3,
+        "growth": {
+          "expert": 1
+        },
+        "jointPlays": 0,
+        "loyaltyCosts": 0,
+        "officerPlays": {
+          "xunyu": 4,
+          "local_captain": 1,
+          "chengpu": 2
+        },
+        "officerEquips": {
+          "xunyu": 2,
+          "local_captain": 2,
+          "chengpu": 2
+        }
+      }
+    },
+    {
+      "seed": 131003,
+      "policy": "military",
+      "success": true,
+      "grade": "great",
+      "steps": 73,
+      "restores": 73,
+      "errors": [],
+      "recruits": 5,
+      "deck": 12,
+      "excluded": 3,
+      "growth": {
+        "authority": 2
+      },
+      "joints": [],
+      "jointPlays": 0,
+      "officers": [
+        {
+          "id": "dianwei",
+          "major": true,
+          "trust": 55,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 0,
+          "plays": 0
+        },
+        {
+          "id": "caoren",
+          "major": true,
+          "trust": 55,
+          "loyalty": 50,
+          "growth": null,
+          "equipped": 0,
+          "plays": 0
+        },
+        {
+          "id": "chengpu",
+          "major": true,
+          "trust": 55,
+          "loyalty": 50,
+          "growth": null,
+          "equipped": 2,
+          "plays": 3
+        },
+        {
+          "id": "xunyu",
+          "major": true,
+          "trust": 55,
+          "loyalty": 60,
+          "growth": "authority",
+          "equipped": 2,
+          "plays": 3
+        },
+        {
+          "id": "local_captain",
+          "major": false,
+          "trust": 55,
+          "loyalty": 80,
+          "growth": "authority",
+          "equipped": 2,
+          "plays": 3
+        }
+      ],
+      "stats": {
+        "recruits": 5,
+        "equips": {
+          "role_network_a": 1,
+          "person_xunyu_b": 1,
+          "role_military_a": 1,
+          "person_local_captain_b": 1,
+          "role_supply_a": 1,
+          "person_chengpu_b": 1
+        },
+        "plays": {
+          "support_xunyu": 1,
+          "manifesto": 1,
+          "support_local_captain": 1,
+          "cache": 2,
+          "support_chengpu": 1,
+          "person_xunyu_b": 1,
+          "role_network_a": 1,
+          "person_local_captain_b": 1,
+          "role_military_b": 1,
+          "raise": 1,
+          "person_chengpu_b": 1,
+          "role_supply_a": 1
+        },
+        "excluded": 3,
+        "growth": {
+          "authority": 2
+        },
+        "jointPlays": 0,
+        "loyaltyCosts": 0,
+        "officerPlays": {
+          "xunyu": 3,
+          "local_captain": 3,
+          "chengpu": 3
+        },
+        "officerEquips": {
+          "xunyu": 2,
+          "local_captain": 2,
+          "chengpu": 2
+        }
+      }
+    },
+    {
+      "seed": 131003,
+      "policy": "intel",
+      "success": true,
+      "grade": "great",
+      "steps": 86,
+      "restores": 86,
+      "errors": [],
+      "recruits": 5,
+      "deck": 12,
+      "excluded": 3,
+      "growth": {
+        "expert": 2
+      },
+      "joints": [],
+      "jointPlays": 0,
+      "officers": [
+        {
+          "id": "caoren",
+          "major": true,
+          "trust": 55,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 0,
+          "plays": 0
+        },
+        {
+          "id": "xunyu",
+          "major": true,
+          "trust": 65,
+          "loyalty": 80,
+          "growth": "expert",
+          "equipped": 2,
+          "plays": 5
+        },
+        {
+          "id": "lusu",
+          "major": true,
+          "trust": 50,
+          "loyalty": 80,
+          "growth": "expert",
+          "equipped": 2,
+          "plays": 2
+        },
+        {
+          "id": "local_captain",
+          "major": false,
+          "trust": 50,
+          "loyalty": 50,
+          "growth": null,
+          "equipped": 2,
+          "plays": 2
+        },
+        {
+          "id": "local_broker",
+          "major": false,
+          "trust": 55,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 0,
+          "plays": 0
+        }
+      ],
+      "stats": {
+        "recruits": 5,
+        "equips": {
+          "role_network_a": 1,
+          "person_xunyu_a": 1,
+          "role_military_a": 1,
+          "person_local_captain_a": 1,
+          "role_intel_a": 1,
+          "person_lusu_a": 1
+        },
+        "plays": {
+          "support_xunyu": 1,
+          "manifesto": 1,
+          "rumor": 1,
+          "support_local_captain": 1,
+          "clerk": 2,
+          "person_xunyu_a": 2,
+          "role_network_a": 1,
+          "support_lusu": 1,
+          "coin": 2,
+          "role_network_b": 1,
+          "cache": 1,
+          "role_intel_a": 1,
+          "role_military_a": 1,
+          "food": 1
+        },
+        "excluded": 3,
+        "growth": {
+          "expert": 2
+        },
+        "jointPlays": 0,
+        "loyaltyCosts": 0,
+        "officerPlays": {
+          "xunyu": 5,
+          "local_captain": 2,
+          "lusu": 2
+        },
+        "officerEquips": {
+          "xunyu": 2,
+          "local_captain": 2,
+          "lusu": 2
+        }
+      }
+    },
+    {
+      "seed": 131003,
+      "policy": "small",
+      "success": true,
+      "grade": "great",
+      "steps": 79,
+      "restores": 79,
+      "errors": [],
+      "recruits": 5,
+      "deck": 9,
+      "excluded": 3,
+      "growth": {
+        "expert": 1
+      },
+      "joints": [],
+      "jointPlays": 0,
+      "officers": [
+        {
+          "id": "caoren",
+          "major": true,
+          "trust": 60,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 0,
+          "plays": 0
+        },
+        {
+          "id": "chengpu",
+          "major": true,
+          "trust": 50,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 0,
+          "plays": 1
+        },
+        {
+          "id": "xunyu",
+          "major": true,
+          "trust": 70,
+          "loyalty": 80,
+          "growth": "expert",
+          "equipped": 2,
+          "plays": 5
+        },
+        {
+          "id": "local_captain",
+          "major": false,
+          "trust": 55,
+          "loyalty": 50,
+          "growth": null,
+          "equipped": 1,
+          "plays": 2
+        },
+        {
+          "id": "local_scribe",
+          "major": false,
+          "trust": 60,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 0,
+          "plays": 0
+        }
+      ],
+      "stats": {
+        "recruits": 5,
+        "equips": {
+          "role_network_a": 1,
+          "person_xunyu_a": 1,
+          "role_military_a": 1
+        },
+        "plays": {
+          "support_xunyu": 1,
+          "manifesto": 2,
+          "support_local_captain": 1,
+          "cache": 3,
+          "recommend": 1,
+          "person_xunyu_a": 2,
+          "support_chengpu": 1,
+          "role_network_b": 2,
+          "clues": 1,
+          "role_military_a": 1
+        },
+        "excluded": 3,
+        "growth": {
+          "expert": 1
+        },
+        "jointPlays": 0,
+        "loyaltyCosts": 0,
+        "officerPlays": {
+          "xunyu": 5,
+          "local_captain": 2,
+          "chengpu": 1
+        },
+        "officerEquips": {
+          "xunyu": 2,
+          "local_captain": 1
+        }
+      }
+    },
+    {
+      "seed": 131003,
+      "policy": "generalist",
+      "success": true,
+      "grade": "great",
+      "steps": 75,
+      "restores": 75,
+      "errors": [],
+      "recruits": 4,
+      "deck": 12,
+      "excluded": 3,
+      "growth": {},
+      "joints": [],
+      "jointPlays": 0,
+      "officers": [
+        {
+          "id": "chengpu",
+          "major": true,
+          "trust": 55,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 2,
+          "plays": 2
+        },
+        {
+          "id": "local_captain",
+          "major": false,
+          "trust": 50,
+          "loyalty": 50,
+          "growth": null,
+          "equipped": 2,
+          "plays": 1
+        },
+        {
+          "id": "local_scribe",
+          "major": false,
+          "trust": 60,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 0,
+          "plays": 0
+        },
+        {
+          "id": "local_broker",
+          "major": false,
+          "trust": 55,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 2,
+          "plays": 2
+        }
+      ],
+      "stats": {
+        "recruits": 4,
+        "equips": {
+          "role_funds_a": 1,
+          "person_local_broker_a": 1,
+          "role_military_a": 1,
+          "person_local_captain_a": 1,
+          "role_supply_a": 1,
+          "person_chengpu_a": 1
+        },
+        "plays": {
+          "support_local_broker": 1,
+          "cache": 3,
+          "coin": 1,
+          "support_local_captain": 1,
+          "recommend": 2,
+          "support_chengpu": 1,
+          "food": 1,
+          "clues": 1,
+          "role_supply_a": 1,
+          "person_local_broker_a": 1
+        },
+        "excluded": 3,
+        "growth": {},
+        "jointPlays": 0,
+        "loyaltyCosts": 0,
+        "officerPlays": {
+          "local_broker": 2,
+          "local_captain": 1,
+          "chengpu": 2
+        },
+        "officerEquips": {
+          "local_broker": 2,
+          "local_captain": 2,
+          "chengpu": 2
+        }
+      }
+    },
+    {
+      "seed": 131003,
+      "policy": "joint",
+      "success": true,
+      "grade": "conditional",
+      "steps": 83,
+      "restores": 83,
+      "errors": [],
+      "recruits": 3,
+      "deck": 11,
+      "excluded": 5,
+      "growth": {
+        "expert": 2
+      },
+      "joints": [
+        "joint_supply"
+      ],
+      "jointPlays": 2,
+      "officers": [
+        {
+          "id": "chengpu",
+          "major": true,
+          "trust": 80,
+          "loyalty": 80,
+          "growth": "expert",
+          "equipped": 3,
+          "plays": 7
+        },
+        {
+          "id": "local_captain",
+          "major": false,
+          "trust": 65,
+          "loyalty": 60,
+          "growth": "expert",
+          "equipped": 3,
+          "plays": 4
+        },
+        {
+          "id": "local_broker",
+          "major": false,
+          "trust": 55,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 2,
+          "plays": 2
+        }
+      ],
+      "stats": {
+        "recruits": 3,
+        "equips": {
+          "role_supply_a": 1,
+          "person_chengpu_a": 1,
+          "role_military_a": 1,
+          "person_local_captain_a": 1,
+          "joint_supply": 1,
+          "role_funds_a": 1,
+          "person_local_broker_a": 1
+        },
+        "plays": {
+          "support_chengpu": 1,
+          "cache": 3,
+          "coin": 2,
+          "support_local_captain": 1,
+          "recommend": 1,
+          "person_chengpu_a": 3,
+          "role_supply_a": 1,
+          "support_local_broker": 1,
+          "joint_supply": 2,
+          "food": 1,
+          "role_funds_a": 1,
+          "person_local_captain_a": 1
+        },
+        "excluded": 5,
+        "growth": {
+          "expert": 2
+        },
+        "jointPlays": 2,
+        "loyaltyCosts": 0,
+        "officerPlays": {
+          "chengpu": 7,
+          "local_captain": 4,
+          "local_broker": 2
+        },
+        "officerEquips": {
+          "chengpu": 3,
+          "local_captain": 3,
+          "local_broker": 2
+        }
+      }
+    },
+    {
+      "seed": 131003,
+      "policy": "random",
+      "success": true,
+      "grade": "conditional",
+      "steps": 79,
+      "restores": 79,
+      "errors": [],
+      "recruits": 5,
+      "deck": 12,
+      "excluded": 3,
+      "growth": {
+        "expert": 2
+      },
+      "joints": [],
+      "jointPlays": 0,
+      "officers": [
+        {
+          "id": "dianwei",
+          "major": true,
+          "trust": 55,
+          "loyalty": 50,
+          "growth": null,
+          "equipped": 2,
+          "plays": 2
+        },
+        {
+          "id": "caoren",
+          "major": true,
+          "trust": 55,
+          "loyalty": 80,
+          "growth": "expert",
+          "equipped": 2,
+          "plays": 2
+        },
+        {
+          "id": "chengpu",
+          "major": true,
+          "trust": 60,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 0,
+          "plays": 0
+        },
+        {
+          "id": "xunyu",
+          "major": true,
+          "trust": 55,
+          "loyalty": 80,
+          "growth": "expert",
+          "equipped": 2,
+          "plays": 2
+        },
+        {
+          "id": "local_scribe",
+          "major": false,
+          "trust": 60,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 0,
+          "plays": 0
+        }
+      ],
+      "stats": {
+        "recruits": 5,
+        "equips": {
+          "role_network_a": 1,
+          "person_xunyu_a": 1,
+          "role_military_a": 1,
+          "person_dianwei_a": 1,
+          "role_cause_a": 1,
+          "person_caoren_a": 1
+        },
+        "plays": {
+          "support_xunyu": 1,
+          "manifesto": 2,
+          "support_dianwei": 1,
+          "cache": 1,
+          "clues": 2,
+          "support_caoren": 1,
+          "role_network_a": 1,
+          "person_caoren_a": 1,
+          "coin": 1,
+          "person_dianwei_a": 1
+        },
+        "excluded": 3,
+        "growth": {
+          "expert": 2
+        },
+        "jointPlays": 0,
+        "loyaltyCosts": 0,
+        "officerPlays": {
+          "xunyu": 2,
+          "dianwei": 2,
+          "caoren": 2
+        },
+        "officerEquips": {
+          "xunyu": 2,
+          "dianwei": 2,
+          "caoren": 2
+        }
+      }
+    },
+    {
+      "seed": 131004,
+      "policy": "relations",
+      "success": true,
+      "grade": "great",
+      "steps": 79,
+      "restores": 79,
+      "errors": [],
+      "recruits": 5,
+      "deck": 12,
+      "excluded": 3,
+      "growth": {
+        "expert": 3
+      },
+      "joints": [],
+      "jointPlays": 0,
+      "officers": [
+        {
+          "id": "caoren",
+          "major": true,
+          "trust": 60,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 0,
+          "plays": 0
+        },
+        {
+          "id": "chengpu",
+          "major": true,
+          "trust": 55,
+          "loyalty": 80,
+          "growth": "expert",
+          "equipped": 2,
+          "plays": 2
+        },
+        {
+          "id": "xunyu",
+          "major": true,
+          "trust": 60,
+          "loyalty": 80,
+          "growth": "expert",
+          "equipped": 2,
+          "plays": 3
+        },
+        {
+          "id": "lusu",
+          "major": true,
+          "trust": 55,
+          "loyalty": 80,
+          "growth": "expert",
+          "equipped": 2,
+          "plays": 2
+        },
+        {
+          "id": "local_scribe",
+          "major": false,
+          "trust": 60,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 0,
+          "plays": 0
+        }
+      ],
+      "stats": {
+        "recruits": 5,
+        "equips": {
+          "role_network_a": 1,
+          "person_xunyu_a": 1,
+          "role_supply_a": 1,
+          "person_chengpu_a": 1,
+          "role_intel_a": 1,
+          "person_lusu_a": 1
+        },
+        "plays": {
+          "support_xunyu": 1,
+          "recommend": 1,
+          "support_chengpu": 1,
+          "coin": 1,
+          "food": 1,
+          "support_lusu": 1,
+          "role_network_a": 1,
+          "person_xunyu_a": 1,
+          "clues": 1,
+          "person_chengpu_a": 1,
+          "cache": 1,
+          "role_intel_a": 1
+        },
+        "excluded": 3,
+        "growth": {
+          "expert": 3
+        },
+        "jointPlays": 0,
+        "loyaltyCosts": 0,
+        "officerPlays": {
+          "xunyu": 3,
+          "chengpu": 2,
+          "lusu": 2
+        },
+        "officerEquips": {
+          "xunyu": 2,
+          "chengpu": 2,
+          "lusu": 2
+        }
+      }
+    },
+    {
+      "seed": 131004,
+      "policy": "military",
+      "success": true,
+      "grade": "great",
+      "steps": 75,
+      "restores": 75,
+      "errors": [],
+      "recruits": 5,
+      "deck": 12,
+      "excluded": 3,
+      "growth": {
+        "authority": 2
+      },
+      "joints": [],
+      "jointPlays": 0,
+      "officers": [
+        {
+          "id": "dianwei",
+          "major": true,
+          "trust": 50,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 2,
+          "plays": 2
+        },
+        {
+          "id": "caoren",
+          "major": true,
+          "trust": 55,
+          "loyalty": 50,
+          "growth": null,
+          "equipped": 0,
+          "plays": 0
+        },
+        {
+          "id": "chengpu",
+          "major": true,
+          "trust": 55,
+          "loyalty": 50,
+          "growth": null,
+          "equipped": 0,
+          "plays": 0
+        },
+        {
+          "id": "lusu",
+          "major": true,
+          "trust": 50,
+          "loyalty": 60,
+          "growth": "authority",
+          "equipped": 2,
+          "plays": 2
+        },
+        {
+          "id": "local_captain",
+          "major": false,
+          "trust": 60,
+          "loyalty": 80,
+          "growth": "authority",
+          "equipped": 2,
+          "plays": 4
+        }
+      ],
+      "stats": {
+        "recruits": 5,
+        "equips": {
+          "role_military_a": 2,
+          "person_local_captain_b": 1,
+          "person_dianwei_b": 1,
+          "role_intel_a": 1,
+          "person_lusu_b": 1
+        },
+        "plays": {
+          "support_local_captain": 1,
+          "cache": 2,
+          "food": 1,
+          "support_dianwei": 1,
+          "clues": 2,
+          "fatigue": 1,
+          "support_lusu": 1,
+          "person_local_captain_b": 1,
+          "role_military_a": 1,
+          "raise": 1,
+          "person_lusu_b": 1,
+          "role_military_b": 1,
+          "person_dianwei_b": 1,
+          "coin": 1
+        },
+        "excluded": 3,
+        "growth": {
+          "authority": 2
+        },
+        "jointPlays": 0,
+        "loyaltyCosts": 0,
+        "officerPlays": {
+          "local_captain": 4,
+          "dianwei": 2,
+          "lusu": 2
+        },
+        "officerEquips": {
+          "local_captain": 2,
+          "dianwei": 2,
+          "lusu": 2
+        }
+      }
+    },
+    {
+      "seed": 131004,
+      "policy": "intel",
+      "success": true,
+      "grade": "conditional",
+      "steps": 93,
+      "restores": 93,
+      "errors": [],
+      "recruits": 5,
+      "deck": 12,
+      "excluded": 3,
+      "growth": {
+        "expert": 3
+      },
+      "joints": [],
+      "jointPlays": 0,
+      "officers": [
+        {
+          "id": "caoren",
+          "major": true,
+          "trust": 55,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 0,
+          "plays": 0
+        },
+        {
+          "id": "chengpu",
+          "major": true,
+          "trust": 50,
+          "loyalty": 80,
+          "growth": "expert",
+          "equipped": 2,
+          "plays": 2
+        },
+        {
+          "id": "xunyu",
+          "major": true,
+          "trust": 55,
+          "loyalty": 80,
+          "growth": "expert",
+          "equipped": 2,
+          "plays": 3
+        },
+        {
+          "id": "lusu",
+          "major": true,
+          "trust": 50,
+          "loyalty": 80,
+          "growth": "expert",
+          "equipped": 2,
+          "plays": 2
+        },
+        {
+          "id": "local_scribe",
+          "major": false,
+          "trust": 55,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 0,
+          "plays": 0
+        }
+      ],
+      "stats": {
+        "recruits": 5,
+        "equips": {
+          "role_network_a": 1,
+          "person_xunyu_a": 1,
+          "role_supply_a": 1,
+          "person_chengpu_a": 1,
+          "role_intel_a": 1,
+          "person_lusu_a": 1
+        },
+        "plays": {
+          "support_xunyu": 1,
+          "clerk": 2,
+          "rumor": 1,
+          "support_chengpu": 1,
+          "coin": 2,
+          "support_lusu": 1,
+          "role_network_a": 1,
+          "person_xunyu_a": 1,
+          "person_chengpu_a": 1,
+          "role_intel_a": 1,
+          "food": 1,
+          "cache": 1
+        },
+        "excluded": 3,
+        "growth": {
+          "expert": 3
+        },
+        "jointPlays": 0,
+        "loyaltyCosts": 0,
+        "officerPlays": {
+          "xunyu": 3,
+          "chengpu": 2,
+          "lusu": 2
+        },
+        "officerEquips": {
+          "xunyu": 2,
+          "chengpu": 2,
+          "lusu": 2
+        }
+      }
+    },
+    {
+      "seed": 131004,
+      "policy": "small",
+      "success": true,
+      "grade": "great",
+      "steps": 74,
+      "restores": 74,
+      "errors": [],
+      "recruits": 5,
+      "deck": 9,
+      "excluded": 3,
+      "growth": {
+        "expert": 1
+      },
+      "joints": [],
+      "jointPlays": 0,
+      "officers": [
+        {
+          "id": "caoren",
+          "major": true,
+          "trust": 60,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 0,
+          "plays": 0
+        },
+        {
+          "id": "chengpu",
+          "major": true,
+          "trust": 55,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 1,
+          "plays": 2
+        },
+        {
+          "id": "xunyu",
+          "major": true,
+          "trust": 70,
+          "loyalty": 80,
+          "growth": "expert",
+          "equipped": 2,
+          "plays": 5
+        },
+        {
+          "id": "lusu",
+          "major": true,
+          "trust": 50,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 0,
+          "plays": 1
+        },
+        {
+          "id": "local_scribe",
+          "major": false,
+          "trust": 60,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 0,
+          "plays": 0
+        }
+      ],
+      "stats": {
+        "recruits": 5,
+        "equips": {
+          "role_network_a": 1,
+          "person_xunyu_a": 1,
+          "role_supply_a": 1
+        },
+        "plays": {
+          "support_xunyu": 1,
+          "recommend": 2,
+          "support_chengpu": 1,
+          "coin": 1,
+          "food": 1,
+          "support_lusu": 1,
+          "role_network_a": 1,
+          "person_xunyu_a": 2,
+          "manifesto": 1,
+          "role_network_b": 1,
+          "cache": 2,
+          "role_supply_a": 1
+        },
+        "excluded": 3,
+        "growth": {
+          "expert": 1
+        },
+        "jointPlays": 0,
+        "loyaltyCosts": 0,
+        "officerPlays": {
+          "xunyu": 5,
+          "chengpu": 2,
+          "lusu": 1
+        },
+        "officerEquips": {
+          "xunyu": 2,
+          "chengpu": 1
+        }
+      }
+    },
+    {
+      "seed": 131004,
+      "policy": "generalist",
+      "success": true,
+      "grade": "conditional",
+      "steps": 76,
+      "restores": 76,
+      "errors": [],
+      "recruits": 4,
+      "deck": 12,
+      "excluded": 3,
+      "growth": {
+        "expert": 1
+      },
+      "joints": [],
+      "jointPlays": 0,
+      "officers": [
+        {
+          "id": "lusu",
+          "major": true,
+          "trust": 60,
+          "loyalty": 80,
+          "growth": "expert",
+          "equipped": 2,
+          "plays": 3
+        },
+        {
+          "id": "local_captain",
+          "major": false,
+          "trust": 50,
+          "loyalty": 50,
+          "growth": null,
+          "equipped": 2,
+          "plays": 1
+        },
+        {
+          "id": "local_scribe",
+          "major": false,
+          "trust": 60,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 0,
+          "plays": 0
+        },
+        {
+          "id": "local_broker",
+          "major": false,
+          "trust": 50,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 2,
+          "plays": 1
+        }
+      ],
+      "stats": {
+        "recruits": 4,
+        "equips": {
+          "role_military_a": 1,
+          "person_local_captain_a": 1,
+          "role_funds_a": 1,
+          "person_local_broker_a": 1,
+          "role_intel_a": 1,
+          "person_lusu_a": 1
+        },
+        "plays": {
+          "support_local_captain": 1,
+          "cache": 2,
+          "recommend": 2,
+          "food": 1,
+          "support_local_broker": 1,
+          "coin": 1,
+          "support_lusu": 1,
+          "clues": 2,
+          "role_intel_a": 1,
+          "person_lusu_a": 1
+        },
+        "excluded": 3,
+        "growth": {
+          "expert": 1
+        },
+        "jointPlays": 0,
+        "loyaltyCosts": 0,
+        "officerPlays": {
+          "local_captain": 1,
+          "local_broker": 1,
+          "lusu": 3
+        },
+        "officerEquips": {
+          "local_captain": 2,
+          "local_broker": 2,
+          "lusu": 2
+        }
+      }
+    },
+    {
+      "seed": 131004,
+      "policy": "joint",
+      "success": true,
+      "grade": "conditional",
+      "steps": 86,
+      "restores": 86,
+      "errors": [],
+      "recruits": 4,
+      "deck": 11,
+      "excluded": 5,
+      "growth": {
+        "expert": 2
+      },
+      "joints": [
+        "joint_supply"
+      ],
+      "jointPlays": 2,
+      "officers": [
+        {
+          "id": "caoren",
+          "major": true,
+          "trust": 60,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 0,
+          "plays": 0
+        },
+        {
+          "id": "chengpu",
+          "major": true,
+          "trust": 65,
+          "loyalty": 80,
+          "growth": "expert",
+          "equipped": 3,
+          "plays": 4
+        },
+        {
+          "id": "lusu",
+          "major": true,
+          "trust": 50,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 2,
+          "plays": 1
+        },
+        {
+          "id": "local_captain",
+          "major": false,
+          "trust": 65,
+          "loyalty": 60,
+          "growth": "expert",
+          "equipped": 3,
+          "plays": 4
+        }
+      ],
+      "stats": {
+        "recruits": 4,
+        "equips": {
+          "role_military_a": 1,
+          "person_local_captain_a": 1,
+          "role_supply_a": 1,
+          "person_chengpu_a": 1,
+          "joint_supply": 1,
+          "role_intel_a": 1,
+          "person_lusu_a": 1
+        },
+        "plays": {
+          "support_local_captain": 1,
+          "cache": 4,
+          "recommend": 1,
+          "food": 1,
+          "support_chengpu": 1,
+          "coin": 3,
+          "support_lusu": 1,
+          "person_chengpu_a": 1,
+          "joint_supply": 2,
+          "person_local_captain_a": 1
+        },
+        "excluded": 5,
+        "growth": {
+          "expert": 2
+        },
+        "jointPlays": 2,
+        "loyaltyCosts": 0,
+        "officerPlays": {
+          "local_captain": 4,
+          "chengpu": 4,
+          "lusu": 1
+        },
+        "officerEquips": {
+          "local_captain": 3,
+          "chengpu": 3,
+          "lusu": 2
+        }
+      }
+    },
+    {
+      "seed": 131004,
+      "policy": "random",
+      "success": true,
+      "grade": "great",
+      "steps": 72,
+      "restores": 72,
+      "errors": [],
+      "recruits": 4,
+      "deck": 12,
+      "excluded": 3,
+      "growth": {
+        "expert": 2
+      },
+      "joints": [],
+      "jointPlays": 0,
+      "officers": [
+        {
+          "id": "chengpu",
+          "major": true,
+          "trust": 55,
+          "loyalty": 80,
+          "growth": "expert",
+          "equipped": 2,
+          "plays": 2
+        },
+        {
+          "id": "xunyu",
+          "major": true,
+          "trust": 65,
+          "loyalty": 80,
+          "growth": "expert",
+          "equipped": 2,
+          "plays": 4
+        },
+        {
+          "id": "local_scribe",
+          "major": false,
+          "trust": 60,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 2,
+          "plays": 3
+        },
+        {
+          "id": "local_broker",
+          "major": false,
+          "trust": 60,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 0,
+          "plays": 0
+        }
+      ],
+      "stats": {
+        "recruits": 4,
+        "equips": {
+          "role_network_a": 1,
+          "person_xunyu_a": 1,
+          "role_supply_a": 1,
+          "person_chengpu_a": 1,
+          "role_cause_a": 1,
+          "person_local_scribe_a": 1
+        },
+        "plays": {
+          "support_xunyu": 1,
+          "recommend": 2,
+          "support_chengpu": 1,
+          "coin": 1,
+          "food": 1,
+          "role_network_a": 1,
+          "person_xunyu_a": 1,
+          "support_local_scribe": 1,
+          "clues": 1,
+          "role_network_b": 1,
+          "role_supply_a": 1,
+          "person_local_scribe_a": 1,
+          "role_cause_a": 1
+        },
+        "excluded": 3,
+        "growth": {
+          "expert": 2
+        },
+        "jointPlays": 0,
+        "loyaltyCosts": 0,
+        "officerPlays": {
+          "xunyu": 4,
+          "chengpu": 2,
+          "local_scribe": 3
+        },
+        "officerEquips": {
+          "xunyu": 2,
+          "chengpu": 2,
+          "local_scribe": 2
+        }
+      }
+    },
+    {
+      "seed": 131005,
+      "policy": "relations",
+      "success": true,
+      "grade": "great",
+      "steps": 79,
+      "restores": 79,
+      "errors": [],
+      "recruits": 5,
+      "deck": 12,
+      "excluded": 3,
+      "growth": {
+        "expert": 1
+      },
+      "joints": [],
+      "jointPlays": 0,
+      "officers": [
+        {
+          "id": "caoren",
+          "major": true,
+          "trust": 60,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 0,
+          "plays": 0
+        },
+        {
+          "id": "chengpu",
+          "major": true,
+          "trust": 55,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 2,
+          "plays": 2
+        },
+        {
+          "id": "xunyu",
+          "major": true,
+          "trust": 50,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 2,
+          "plays": 1
+        },
+        {
+          "id": "local_captain",
+          "major": false,
+          "trust": 55,
+          "loyalty": 60,
+          "growth": "expert",
+          "equipped": 2,
+          "plays": 2
+        },
+        {
+          "id": "local_scribe",
+          "major": false,
+          "trust": 60,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 0,
+          "plays": 0
+        }
+      ],
+      "stats": {
+        "recruits": 5,
+        "equips": {
+          "role_supply_a": 1,
+          "person_chengpu_a": 1,
+          "role_military_a": 1,
+          "person_local_captain_a": 1,
+          "role_network_a": 1,
+          "person_xunyu_a": 1
+        },
+        "plays": {
+          "support_chengpu": 1,
+          "cache": 1,
+          "coin": 2,
+          "support_local_captain": 1,
+          "recommend": 1,
+          "food": 1,
+          "support_xunyu": 1,
+          "manifesto": 1,
+          "clues": 1,
+          "role_military_a": 1,
+          "person_chengpu_a": 1
+        },
+        "excluded": 3,
+        "growth": {
+          "expert": 1
+        },
+        "jointPlays": 0,
+        "loyaltyCosts": 0,
+        "officerPlays": {
+          "chengpu": 2,
+          "local_captain": 2,
+          "xunyu": 1
+        },
+        "officerEquips": {
+          "chengpu": 2,
+          "local_captain": 2,
+          "xunyu": 2
+        }
+      }
+    },
+    {
+      "seed": 131005,
+      "policy": "military",
+      "success": true,
+      "grade": "great",
+      "steps": 71,
+      "restores": 71,
+      "errors": [],
+      "recruits": 5,
+      "deck": 12,
+      "excluded": 3,
+      "growth": {
+        "authority": 1
+      },
+      "joints": [],
+      "jointPlays": 0,
+      "officers": [
+        {
+          "id": "caoren",
+          "major": true,
+          "trust": 55,
+          "loyalty": 50,
+          "growth": null,
+          "equipped": 0,
+          "plays": 0
+        },
+        {
+          "id": "chengpu",
+          "major": true,
+          "trust": 55,
+          "loyalty": 60,
+          "growth": "authority",
+          "equipped": 2,
+          "plays": 3
+        },
+        {
+          "id": "xunyu",
+          "major": true,
+          "trust": 45,
+          "loyalty": 50,
+          "growth": null,
+          "equipped": 2,
+          "plays": 1
+        },
+        {
+          "id": "local_captain",
+          "major": false,
+          "trust": 50,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 2,
+          "plays": 2
+        },
+        {
+          "id": "local_scribe",
+          "major": false,
+          "trust": 55,
+          "loyalty": 50,
+          "growth": null,
+          "equipped": 0,
+          "plays": 0
+        }
+      ],
+      "stats": {
+        "recruits": 5,
+        "equips": {
+          "role_supply_a": 1,
+          "person_chengpu_b": 1,
+          "role_military_a": 1,
+          "person_local_captain_b": 1,
+          "role_network_a": 1,
+          "person_xunyu_b": 1
+        },
+        "plays": {
+          "support_chengpu": 1,
+          "cache": 2,
+          "coin": 1,
+          "support_local_captain": 1,
+          "role_supply_a": 1,
+          "food": 1,
+          "support_xunyu": 1,
+          "manifesto": 1,
+          "role_supply_b": 1,
+          "role_military_a": 1,
+          "raise": 1
+        },
+        "excluded": 3,
+        "growth": {
+          "authority": 1
+        },
+        "jointPlays": 0,
+        "loyaltyCosts": 0,
+        "officerPlays": {
+          "chengpu": 3,
+          "local_captain": 2,
+          "xunyu": 1
+        },
+        "officerEquips": {
+          "chengpu": 2,
+          "local_captain": 2,
+          "xunyu": 2
+        }
+      }
+    },
+    {
+      "seed": 131005,
+      "policy": "intel",
+      "success": true,
+      "grade": "conditional",
+      "steps": 89,
+      "restores": 89,
+      "errors": [],
+      "recruits": 4,
+      "deck": 12,
+      "excluded": 3,
+      "growth": {
+        "expert": 2
+      },
+      "joints": [],
+      "jointPlays": 0,
+      "officers": [
+        {
+          "id": "caoren",
+          "major": true,
+          "trust": 55,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 0,
+          "plays": 0
+        },
+        {
+          "id": "xunyu",
+          "major": true,
+          "trust": 45,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 2,
+          "plays": 1
+        },
+        {
+          "id": "lusu",
+          "major": true,
+          "trust": 55,
+          "loyalty": 80,
+          "growth": "expert",
+          "equipped": 2,
+          "plays": 3
+        },
+        {
+          "id": "local_captain",
+          "major": false,
+          "trust": 55,
+          "loyalty": 60,
+          "growth": "expert",
+          "equipped": 2,
+          "plays": 3
+        }
+      ],
+      "stats": {
+        "recruits": 4,
+        "equips": {
+          "role_intel_a": 1,
+          "person_lusu_a": 1,
+          "role_military_a": 1,
+          "person_local_captain_a": 1,
+          "role_network_a": 1,
+          "person_xunyu_a": 1
+        },
+        "plays": {
+          "support_lusu": 1,
+          "coin": 2,
+          "rumor": 1,
+          "support_local_captain": 1,
+          "clerk": 1,
+          "manifesto": 1,
+          "support_xunyu": 1,
+          "person_lusu_a": 1,
+          "role_intel_b": 1,
+          "clues": 1,
+          "role_military_a": 1,
+          "person_local_captain_a": 1,
+          "food": 1
+        },
+        "excluded": 3,
+        "growth": {
+          "expert": 2
+        },
+        "jointPlays": 0,
+        "loyaltyCosts": 0,
+        "officerPlays": {
+          "lusu": 3,
+          "local_captain": 3,
+          "xunyu": 1
+        },
+        "officerEquips": {
+          "lusu": 2,
+          "local_captain": 2,
+          "xunyu": 2
+        }
+      }
+    },
+    {
+      "seed": 131005,
+      "policy": "small",
+      "success": true,
+      "grade": "great",
+      "steps": 77,
+      "restores": 77,
+      "errors": [],
+      "recruits": 5,
+      "deck": 9,
+      "excluded": 3,
+      "growth": {
+        "expert": 1
+      },
+      "joints": [],
+      "jointPlays": 0,
+      "officers": [
+        {
+          "id": "caoren",
+          "major": true,
+          "trust": 60,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 0,
+          "plays": 0
+        },
+        {
+          "id": "chengpu",
+          "major": true,
+          "trust": 60,
+          "loyalty": 80,
+          "growth": "expert",
+          "equipped": 2,
+          "plays": 3
+        },
+        {
+          "id": "xunyu",
+          "major": true,
+          "trust": 50,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 0,
+          "plays": 1
+        },
+        {
+          "id": "local_captain",
+          "major": false,
+          "trust": 50,
+          "loyalty": 50,
+          "growth": null,
+          "equipped": 1,
+          "plays": 1
+        },
+        {
+          "id": "local_scribe",
+          "major": false,
+          "trust": 60,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 0,
+          "plays": 0
+        }
+      ],
+      "stats": {
+        "recruits": 5,
+        "equips": {
+          "role_supply_a": 1,
+          "person_chengpu_a": 1,
+          "role_military_a": 1
+        },
+        "plays": {
+          "support_chengpu": 1,
+          "cache": 3,
+          "coin": 2,
+          "support_local_captain": 1,
+          "recommend": 1,
+          "food": 1,
+          "support_xunyu": 1,
+          "manifesto": 1,
+          "clues": 1,
+          "person_chengpu_a": 2
+        },
+        "excluded": 3,
+        "growth": {
+          "expert": 1
+        },
+        "jointPlays": 0,
+        "loyaltyCosts": 0,
+        "officerPlays": {
+          "chengpu": 3,
+          "local_captain": 1,
+          "xunyu": 1
+        },
+        "officerEquips": {
+          "chengpu": 2,
+          "local_captain": 1
+        }
+      }
+    },
+    {
+      "seed": 131005,
+      "policy": "generalist",
+      "success": true,
+      "grade": "great",
+      "steps": 72,
+      "restores": 72,
+      "errors": [],
+      "recruits": 2,
+      "deck": 10,
+      "excluded": 3,
+      "growth": {
+        "expert": 2
+      },
+      "joints": [],
+      "jointPlays": 0,
+      "officers": [
+        {
+          "id": "local_captain",
+          "major": false,
+          "trust": 60,
+          "loyalty": 60,
+          "growth": "expert",
+          "equipped": 2,
+          "plays": 3
+        },
+        {
+          "id": "local_scribe",
+          "major": false,
+          "trust": 65,
+          "loyalty": 80,
+          "growth": "expert",
+          "equipped": 2,
+          "plays": 4
+        }
+      ],
+      "stats": {
+        "recruits": 2,
+        "equips": {
+          "role_cause_a": 1,
+          "person_local_scribe_a": 1,
+          "role_military_a": 1,
+          "person_local_captain_a": 1
+        },
+        "plays": {
+          "support_local_scribe": 1,
+          "support_local_captain": 1,
+          "recommend": 1,
+          "manifesto": 2,
+          "food": 1,
+          "support_xunyu": 1,
+          "role_cause_a": 1,
+          "person_local_scribe_a": 2,
+          "clues": 2,
+          "role_military_a": 1,
+          "person_local_captain_a": 1
+        },
+        "excluded": 3,
+        "growth": {
+          "expert": 2
+        },
+        "jointPlays": 0,
+        "loyaltyCosts": 0,
+        "officerPlays": {
+          "local_scribe": 4,
+          "local_captain": 3,
+          "xunyu": 1
+        },
+        "officerEquips": {
+          "local_scribe": 2,
+          "local_captain": 2
+        }
+      }
+    },
+    {
+      "seed": 131005,
+      "policy": "joint",
+      "success": true,
+      "grade": "great",
+      "steps": 81,
+      "restores": 81,
+      "errors": [],
+      "recruits": 3,
+      "deck": 11,
+      "excluded": 5,
+      "growth": {
+        "expert": 2
+      },
+      "joints": [
+        "joint_supply"
+      ],
+      "jointPlays": 1,
+      "officers": [
+        {
+          "id": "chengpu",
+          "major": true,
+          "trust": 65,
+          "loyalty": 80,
+          "growth": "expert",
+          "equipped": 3,
+          "plays": 4
+        },
+        {
+          "id": "local_captain",
+          "major": false,
+          "trust": 55,
+          "loyalty": 60,
+          "growth": "expert",
+          "equipped": 3,
+          "plays": 2
+        },
+        {
+          "id": "local_scribe",
+          "major": false,
+          "trust": 50,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 2,
+          "plays": 1
+        }
+      ],
+      "stats": {
+        "recruits": 3,
+        "equips": {
+          "role_supply_a": 1,
+          "person_chengpu_a": 1,
+          "role_military_a": 1,
+          "person_local_captain_a": 1,
+          "joint_supply": 1,
+          "role_cause_a": 1,
+          "person_local_scribe_a": 1
+        },
+        "plays": {
+          "support_chengpu": 1,
+          "cache": 5,
+          "coin": 2,
+          "support_local_captain": 1,
+          "recommend": 2,
+          "food": 1,
+          "person_chengpu_a": 2,
+          "support_local_scribe": 1,
+          "clues": 1,
+          "joint_supply": 1
+        },
+        "excluded": 5,
+        "growth": {
+          "expert": 2
+        },
+        "jointPlays": 1,
+        "loyaltyCosts": 0,
+        "officerPlays": {
+          "chengpu": 4,
+          "local_captain": 2,
+          "local_scribe": 1
+        },
+        "officerEquips": {
+          "chengpu": 3,
+          "local_captain": 3,
+          "local_scribe": 2
+        }
+      }
+    },
+    {
+      "seed": 131005,
+      "policy": "random",
+      "success": true,
+      "grade": "great",
+      "steps": 77,
+      "restores": 77,
+      "errors": [],
+      "recruits": 4,
+      "deck": 12,
+      "excluded": 3,
+      "growth": {
+        "expert": 1
+      },
+      "joints": [],
+      "jointPlays": 0,
+      "officers": [
+        {
+          "id": "caoren",
+          "major": true,
+          "trust": 60,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 0,
+          "plays": 0
+        },
+        {
+          "id": "xunyu",
+          "major": true,
+          "trust": 50,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 2,
+          "plays": 1
+        },
+        {
+          "id": "local_captain",
+          "major": false,
+          "trust": 50,
+          "loyalty": 50,
+          "growth": null,
+          "equipped": 2,
+          "plays": 1
+        },
+        {
+          "id": "local_scribe",
+          "major": false,
+          "trust": 60,
+          "loyalty": 80,
+          "growth": "expert",
+          "equipped": 2,
+          "plays": 3
+        }
+      ],
+      "stats": {
+        "recruits": 4,
+        "equips": {
+          "role_cause_a": 1,
+          "person_local_scribe_a": 1,
+          "role_military_a": 1,
+          "person_local_captain_a": 1,
+          "role_network_a": 1,
+          "person_xunyu_a": 1
+        },
+        "plays": {
+          "support_local_scribe": 1,
+          "support_local_captain": 1,
+          "recommend": 1,
+          "manifesto": 1,
+          "food": 1,
+          "support_xunyu": 1,
+          "role_cause_a": 1,
+          "person_local_scribe_a": 1,
+          "clues": 1,
+          "cache": 1,
+          "coin": 1
+        },
+        "excluded": 3,
+        "growth": {
+          "expert": 1
+        },
+        "jointPlays": 0,
+        "loyaltyCosts": 0,
+        "officerPlays": {
+          "local_scribe": 3,
+          "local_captain": 1,
+          "xunyu": 1
+        },
+        "officerEquips": {
+          "local_scribe": 2,
+          "local_captain": 2,
+          "xunyu": 2
+        }
+      }
+    },
+    {
+      "seed": 131006,
+      "policy": "relations",
+      "success": true,
+      "grade": "great",
+      "steps": 79,
+      "restores": 79,
+      "errors": [],
+      "recruits": 5,
+      "deck": 12,
+      "excluded": 3,
+      "growth": {
+        "expert": 2
+      },
+      "joints": [],
+      "jointPlays": 0,
+      "officers": [
+        {
+          "id": "caoren",
+          "major": true,
+          "trust": 60,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 0,
+          "plays": 0
+        },
+        {
+          "id": "chengpu",
+          "major": true,
+          "trust": 60,
+          "loyalty": 80,
+          "growth": "expert",
+          "equipped": 2,
+          "plays": 3
+        },
+        {
+          "id": "xunyu",
+          "major": true,
+          "trust": 55,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 2,
+          "plays": 2
+        },
+        {
+          "id": "local_captain",
+          "major": false,
+          "trust": 55,
+          "loyalty": 60,
+          "growth": "expert",
+          "equipped": 2,
+          "plays": 2
+        },
+        {
+          "id": "local_scribe",
+          "major": false,
+          "trust": 60,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 0,
+          "plays": 0
+        }
+      ],
+      "stats": {
+        "recruits": 5,
+        "equips": {
+          "role_supply_a": 1,
+          "person_chengpu_a": 1,
+          "role_military_a": 1,
+          "person_local_captain_a": 1,
+          "role_network_a": 1,
+          "person_xunyu_a": 1
+        },
+        "plays": {
+          "support_chengpu": 1,
+          "cache": 2,
+          "coin": 1,
+          "support_local_captain": 1,
+          "manifesto": 1,
+          "food": 1,
+          "support_xunyu": 1,
+          "recommend": 2,
+          "role_military_a": 1,
+          "role_supply_a": 1,
+          "person_chengpu_a": 1,
+          "role_network_a": 1
+        },
+        "excluded": 3,
+        "growth": {
+          "expert": 2
+        },
+        "jointPlays": 0,
+        "loyaltyCosts": 0,
+        "officerPlays": {
+          "chengpu": 3,
+          "local_captain": 2,
+          "xunyu": 2
+        },
+        "officerEquips": {
+          "chengpu": 2,
+          "local_captain": 2,
+          "xunyu": 2
+        }
+      }
+    },
+    {
+      "seed": 131006,
+      "policy": "military",
+      "success": true,
+      "grade": "success",
+      "steps": 67,
+      "restores": 67,
+      "errors": [],
+      "recruits": 3,
+      "deck": 12,
+      "excluded": 3,
+      "growth": {
+        "authority": 1
+      },
+      "joints": [],
+      "jointPlays": 0,
+      "officers": [
+        {
+          "id": "dianwei",
+          "major": true,
+          "trust": 55,
+          "loyalty": 80,
+          "growth": "authority",
+          "equipped": 2,
+          "plays": 3
+        },
+        {
+          "id": "xunyu",
+          "major": true,
+          "trust": 45,
+          "loyalty": 50,
+          "growth": null,
+          "equipped": 2,
+          "plays": 1
+        },
+        {
+          "id": "local_captain",
+          "major": false,
+          "trust": 50,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 2,
+          "plays": 2
+        }
+      ],
+      "stats": {
+        "recruits": 3,
+        "equips": {
+          "role_military_a": 2,
+          "person_dianwei_b": 1,
+          "person_local_captain_b": 1,
+          "role_network_a": 1,
+          "person_xunyu_b": 1
+        },
+        "plays": {
+          "support_dianwei": 1,
+          "cache": 2,
+          "raise": 2,
+          "clues": 3,
+          "support_local_captain": 1,
+          "manifesto": 1,
+          "food": 1,
+          "support_xunyu": 1,
+          "person_dianwei_b": 1,
+          "role_military_a": 1,
+          "person_local_captain_b": 1
+        },
+        "excluded": 3,
+        "growth": {
+          "authority": 1
+        },
+        "jointPlays": 0,
+        "loyaltyCosts": 0,
+        "officerPlays": {
+          "dianwei": 3,
+          "local_captain": 2,
+          "xunyu": 1
+        },
+        "officerEquips": {
+          "dianwei": 2,
+          "local_captain": 2,
+          "xunyu": 2
+        }
+      }
+    },
+    {
+      "seed": 131006,
+      "policy": "intel",
+      "success": true,
+      "grade": "great",
+      "steps": 84,
+      "restores": 84,
+      "errors": [],
+      "recruits": 5,
+      "deck": 12,
+      "excluded": 3,
+      "growth": {
+        "expert": 2
+      },
+      "joints": [],
+      "jointPlays": 0,
+      "officers": [
+        {
+          "id": "chengpu",
+          "major": true,
+          "trust": 55,
+          "loyalty": 80,
+          "growth": "expert",
+          "equipped": 2,
+          "plays": 3
+        },
+        {
+          "id": "xunyu",
+          "major": true,
+          "trust": 45,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 2,
+          "plays": 1
+        },
+        {
+          "id": "lusu",
+          "major": true,
+          "trust": 55,
+          "loyalty": 80,
+          "growth": "expert",
+          "equipped": 2,
+          "plays": 3
+        },
+        {
+          "id": "local_captain",
+          "major": false,
+          "trust": 55,
+          "loyalty": 50,
+          "growth": null,
+          "equipped": 0,
+          "plays": 0
+        },
+        {
+          "id": "local_scribe",
+          "major": false,
+          "trust": 55,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 0,
+          "plays": 0
+        }
+      ],
+      "stats": {
+        "recruits": 5,
+        "equips": {
+          "role_supply_a": 1,
+          "person_chengpu_a": 1,
+          "role_intel_a": 1,
+          "person_lusu_a": 1,
+          "role_network_a": 1,
+          "person_xunyu_a": 1
+        },
+        "plays": {
+          "support_chengpu": 1,
+          "cache": 2,
+          "coin": 3,
+          "support_lusu": 1,
+          "rumor": 1,
+          "support_xunyu": 1,
+          "clerk": 1,
+          "person_chengpu_a": 1,
+          "role_supply_a": 1,
+          "role_intel_a": 1,
+          "person_lusu_a": 1,
+          "manifesto": 1
+        },
+        "excluded": 3,
+        "growth": {
+          "expert": 2
+        },
+        "jointPlays": 0,
+        "loyaltyCosts": 0,
+        "officerPlays": {
+          "chengpu": 3,
+          "lusu": 3,
+          "xunyu": 1
+        },
+        "officerEquips": {
+          "chengpu": 2,
+          "lusu": 2,
+          "xunyu": 2
+        }
+      }
+    },
+    {
+      "seed": 131006,
+      "policy": "small",
+      "success": true,
+      "grade": "conditional",
+      "steps": 76,
+      "restores": 76,
+      "errors": [],
+      "recruits": 5,
+      "deck": 9,
+      "excluded": 3,
+      "growth": {
+        "expert": 1
+      },
+      "joints": [],
+      "jointPlays": 0,
+      "officers": [
+        {
+          "id": "caoren",
+          "major": true,
+          "trust": 60,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 0,
+          "plays": 0
+        },
+        {
+          "id": "chengpu",
+          "major": true,
+          "trust": 60,
+          "loyalty": 80,
+          "growth": "expert",
+          "equipped": 2,
+          "plays": 3
+        },
+        {
+          "id": "xunyu",
+          "major": true,
+          "trust": 50,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 0,
+          "plays": 1
+        },
+        {
+          "id": "local_captain",
+          "major": false,
+          "trust": 50,
+          "loyalty": 50,
+          "growth": null,
+          "equipped": 1,
+          "plays": 1
+        },
+        {
+          "id": "local_scribe",
+          "major": false,
+          "trust": 60,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 0,
+          "plays": 0
+        }
+      ],
+      "stats": {
+        "recruits": 5,
+        "equips": {
+          "role_supply_a": 1,
+          "person_chengpu_a": 1,
+          "role_military_a": 1
+        },
+        "plays": {
+          "support_chengpu": 1,
+          "cache": 3,
+          "coin": 2,
+          "support_local_captain": 1,
+          "manifesto": 2,
+          "food": 1,
+          "support_xunyu": 1,
+          "recommend": 1,
+          "role_supply_a": 1,
+          "person_chengpu_a": 1,
+          "clues": 1
+        },
+        "excluded": 3,
+        "growth": {
+          "expert": 1
+        },
+        "jointPlays": 0,
+        "loyaltyCosts": 0,
+        "officerPlays": {
+          "chengpu": 3,
+          "local_captain": 1,
+          "xunyu": 1
+        },
+        "officerEquips": {
+          "chengpu": 2,
+          "local_captain": 1
+        }
+      }
+    },
+    {
+      "seed": 131006,
+      "policy": "generalist",
+      "success": true,
+      "grade": "great",
+      "steps": 76,
+      "restores": 76,
+      "errors": [],
+      "recruits": 4,
+      "deck": 12,
+      "excluded": 3,
+      "growth": {
+        "expert": 2
+      },
+      "joints": [],
+      "jointPlays": 0,
+      "officers": [
+        {
+          "id": "caoren",
+          "major": true,
+          "trust": 60,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 0,
+          "plays": 0
+        },
+        {
+          "id": "chengpu",
+          "major": true,
+          "trust": 60,
+          "loyalty": 80,
+          "growth": "expert",
+          "equipped": 2,
+          "plays": 3
+        },
+        {
+          "id": "local_captain",
+          "major": false,
+          "trust": 55,
+          "loyalty": 60,
+          "growth": "expert",
+          "equipped": 2,
+          "plays": 2
+        },
+        {
+          "id": "local_scribe",
+          "major": false,
+          "trust": 55,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 2,
+          "plays": 2
+        }
+      ],
+      "stats": {
+        "recruits": 4,
+        "equips": {
+          "role_supply_a": 1,
+          "person_chengpu_a": 1,
+          "role_military_a": 1,
+          "person_local_captain_a": 1,
+          "role_cause_a": 1,
+          "person_local_scribe_a": 1
+        },
+        "plays": {
+          "support_chengpu": 1,
+          "cache": 2,
+          "coin": 1,
+          "support_local_captain": 1,
+          "manifesto": 1,
+          "food": 1,
+          "support_local_scribe": 1,
+          "recommend": 2,
+          "role_military_a": 1,
+          "role_supply_a": 1,
+          "person_chengpu_a": 1,
+          "role_cause_a": 1
+        },
+        "excluded": 3,
+        "growth": {
+          "expert": 2
+        },
+        "jointPlays": 0,
+        "loyaltyCosts": 0,
+        "officerPlays": {
+          "chengpu": 3,
+          "local_captain": 2,
+          "local_scribe": 2
+        },
+        "officerEquips": {
+          "chengpu": 2,
+          "local_captain": 2,
+          "local_scribe": 2
+        }
+      }
+    },
+    {
+      "seed": 131006,
+      "policy": "joint",
+      "success": true,
+      "grade": "great",
+      "steps": 81,
+      "restores": 81,
+      "errors": [],
+      "recruits": 3,
+      "deck": 11,
+      "excluded": 5,
+      "growth": {
+        "expert": 2
+      },
+      "joints": [
+        "joint_supply"
+      ],
+      "jointPlays": 2,
+      "officers": [
+        {
+          "id": "caoren",
+          "major": true,
+          "trust": 50,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 2,
+          "plays": 1
+        },
+        {
+          "id": "chengpu",
+          "major": true,
+          "trust": 70,
+          "loyalty": 80,
+          "growth": "expert",
+          "equipped": 3,
+          "plays": 5
+        },
+        {
+          "id": "local_captain",
+          "major": false,
+          "trust": 65,
+          "loyalty": 60,
+          "growth": "expert",
+          "equipped": 3,
+          "plays": 4
+        }
+      ],
+      "stats": {
+        "recruits": 3,
+        "equips": {
+          "role_supply_a": 1,
+          "person_chengpu_a": 1,
+          "role_military_a": 1,
+          "person_local_captain_a": 1,
+          "joint_supply": 1,
+          "role_cause_a": 1,
+          "person_caoren_a": 1
+        },
+        "plays": {
+          "support_chengpu": 1,
+          "cache": 4,
+          "coin": 2,
+          "support_local_captain": 1,
+          "manifesto": 1,
+          "food": 1,
+          "person_chengpu_a": 2,
+          "clues": 1,
+          "support_caoren": 1,
+          "joint_supply": 2,
+          "person_local_captain_a": 1
+        },
+        "excluded": 5,
+        "growth": {
+          "expert": 2
+        },
+        "jointPlays": 2,
+        "loyaltyCosts": 0,
+        "officerPlays": {
+          "chengpu": 5,
+          "local_captain": 4,
+          "caoren": 1
+        },
+        "officerEquips": {
+          "chengpu": 3,
+          "local_captain": 3,
+          "caoren": 2
+        }
+      }
+    },
+    {
+      "seed": 131006,
+      "policy": "random",
+      "success": true,
+      "grade": "great",
+      "steps": 80,
+      "restores": 80,
+      "errors": [],
+      "recruits": 5,
+      "deck": 12,
+      "excluded": 3,
+      "growth": {
+        "expert": 1
+      },
+      "joints": [],
+      "jointPlays": 0,
+      "officers": [
+        {
+          "id": "caoren",
+          "major": true,
+          "trust": 55,
+          "loyalty": 80,
+          "growth": "expert",
+          "equipped": 2,
+          "plays": 2
+        },
+        {
+          "id": "chengpu",
+          "major": true,
+          "trust": 60,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 0,
+          "plays": 0
+        },
+        {
+          "id": "lusu",
+          "major": true,
+          "trust": 50,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 2,
+          "plays": 1
+        },
+        {
+          "id": "local_captain",
+          "major": false,
+          "trust": 60,
+          "loyalty": 50,
+          "growth": null,
+          "equipped": 0,
+          "plays": 0
+        },
+        {
+          "id": "local_scribe",
+          "major": false,
+          "trust": 50,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 2,
+          "plays": 1
+        }
+      ],
+      "stats": {
+        "recruits": 5,
+        "equips": {
+          "role_cause_a": 2,
+          "person_caoren_a": 1,
+          "role_intel_a": 1,
+          "person_lusu_a": 1,
+          "person_local_scribe_a": 1
+        },
+        "plays": {
+          "support_caoren": 1,
+          "recommend": 2,
+          "clues": 2,
+          "support_lusu": 1,
+          "poverty": 1,
+          "support_local_scribe": 1,
+          "role_cause_a": 1,
+          "coin": 1,
+          "food": 1,
+          "cache": 1
+        },
+        "excluded": 3,
+        "growth": {
+          "expert": 1
+        },
+        "jointPlays": 0,
+        "loyaltyCosts": 0,
+        "officerPlays": {
+          "caoren": 2,
+          "lusu": 1,
+          "local_scribe": 1
+        },
+        "officerEquips": {
+          "caoren": 2,
+          "lusu": 2,
+          "local_scribe": 2
+        }
+      }
+    },
+    {
+      "seed": 131007,
+      "policy": "relations",
+      "success": true,
+      "grade": "great",
+      "steps": 79,
+      "restores": 79,
+      "errors": [],
+      "recruits": 4,
+      "deck": 12,
+      "excluded": 3,
+      "growth": {
+        "expert": 2
+      },
+      "joints": [],
+      "jointPlays": 0,
+      "officers": [
+        {
+          "id": "caoren",
+          "major": true,
+          "trust": 60,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 0,
+          "plays": 0
+        },
+        {
+          "id": "chengpu",
+          "major": true,
+          "trust": 65,
+          "loyalty": 80,
+          "growth": "expert",
+          "equipped": 2,
+          "plays": 4
+        },
+        {
+          "id": "xunyu",
+          "major": true,
+          "trust": 50,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 2,
+          "plays": 1
+        },
+        {
+          "id": "local_captain",
+          "major": false,
+          "trust": 60,
+          "loyalty": 60,
+          "growth": "expert",
+          "equipped": 2,
+          "plays": 3
+        }
+      ],
+      "stats": {
+        "recruits": 4,
+        "equips": {
+          "role_military_a": 1,
+          "person_local_captain_a": 1,
+          "role_supply_a": 1,
+          "person_chengpu_a": 1,
+          "role_network_a": 1,
+          "person_xunyu_a": 1
+        },
+        "plays": {
+          "support_local_captain": 1,
+          "cache": 3,
+          "manifesto": 2,
+          "support_chengpu": 1,
+          "role_military_a": 1,
+          "food": 1,
+          "poverty": 1,
+          "support_xunyu": 1,
+          "coin": 1,
+          "role_supply_a": 1,
+          "person_chengpu_a": 1,
+          "clues": 1,
+          "person_local_captain_a": 1,
+          "role_supply_b": 1
+        },
+        "excluded": 3,
+        "growth": {
+          "expert": 2
+        },
+        "jointPlays": 0,
+        "loyaltyCosts": 0,
+        "officerPlays": {
+          "local_captain": 3,
+          "chengpu": 4,
+          "xunyu": 1
+        },
+        "officerEquips": {
+          "local_captain": 2,
+          "chengpu": 2,
+          "xunyu": 2
+        }
+      }
+    },
+    {
+      "seed": 131007,
+      "policy": "military",
+      "success": true,
+      "grade": "success",
+      "steps": 77,
+      "restores": 77,
+      "errors": [],
+      "recruits": 4,
+      "deck": 12,
+      "excluded": 3,
+      "growth": {
+        "authority": 2
+      },
+      "joints": [],
+      "jointPlays": 0,
+      "officers": [
+        {
+          "id": "dianwei",
+          "major": true,
+          "trust": 50,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 2,
+          "plays": 2
+        },
+        {
+          "id": "caoren",
+          "major": true,
+          "trust": 55,
+          "loyalty": 50,
+          "growth": null,
+          "equipped": 0,
+          "plays": 0
+        },
+        {
+          "id": "chengpu",
+          "major": true,
+          "trust": 60,
+          "loyalty": 60,
+          "growth": "authority",
+          "equipped": 2,
+          "plays": 4
+        },
+        {
+          "id": "local_captain",
+          "major": false,
+          "trust": 60,
+          "loyalty": 80,
+          "growth": "authority",
+          "equipped": 2,
+          "plays": 4
+        }
+      ],
+      "stats": {
+        "recruits": 4,
+        "equips": {
+          "role_military_a": 2,
+          "person_local_captain_b": 1,
+          "role_supply_a": 1,
+          "person_chengpu_b": 1,
+          "person_dianwei_b": 1
+        },
+        "plays": {
+          "support_local_captain": 1,
+          "cache": 3,
+          "manifesto": 1,
+          "support_chengpu": 1,
+          "person_local_captain_b": 2,
+          "raise": 3,
+          "coin": 2,
+          "support_dianwei": 1,
+          "role_military_b": 1,
+          "role_supply_a": 1,
+          "food": 1,
+          "role_supply_b": 1,
+          "person_chengpu_b": 1,
+          "person_dianwei_b": 1
+        },
+        "excluded": 3,
+        "growth": {
+          "authority": 2
+        },
+        "jointPlays": 0,
+        "loyaltyCosts": 0,
+        "officerPlays": {
+          "local_captain": 4,
+          "chengpu": 4,
+          "dianwei": 2
+        },
+        "officerEquips": {
+          "local_captain": 2,
+          "chengpu": 2,
+          "dianwei": 2
+        }
+      }
+    },
+    {
+      "seed": 131007,
+      "policy": "intel",
+      "success": true,
+      "grade": "great",
+      "steps": 82,
+      "restores": 82,
+      "errors": [],
+      "recruits": 3,
+      "deck": 12,
+      "excluded": 3,
+      "growth": {
+        "expert": 3
+      },
+      "joints": [],
+      "jointPlays": 0,
+      "officers": [
+        {
+          "id": "chengpu",
+          "major": true,
+          "trust": 50,
+          "loyalty": 80,
+          "growth": "expert",
+          "equipped": 2,
+          "plays": 2
+        },
+        {
+          "id": "xunyu",
+          "major": true,
+          "trust": 55,
+          "loyalty": 80,
+          "growth": "expert",
+          "equipped": 2,
+          "plays": 3
+        },
+        {
+          "id": "lusu",
+          "major": true,
+          "trust": 75,
+          "loyalty": 80,
+          "growth": "expert",
+          "equipped": 2,
+          "plays": 7
+        }
+      ],
+      "stats": {
+        "recruits": 3,
+        "equips": {
+          "role_intel_a": 1,
+          "person_lusu_a": 1,
+          "role_supply_a": 1,
+          "person_chengpu_a": 1,
+          "role_network_a": 1,
+          "person_xunyu_a": 1
+        },
+        "plays": {
+          "support_lusu": 1,
+          "coin": 1,
+          "rumor": 1,
+          "support_chengpu": 1,
+          "food": 1,
+          "support_xunyu": 1,
+          "person_lusu_a": 3,
+          "clues": 1,
+          "role_intel_b": 3,
+          "person_chengpu_a": 1,
+          "role_network_a": 1,
+          "person_xunyu_a": 1,
+          "clerk": 1
+        },
+        "excluded": 3,
+        "growth": {
+          "expert": 3
+        },
+        "jointPlays": 0,
+        "loyaltyCosts": 0,
+        "officerPlays": {
+          "lusu": 7,
+          "chengpu": 2,
+          "xunyu": 3
+        },
+        "officerEquips": {
+          "lusu": 2,
+          "chengpu": 2,
+          "xunyu": 2
+        }
+      }
+    },
+    {
+      "seed": 131007,
+      "policy": "small",
+      "success": true,
+      "grade": "great",
+      "steps": 77,
+      "restores": 77,
+      "errors": [],
+      "recruits": 4,
+      "deck": 9,
+      "excluded": 3,
+      "growth": {
+        "expert": 2
+      },
+      "joints": [],
+      "jointPlays": 0,
+      "officers": [
+        {
+          "id": "caoren",
+          "major": true,
+          "trust": 60,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 0,
+          "plays": 0
+        },
+        {
+          "id": "chengpu",
+          "major": true,
+          "trust": 60,
+          "loyalty": 80,
+          "growth": "expert",
+          "equipped": 1,
+          "plays": 3
+        },
+        {
+          "id": "xunyu",
+          "major": true,
+          "trust": 50,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 0,
+          "plays": 1
+        },
+        {
+          "id": "local_captain",
+          "major": false,
+          "trust": 70,
+          "loyalty": 60,
+          "growth": "expert",
+          "equipped": 2,
+          "plays": 5
+        }
+      ],
+      "stats": {
+        "recruits": 4,
+        "equips": {
+          "role_military_a": 1,
+          "person_local_captain_a": 1,
+          "role_supply_a": 1
+        },
+        "plays": {
+          "support_local_captain": 1,
+          "cache": 2,
+          "manifesto": 2,
+          "support_chengpu": 1,
+          "role_military_a": 1,
+          "food": 1,
+          "poverty": 1,
+          "support_xunyu": 1,
+          "coin": 2,
+          "role_supply_a": 1,
+          "person_local_captain_a": 2,
+          "role_supply_b": 1,
+          "role_military_b": 1
+        },
+        "excluded": 3,
+        "growth": {
+          "expert": 2
+        },
+        "jointPlays": 0,
+        "loyaltyCosts": 0,
+        "officerPlays": {
+          "local_captain": 5,
+          "chengpu": 3,
+          "xunyu": 1
+        },
+        "officerEquips": {
+          "local_captain": 2,
+          "chengpu": 1
+        }
+      }
+    },
+    {
+      "seed": 131007,
+      "policy": "generalist",
+      "success": true,
+      "grade": "great",
+      "steps": 81,
+      "restores": 81,
+      "errors": [],
+      "recruits": 4,
+      "deck": 12,
+      "excluded": 3,
+      "growth": {
+        "expert": 2
+      },
+      "joints": [],
+      "jointPlays": 0,
+      "officers": [
+        {
+          "id": "caoren",
+          "major": true,
+          "trust": 60,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 0,
+          "plays": 0
+        },
+        {
+          "id": "xunyu",
+          "major": true,
+          "trust": 55,
+          "loyalty": 80,
+          "growth": "expert",
+          "equipped": 2,
+          "plays": 2
+        },
+        {
+          "id": "local_captain",
+          "major": false,
+          "trust": 55,
+          "loyalty": 50,
+          "growth": null,
+          "equipped": 2,
+          "plays": 2
+        },
+        {
+          "id": "local_broker",
+          "major": false,
+          "trust": 65,
+          "loyalty": 80,
+          "growth": "expert",
+          "equipped": 2,
+          "plays": 4
+        }
+      ],
+      "stats": {
+        "recruits": 4,
+        "equips": {
+          "role_military_a": 1,
+          "person_local_captain_a": 1,
+          "role_funds_a": 1,
+          "person_local_broker_a": 1,
+          "role_network_a": 1,
+          "person_xunyu_a": 1
+        },
+        "plays": {
+          "support_local_captain": 1,
+          "cache": 2,
+          "manifesto": 2,
+          "support_local_broker": 1,
+          "clues": 1,
+          "food": 1,
+          "support_xunyu": 1,
+          "person_local_broker_a": 1,
+          "role_funds_a": 1,
+          "coin": 2,
+          "person_xunyu_a": 1,
+          "person_local_captain_a": 1,
+          "role_funds_b": 1
+        },
+        "excluded": 3,
+        "growth": {
+          "expert": 2
+        },
+        "jointPlays": 0,
+        "loyaltyCosts": 0,
+        "officerPlays": {
+          "local_captain": 2,
+          "local_broker": 4,
+          "xunyu": 2
+        },
+        "officerEquips": {
+          "local_captain": 2,
+          "local_broker": 2,
+          "xunyu": 2
+        }
+      }
+    },
+    {
+      "seed": 131007,
+      "policy": "joint",
+      "success": true,
+      "grade": "great",
+      "steps": 86,
+      "restores": 86,
+      "errors": [],
+      "recruits": 4,
+      "deck": 11,
+      "excluded": 5,
+      "growth": {
+        "expert": 2
+      },
+      "joints": [
+        "joint_supply"
+      ],
+      "jointPlays": 2,
+      "officers": [
+        {
+          "id": "caoren",
+          "major": true,
+          "trust": 60,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 0,
+          "plays": 0
+        },
+        {
+          "id": "chengpu",
+          "major": true,
+          "trust": 70,
+          "loyalty": 80,
+          "growth": "expert",
+          "equipped": 3,
+          "plays": 5
+        },
+        {
+          "id": "xunyu",
+          "major": true,
+          "trust": 50,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 2,
+          "plays": 1
+        },
+        {
+          "id": "local_captain",
+          "major": false,
+          "trust": 70,
+          "loyalty": 60,
+          "growth": "expert",
+          "equipped": 3,
+          "plays": 5
+        }
+      ],
+      "stats": {
+        "recruits": 4,
+        "equips": {
+          "role_military_a": 1,
+          "person_local_captain_a": 1,
+          "role_supply_a": 1,
+          "person_chengpu_a": 1,
+          "joint_supply": 1,
+          "role_network_a": 1,
+          "person_xunyu_a": 1
+        },
+        "plays": {
+          "support_local_captain": 1,
+          "cache": 2,
+          "manifesto": 2,
+          "support_chengpu": 1,
+          "role_military_a": 1,
+          "food": 1,
+          "poverty": 1,
+          "support_xunyu": 1,
+          "joint_supply": 2,
+          "person_chengpu_a": 2,
+          "person_local_captain_a": 1,
+          "clues": 1
+        },
+        "excluded": 5,
+        "growth": {
+          "expert": 2
+        },
+        "jointPlays": 2,
+        "loyaltyCosts": 0,
+        "officerPlays": {
+          "local_captain": 5,
+          "chengpu": 5,
+          "xunyu": 1
+        },
+        "officerEquips": {
+          "local_captain": 3,
+          "chengpu": 3,
+          "xunyu": 2
+        }
+      }
+    },
+    {
+      "seed": 131007,
+      "policy": "random",
+      "success": true,
+      "grade": "conditional",
+      "steps": 80,
+      "restores": 80,
+      "errors": [],
+      "recruits": 4,
+      "deck": 12,
+      "excluded": 3,
+      "growth": {
+        "expert": 2
+      },
+      "joints": [],
+      "jointPlays": 0,
+      "officers": [
+        {
+          "id": "dianwei",
+          "major": true,
+          "trust": 65,
+          "loyalty": 60,
+          "growth": "expert",
+          "equipped": 2,
+          "plays": 4
+        },
+        {
+          "id": "chengpu",
+          "major": true,
+          "trust": 65,
+          "loyalty": 80,
+          "growth": "expert",
+          "equipped": 2,
+          "plays": 4
+        },
+        {
+          "id": "lusu",
+          "major": true,
+          "trust": 60,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 2,
+          "plays": 3
+        },
+        {
+          "id": "local_broker",
+          "major": false,
+          "trust": 60,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 0,
+          "plays": 0
+        }
+      ],
+      "stats": {
+        "recruits": 4,
+        "equips": {
+          "role_military_a": 1,
+          "person_dianwei_a": 1,
+          "role_supply_a": 1,
+          "person_chengpu_a": 1,
+          "role_intel_a": 1,
+          "person_lusu_a": 1
+        },
+        "plays": {
+          "support_dianwei": 1,
+          "cache": 3,
+          "support_chengpu": 1,
+          "person_dianwei_a": 1,
+          "role_military_a": 1,
+          "food": 1,
+          "person_chengpu_a": 2,
+          "role_military_b": 1,
+          "support_lusu": 1,
+          "role_supply_b": 1,
+          "clues": 1,
+          "role_intel_a": 1,
+          "person_lusu_a": 1
+        },
+        "excluded": 3,
+        "growth": {
+          "expert": 2
+        },
+        "jointPlays": 0,
+        "loyaltyCosts": 0,
+        "officerPlays": {
+          "dianwei": 4,
+          "chengpu": 4,
+          "lusu": 3
+        },
+        "officerEquips": {
+          "dianwei": 2,
+          "chengpu": 2,
+          "lusu": 2
+        }
+      }
+    },
+    {
+      "seed": 131008,
+      "policy": "relations",
+      "success": true,
+      "grade": "great",
+      "steps": 86,
+      "restores": 86,
+      "errors": [],
+      "recruits": 5,
+      "deck": 12,
+      "excluded": 3,
+      "growth": {
+        "expert": 3
+      },
+      "joints": [],
+      "jointPlays": 0,
+      "officers": [
+        {
+          "id": "caoren",
+          "major": true,
+          "trust": 60,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 0,
+          "plays": 0
+        },
+        {
+          "id": "xunyu",
+          "major": true,
+          "trust": 55,
+          "loyalty": 80,
+          "growth": "expert",
+          "equipped": 2,
+          "plays": 2
+        },
+        {
+          "id": "local_captain",
+          "major": false,
+          "trust": 55,
+          "loyalty": 60,
+          "growth": "expert",
+          "equipped": 2,
+          "plays": 2
+        },
+        {
+          "id": "local_scribe",
+          "major": false,
+          "trust": 60,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 0,
+          "plays": 0
+        },
+        {
+          "id": "local_broker",
+          "major": false,
+          "trust": 65,
+          "loyalty": 80,
+          "growth": "expert",
+          "equipped": 2,
+          "plays": 4
+        }
+      ],
+      "stats": {
+        "recruits": 5,
+        "equips": {
+          "role_network_a": 1,
+          "person_xunyu_a": 1,
+          "role_funds_a": 1,
+          "person_local_broker_a": 1,
+          "role_military_a": 1,
+          "person_local_captain_a": 1
+        },
+        "plays": {
+          "support_xunyu": 1,
+          "manifesto": 2,
+          "clues": 1,
+          "support_local_broker": 1,
+          "coin": 2,
+          "food": 1,
+          "support_local_captain": 1,
+          "cache": 2,
+          "person_xunyu_a": 1,
+          "recommend": 1,
+          "person_local_captain_a": 1,
+          "role_funds_a": 1,
+          "person_local_broker_a": 1,
+          "role_funds_b": 1
+        },
+        "excluded": 3,
+        "growth": {
+          "expert": 3
+        },
+        "jointPlays": 0,
+        "loyaltyCosts": 0,
+        "officerPlays": {
+          "xunyu": 2,
+          "local_broker": 4,
+          "local_captain": 2
+        },
+        "officerEquips": {
+          "xunyu": 2,
+          "local_broker": 2,
+          "local_captain": 2
+        }
+      }
+    },
+    {
+      "seed": 131008,
+      "policy": "military",
+      "success": true,
+      "grade": "success",
+      "steps": 73,
+      "restores": 73,
+      "errors": [],
+      "recruits": 4,
+      "deck": 12,
+      "excluded": 3,
+      "growth": {
+        "authority": 2
+      },
+      "joints": [],
+      "jointPlays": 0,
+      "officers": [
+        {
+          "id": "dianwei",
+          "major": true,
+          "trust": 55,
+          "loyalty": 80,
+          "growth": "authority",
+          "equipped": 2,
+          "plays": 3
+        },
+        {
+          "id": "caoren",
+          "major": true,
+          "trust": 55,
+          "loyalty": 50,
+          "growth": null,
+          "equipped": 0,
+          "plays": 0
+        },
+        {
+          "id": "xunyu",
+          "major": true,
+          "trust": 55,
+          "loyalty": 60,
+          "growth": "authority",
+          "equipped": 2,
+          "plays": 3
+        },
+        {
+          "id": "local_captain",
+          "major": false,
+          "trust": 55,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 2,
+          "plays": 3
+        }
+      ],
+      "stats": {
+        "recruits": 4,
+        "equips": {
+          "role_network_a": 1,
+          "person_xunyu_b": 1,
+          "role_military_a": 2,
+          "person_dianwei_b": 1,
+          "person_local_captain_b": 1
+        },
+        "plays": {
+          "support_xunyu": 1,
+          "manifesto": 1,
+          "clues": 1,
+          "support_dianwei": 1,
+          "raise": 2,
+          "food": 1,
+          "fatigue": 1,
+          "support_local_captain": 1,
+          "person_xunyu_b": 1,
+          "role_network_a": 1,
+          "role_military_a": 2,
+          "cache": 1,
+          "person_dianwei_b": 1,
+          "coin": 1,
+          "person_local_captain_b": 1
+        },
+        "excluded": 3,
+        "growth": {
+          "authority": 2
+        },
+        "jointPlays": 0,
+        "loyaltyCosts": 0,
+        "officerPlays": {
+          "xunyu": 3,
+          "dianwei": 3,
+          "local_captain": 3
+        },
+        "officerEquips": {
+          "xunyu": 2,
+          "dianwei": 2,
+          "local_captain": 2
+        }
+      }
+    },
+    {
+      "seed": 131008,
+      "policy": "intel",
+      "success": true,
+      "grade": "conditional",
+      "steps": 95,
+      "restores": 95,
+      "errors": [],
+      "recruits": 5,
+      "deck": 12,
+      "excluded": 3,
+      "growth": {
+        "expert": 2
+      },
+      "joints": [],
+      "jointPlays": 0,
+      "officers": [
+        {
+          "id": "caoren",
+          "major": true,
+          "trust": 55,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 0,
+          "plays": 0
+        },
+        {
+          "id": "lusu",
+          "major": true,
+          "trust": 55,
+          "loyalty": 80,
+          "growth": "expert",
+          "equipped": 2,
+          "plays": 3
+        },
+        {
+          "id": "local_captain",
+          "major": false,
+          "trust": 45,
+          "loyalty": 50,
+          "growth": null,
+          "equipped": 2,
+          "plays": 1
+        },
+        {
+          "id": "local_scribe",
+          "major": false,
+          "trust": 55,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 0,
+          "plays": 0
+        },
+        {
+          "id": "local_broker",
+          "major": false,
+          "trust": 50,
+          "loyalty": 80,
+          "growth": "expert",
+          "equipped": 2,
+          "plays": 2
+        }
+      ],
+      "stats": {
+        "recruits": 5,
+        "equips": {
+          "role_intel_a": 1,
+          "person_lusu_a": 1,
+          "role_funds_a": 1,
+          "person_local_broker_a": 1,
+          "role_military_a": 1,
+          "person_local_captain_a": 1
+        },
+        "plays": {
+          "support_lusu": 1,
+          "clues": 2,
+          "coin": 4,
+          "support_local_broker": 1,
+          "cache": 1,
+          "support_local_captain": 1,
+          "manifesto": 1,
+          "role_intel_a": 1,
+          "role_funds_a": 1,
+          "person_lusu_a": 1
+        },
+        "excluded": 3,
+        "growth": {
+          "expert": 2
+        },
+        "jointPlays": 0,
+        "loyaltyCosts": 0,
+        "officerPlays": {
+          "lusu": 3,
+          "local_broker": 2,
+          "local_captain": 1
+        },
+        "officerEquips": {
+          "lusu": 2,
+          "local_broker": 2,
+          "local_captain": 2
+        }
+      }
+    },
+    {
+      "seed": 131008,
+      "policy": "small",
+      "success": true,
+      "grade": "great",
+      "steps": 78,
+      "restores": 78,
+      "errors": [],
+      "recruits": 5,
+      "deck": 9,
+      "excluded": 3,
+      "growth": {
+        "expert": 2
+      },
+      "joints": [],
+      "jointPlays": 0,
+      "officers": [
+        {
+          "id": "caoren",
+          "major": true,
+          "trust": 60,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 0,
+          "plays": 0
+        },
+        {
+          "id": "xunyu",
+          "major": true,
+          "trust": 55,
+          "loyalty": 80,
+          "growth": "expert",
+          "equipped": 2,
+          "plays": 2
+        },
+        {
+          "id": "local_captain",
+          "major": false,
+          "trust": 50,
+          "loyalty": 50,
+          "growth": null,
+          "equipped": 0,
+          "plays": 1
+        },
+        {
+          "id": "local_scribe",
+          "major": false,
+          "trust": 60,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 0,
+          "plays": 0
+        },
+        {
+          "id": "local_broker",
+          "major": false,
+          "trust": 60,
+          "loyalty": 80,
+          "growth": "expert",
+          "equipped": 1,
+          "plays": 3
+        }
+      ],
+      "stats": {
+        "recruits": 5,
+        "equips": {
+          "role_network_a": 1,
+          "person_xunyu_a": 1,
+          "role_funds_a": 1
+        },
+        "plays": {
+          "support_xunyu": 1,
+          "manifesto": 2,
+          "clues": 1,
+          "support_local_broker": 1,
+          "coin": 2,
+          "food": 1,
+          "support_local_captain": 1,
+          "cache": 2,
+          "person_xunyu_a": 1,
+          "recommend": 1,
+          "role_funds_a": 1,
+          "role_funds_b": 1
+        },
+        "excluded": 3,
+        "growth": {
+          "expert": 2
+        },
+        "jointPlays": 0,
+        "loyaltyCosts": 0,
+        "officerPlays": {
+          "xunyu": 2,
+          "local_broker": 3,
+          "local_captain": 1
+        },
+        "officerEquips": {
+          "xunyu": 2,
+          "local_broker": 1
+        }
+      }
+    },
+    {
+      "seed": 131008,
+      "policy": "generalist",
+      "success": true,
+      "grade": "great",
+      "steps": 73,
+      "restores": 73,
+      "errors": [],
+      "recruits": 3,
+      "deck": 12,
+      "excluded": 3,
+      "growth": {
+        "expert": 1
+      },
+      "joints": [],
+      "jointPlays": 0,
+      "officers": [
+        {
+          "id": "local_captain",
+          "major": false,
+          "trust": 50,
+          "loyalty": 50,
+          "growth": null,
+          "equipped": 2,
+          "plays": 1
+        },
+        {
+          "id": "local_scribe",
+          "major": false,
+          "trust": 55,
+          "loyalty": 80,
+          "growth": "expert",
+          "equipped": 2,
+          "plays": 2
+        },
+        {
+          "id": "local_broker",
+          "major": false,
+          "trust": 60,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 2,
+          "plays": 3
+        }
+      ],
+      "stats": {
+        "recruits": 3,
+        "equips": {
+          "role_cause_a": 1,
+          "person_local_scribe_a": 1,
+          "role_funds_a": 1,
+          "person_local_broker_a": 1,
+          "role_military_a": 1,
+          "person_local_captain_a": 1
+        },
+        "plays": {
+          "support_local_scribe": 1,
+          "manifesto": 2,
+          "clues": 1,
+          "support_local_broker": 1,
+          "coin": 1,
+          "food": 1,
+          "support_local_captain": 1,
+          "cache": 2,
+          "person_local_scribe_a": 1,
+          "recommend": 1,
+          "person_local_broker_a": 1,
+          "role_funds_a": 1
+        },
+        "excluded": 3,
+        "growth": {
+          "expert": 1
+        },
+        "jointPlays": 0,
+        "loyaltyCosts": 0,
+        "officerPlays": {
+          "local_scribe": 2,
+          "local_broker": 3,
+          "local_captain": 1
+        },
+        "officerEquips": {
+          "local_scribe": 2,
+          "local_broker": 2,
+          "local_captain": 2
+        }
+      }
+    },
+    {
+      "seed": 131008,
+      "policy": "joint",
+      "success": true,
+      "grade": "great",
+      "steps": 78,
+      "restores": 78,
+      "errors": [],
+      "recruits": 5,
+      "deck": 12,
+      "excluded": 3,
+      "growth": {
+        "expert": 1
+      },
+      "joints": [],
+      "jointPlays": 0,
+      "officers": [
+        {
+          "id": "chengpu",
+          "major": true,
+          "trust": 60,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 0,
+          "plays": 0
+        },
+        {
+          "id": "xunyu",
+          "major": true,
+          "trust": 55,
+          "loyalty": 80,
+          "growth": "expert",
+          "equipped": 2,
+          "plays": 2
+        },
+        {
+          "id": "local_captain",
+          "major": false,
+          "trust": 50,
+          "loyalty": 50,
+          "growth": null,
+          "equipped": 2,
+          "plays": 1
+        },
+        {
+          "id": "local_scribe",
+          "major": false,
+          "trust": 60,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 0,
+          "plays": 0
+        },
+        {
+          "id": "local_broker",
+          "major": false,
+          "trust": 60,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 2,
+          "plays": 3
+        }
+      ],
+      "stats": {
+        "recruits": 5,
+        "equips": {
+          "role_network_a": 1,
+          "person_xunyu_a": 1,
+          "role_funds_a": 1,
+          "person_local_broker_a": 1,
+          "role_military_a": 1,
+          "person_local_captain_a": 1
+        },
+        "plays": {
+          "support_xunyu": 1,
+          "manifesto": 2,
+          "clues": 1,
+          "support_local_broker": 1,
+          "coin": 1,
+          "food": 1,
+          "support_local_captain": 1,
+          "cache": 2,
+          "person_xunyu_a": 1,
+          "recommend": 1,
+          "person_local_broker_a": 1,
+          "role_funds_a": 1
+        },
+        "excluded": 3,
+        "growth": {
+          "expert": 1
+        },
+        "jointPlays": 0,
+        "loyaltyCosts": 0,
+        "officerPlays": {
+          "xunyu": 2,
+          "local_broker": 3,
+          "local_captain": 1
+        },
+        "officerEquips": {
+          "xunyu": 2,
+          "local_broker": 2,
+          "local_captain": 2
+        }
+      }
+    },
+    {
+      "seed": 131008,
+      "policy": "random",
+      "success": true,
+      "grade": "great",
+      "steps": 82,
+      "restores": 82,
+      "errors": [],
+      "recruits": 5,
+      "deck": 12,
+      "excluded": 3,
+      "growth": {
+        "expert": 2
+      },
+      "joints": [],
+      "jointPlays": 0,
+      "officers": [
+        {
+          "id": "chengpu",
+          "major": true,
+          "trust": 55,
+          "loyalty": 80,
+          "growth": "expert",
+          "equipped": 2,
+          "plays": 2
+        },
+        {
+          "id": "xunyu",
+          "major": true,
+          "trust": 60,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 0,
+          "plays": 0
+        },
+        {
+          "id": "local_captain",
+          "major": false,
+          "trust": 60,
+          "loyalty": 50,
+          "growth": null,
+          "equipped": 0,
+          "plays": 0
+        },
+        {
+          "id": "local_scribe",
+          "major": false,
+          "trust": 50,
+          "loyalty": 70,
+          "growth": null,
+          "equipped": 2,
+          "plays": 1
+        },
+        {
+          "id": "local_broker",
+          "major": false,
+          "trust": 65,
+          "loyalty": 80,
+          "growth": "expert",
+          "equipped": 2,
+          "plays": 4
+        }
+      ],
+      "stats": {
+        "recruits": 5,
+        "equips": {
+          "role_cause_a": 1,
+          "person_local_scribe_a": 1,
+          "role_funds_a": 1,
+          "person_local_broker_a": 1,
+          "role_supply_a": 1,
+          "person_chengpu_a": 1
+        },
+        "plays": {
+          "support_local_scribe": 1,
+          "manifesto": 1,
+          "clues": 2,
+          "support_local_broker": 1,
+          "coin": 2,
+          "food": 1,
+          "support_chengpu": 1,
+          "cache": 3,
+          "person_local_broker_a": 1,
+          "role_funds_a": 1,
+          "person_chengpu_a": 1,
+          "role_funds_b": 1
+        },
+        "excluded": 3,
+        "growth": {
+          "expert": 2
+        },
+        "jointPlays": 0,
+        "loyaltyCosts": 0,
+        "officerPlays": {
+          "local_scribe": 1,
+          "local_broker": 4,
+          "chengpu": 2
+        },
+        "officerEquips": {
+          "local_scribe": 2,
+          "local_broker": 2,
+          "chengpu": 2
+        }
+      }
+    }
+  ]
+}

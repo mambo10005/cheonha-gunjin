@@ -1,3 +1,8 @@
+import {validDebateBuild,validDeckNegotiation,validDeckReward} from './debate-deck-validation.ts';
+import {validGeography} from './geography.ts';
+import {validCampaign} from './city-validation.ts';
+import {validWorld} from './world-validation.ts';
+import {defaultDebateBuild} from './debate-deck.ts';
 import { CLAUSES } from './accords.ts';
 import { ARGUMENTS, DEMANDS } from '../data/arguments.ts';
 import { DOCTRINES, GROWTH, defaultBuild } from './build.ts';
@@ -38,8 +43,9 @@ const traits = ['parry', 'surge', 'composure', 'insight', 'mediator', 'quarterma
 function context(x: unknown): boolean {
   return obj(x) && (x.kind === 'supply' || x.kind === 'recruit' && known(x.candidate, GENERALS) || x.kind === 'agreement' && known(x.clause, CLAUSES) && enumOf(x.faction, ['caravan', 'militia', 'villages']) && CLAUSES[x.clause as keyof typeof CLAUSES].faction === x.faction || x.kind === 'diplomacy' && enumOf(x.faction, ['caravan', 'militia', 'villages']) && enumOf(x.trade, ['supply', 'passage', 'support']));
 }
-function activity(x: unknown, kind: 'duel' | 'debate'): boolean {
+export function activity(x: unknown, kind: 'duel' | 'debate'): boolean {
   if(obj(x)&&x.dialogueLog!==undefined&&(!Array.isArray(x.dialogueLog)||x.dialogueLog.length>10||!x.dialogueLog.every(l=>obj(l)&&typeof l.source==='string'&&(l.source===x.generalId||l.source===x.opponentId)&&integer(l.round,0,4)&&typeof l.text==='string'&&l.text.length<=500)))return false;
+  if(kind==='debate'&&obj(x)&&x.deck!==undefined)return known(x.generalId,GENERALS)&&known(x.opponentId,DEBATE_OPPONENTS)&&integer(x.rng,-2147483648,4294967295)&&strings(x.log)&&integer(x.agreement)&&integer(x.aptitude,1,3)&&strings(x.traits)&&context(x.context)&&validDeckNegotiation(x);
   if (!obj(x) || !known(x.generalId, GENERALS) || !integer(x.rng, -2147483648, 4294967295) || !integer(x.round, 0, 4) || x.maxRounds !== 4 || !strings(x.log) || !integer(x.aptitude, 1, 3) || !strings(x.traits) || !x.traits.every(t => traits.includes(t))) return false;
   if (kind === 'duel' && x.build !== undefined && (!runtime(x.build) || !strings(x.tactics) || x.tactics.length > 2 || new Set(x.tactics).size !== x.tactics.length || !x.tactics.every(t => known(t, TACTICS)) || !strings(x.usedTactics) || !x.usedTactics.every(t => (x.tactics as string[]).includes(t)) || new Set(x.usedTactics).size !== x.usedTactics.length || !integer(x.protection) || !integer(x.enemyShield))) return false;
   if (kind === 'duel' && x.rewardClaimed !== undefined && (typeof x.rewardClaimed !== 'boolean' || x.rewardClaimed && x.result !== 'win')) return false;
@@ -57,6 +63,7 @@ function pending(x: unknown, depth = 0): boolean {
   const cardIds = (a: unknown) => strings(a) && a.every(id => known(id, CARDS));
   const grade = (a: unknown) => a === undefined || enumOf(a, ['success', 'partial', 'failure']);
   switch (x.kind) {
+    case 'debateReward': return validDeckReward(x.reward)&&pending(x.then,depth+1);
     case 'growth': return (x.general === undefined || known(x.general, GENERALS)) && typeof x.token === 'string' && pending(x.then, depth + 1);
     case 'none': case 'rest': case 'supply': return true;
     case 'event': return known(x.eventId, EVENTS) && (x.resultText === undefined || typeof x.resultText === 'string');
@@ -87,17 +94,23 @@ function social(x: unknown): boolean {
   return obj(x) && enumOf(x.protocol,['legacy','clauses']) && accords(x.accords) && obj(x.relations) && ['caravan', 'militia', 'villages'].every(k => integer((x.relations as Obj)[k], -1, 2)) && strings(x.used) && integer(x.duels, 0, 2) && (x.passage === null || obj(x.passage) && integer(x.passage.moves, 1, 4) && x.passage.discount === 1) && (x.support === null || obj(x.support) && integer(x.support.block) && integer(x.support.damage) && integer(x.support.rewardPenalty, 0, 1));
 }
 export function validateAndMigrateRun(data: unknown, version: number): RunState | null {
-  if (!obj(data) || data.version !== version || ![1, 2, 3, 4].includes(version)) return null;
+  if (!obj(data) || data.version !== version || ![1, 2, 3, 4, 5, 6].includes(version)) return null;
   const d = structuredClone(data);
   if (version === 1) { d.version = 3; d.social = defaultSocial(); }
   if (version < 3) { d.version = 3; d.build = defaultBuild(); }
   if (version < 4) { if (!obj(d.social)) return null; d.social.protocol = 'legacy'; d.social.accords = {nextUid:1,agreements:[]}; }
-  d.version = 4;
+  if(version<5)d.debateBuild=defaultDebateBuild();
+  d.version = 6;
+  if(!validDebateBuild(d.debateBuild))return null;
   if (!build(d.build, d.generals)) return null;
   if (!integer(d.seed, 0)) return null;
   if (!integer(d.rng, -2147483648, 4294967295) || !known(d.lordId, LORDS) || ![0, 1].includes(d.difficulty as number) || !strings(d.unlocked) || !d.unlocked.every(g => known(g, GENERALS)) || !integer(d.hp) || !integer(d.maxHp, 1) || !integer(d.food) || !integer(d.nextUid, 1) || !cards(d.deck) || !generals(d.generals) || !strings(d.relics) || !d.relics.every(r => known(r, RELICS)) || !strings(d.history) || !strings(d.lastBattleSummary) || !strings(d.defeatReason) || !obj(d.flags) || typeof d.flags.allyBlessing !== 'boolean' || !integer(d.flags.rewardPenalty) || !social(d.social) || !pending(d.pending) || !battle(d.battle)) return null;
   if (!Array.isArray(d.map) || d.map.length !== 8 || !d.map.every((r, f) => Array.isArray(r) && r.length === (f === 7 ? 1 : 3) && r.every((n, c) => obj(n) && n.floor === f && n.col === c && enumOf(n.type, ['battle', 'elite', 'recruit', 'market', 'rest', 'supply', 'event', 'boss']) && enumOf(n.terrain, ['plains', 'mountain', 'river', 'fortress']) && Array.isArray(n.next) && n.next.every(i => integer(i, 0, f === 6 ? 0 : 2)) && (n.type !== 'event' || known(n.eventId, EVENTS) || known(n.eventId, SOCIAL_EVENTS)) && (!['battle', 'elite', 'boss'].includes(n.type as string) || known(n.encounterId, ENCOUNTERS))))) return null;
   if (!integer(d.floor, -1, 7) || !integer(d.col, -1, 2) || d.floor === -1 && d.col !== -1 || d.floor >= 0 && !(d.map[d.floor] as unknown[])[d.col]) return null;
+  if (d.mapTrail !== undefined) {
+    if (!Array.isArray(d.mapTrail) || d.mapTrail.length > 8 || !d.mapTrail.every((p,i,trail) => obj(p) && integer(p.floor,0,d.floor as number) && integer(p.col,0,2) && !!(d.map as Obj[][])[p.floor as number]?.[p.col as number] && (i===0 || obj(trail[i-1]) && p.floor === (trail[i-1].floor as number)+1 && ((d.map as Obj[][])[trail[i-1].floor as number][trail[i-1].col as number].next as number[]).includes(p.col as number)))) return null;
+    const last=d.mapTrail.at(-1); if (last && (!obj(last) || last.floor!==d.floor || last.col!==d.col)) return null;
+  }
   if (!enumOf(d.screen, ['map', 'node', 'battle', 'victory', 'defeat']) || (d.screen === 'battle') !== (d.battle !== null) || d.screen === 'battle' && d.floor < 0 || d.screen !== 'node' && (d.pending as Obj).kind !== 'none' && version !== 1) return null;
   if ((d.pending as Obj).kind === 'duel' || (d.pending as Obj).kind === 'debate') {
     const state = (d.pending as Obj).state as Obj;
@@ -110,6 +123,9 @@ export function validateAndMigrateRun(data: unknown, version: number): RunState 
     const node = (d.map[d.floor] as Obj[])[d.col];
     if (!['battle', 'elite'].includes(node.type as string) || !known(node.encounterId, ENCOUNTERS)) return null;
   }
+  if(!validGeography(d as unknown as RunState))return null;
+  if(!validCampaign(d as unknown as RunState))return null;
+  if(!validWorld(d as unknown as RunState))return null;
   return d as unknown as RunState;
 }
 
@@ -121,7 +137,7 @@ function runtime(x: unknown): boolean {
 }
 
 const axes = ['profit','safety','honor','authority'];
-function terms(x: unknown): boolean { return obj(x) && integer(x.penalty,0,1) && integer(x.paid,0,8) && typeof x.description === 'string'; }
+function terms(x: unknown): boolean { return obj(x) && (x.deck===undefined||typeof x.deck==='boolean') && integer(x.penalty,0,1) && integer(x.paid,0,8) && typeof x.description === 'string'; }
 function negotiation(x: unknown): boolean {
  return obj(x) && obj(x.scores) && axes.every(a => integer((x.scores as Obj)[a],0,20)) && obj(x.needs) && Object.entries(x.needs).every(([a,v]) => axes.includes(a) && integer(v,0,10)) && integer(x.trustNeeded,1,5) && integer(x.burden,0,5) && integer(x.burdenLimit,1,3) && integer(x.food) && integer(x.paid,0,8) && integer(x.reports,0,2) && integer(x.credentials,0,2) && typeof x.concessionReady === 'boolean' && typeof x.promise === 'boolean' && obj(x.counter) && enumOf(x.counter.axis,axes) && x.counter.amount === 1 && typeof x.counter.applied === 'boolean' && (x.lastArgument === null || known(x.lastArgument,ARGUMENTS));
 }

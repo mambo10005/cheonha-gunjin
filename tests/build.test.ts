@@ -130,7 +130,7 @@ test('성장·대결·일반 전투·보상 진행 중 저장 복원과 버전 2
   resolveDuelAction(duelState(r),'feint',0);check();duelState(r).result='win';finishDuel(r);check();
   const legacy=structuredClone(r) as unknown as Record<string,unknown>;legacy.version=2;delete legacy.build;
   if(legacy.battle && typeof legacy.battle==='object') delete (legacy.battle as Record<string,unknown>).build;
-  kv.setItem(RUN_KEY,JSON.stringify({version:2,data:legacy}));const old=loadRun(kv);assert.ok(old.ok);if(old.ok){assert.equal(old.data.version,4);assert.deepEqual(old.data.build,defaultBuild());assert.equal(old.data.rng,r.rng);}
+  kv.setItem(RUN_KEY,JSON.stringify({version:2,data:legacy}));const old=loadRun(kv);assert.ok(old.ok);if(old.ok){assert.equal(old.data.version,6);assert.deepEqual(old.data.build,defaultBuild());assert.equal(old.data.rng,r.rng);}
   r.build.doctrines.push('scheme');saveRun(kv,r);assert.equal(loadRun(kv).ok,false);
 });
 test('검증 지도는 동일 시드 세 방향 비교 및 조기 성장→후반 대결 경로를 보장', () => {

@@ -1,0 +1,1328 @@
+{
+  "samples": 36,
+  "completed": 36,
+  "saveFailures": 0,
+  "byPlan": [
+    {
+      "plan": "life",
+      "samples": 12,
+      "completed": 12,
+      "retreats": 0
+    },
+    {
+      "plan": "military",
+      "samples": 12,
+      "completed": 12,
+      "retreats": 0
+    },
+    {
+      "plan": "issues",
+      "samples": 12,
+      "completed": 12,
+      "retreats": 0
+    }
+  ],
+  "limits": [
+    "One conservative route selector and fixed three-city order. No proof of optimal play or fun.",
+    "No administrative appointments/policies/facilities in this route survival baseline; see city-balance for build comparison.",
+    "Conquest uses inner cooperation where available, siege at Chenggao, real card combat as fallback."
+  ],
+  "rows": [
+    {
+      "seed": 101001,
+      "plan": "life",
+      "completed": true,
+      "steps": 95,
+      "retreats": 0,
+      "failures": [],
+      "cities": [
+        "xingyang",
+        "chenggao",
+        "gong"
+      ],
+      "results": [
+        {
+          "id": "xingyang",
+          "outcome": "안정 도시",
+          "food": 2,
+          "issuesResolved": 2,
+          "readiness": 35
+        },
+        {
+          "id": "chenggao",
+          "outcome": "안정 도시",
+          "food": 2,
+          "issuesResolved": 3,
+          "readiness": 94
+        },
+        {
+          "id": "gong",
+          "outcome": "안정 도시",
+          "food": 17,
+          "issuesResolved": 2,
+          "readiness": 32
+        }
+      ]
+    },
+    {
+      "seed": 101002,
+      "plan": "life",
+      "completed": true,
+      "steps": 108,
+      "retreats": 0,
+      "failures": [],
+      "cities": [
+        "xingyang",
+        "chenggao",
+        "gong"
+      ],
+      "results": [
+        {
+          "id": "xingyang",
+          "outcome": "안정 도시",
+          "food": 0,
+          "issuesResolved": 2,
+          "readiness": 35
+        },
+        {
+          "id": "chenggao",
+          "outcome": "안정 도시",
+          "food": 4,
+          "issuesResolved": 3,
+          "readiness": 83
+        },
+        {
+          "id": "gong",
+          "outcome": "안정 도시",
+          "food": 16,
+          "issuesResolved": 2,
+          "readiness": 36
+        }
+      ]
+    },
+    {
+      "seed": 101003,
+      "plan": "life",
+      "completed": true,
+      "steps": 124,
+      "retreats": 0,
+      "failures": [],
+      "cities": [
+        "xingyang",
+        "chenggao",
+        "gong"
+      ],
+      "results": [
+        {
+          "id": "xingyang",
+          "outcome": "안정 도시",
+          "food": 9,
+          "issuesResolved": 3,
+          "readiness": 45
+        },
+        {
+          "id": "chenggao",
+          "outcome": "안정 도시",
+          "food": 0,
+          "issuesResolved": 2,
+          "readiness": 63
+        },
+        {
+          "id": "gong",
+          "outcome": "안정 도시",
+          "food": 21,
+          "issuesResolved": 3,
+          "readiness": 36
+        }
+      ]
+    },
+    {
+      "seed": 101004,
+      "plan": "life",
+      "completed": true,
+      "steps": 118,
+      "retreats": 0,
+      "failures": [],
+      "cities": [
+        "xingyang",
+        "chenggao",
+        "gong"
+      ],
+      "results": [
+        {
+          "id": "xingyang",
+          "outcome": "안정 도시",
+          "food": 2,
+          "issuesResolved": 2,
+          "readiness": 45
+        },
+        {
+          "id": "chenggao",
+          "outcome": "안정 도시",
+          "food": 4,
+          "issuesResolved": 2,
+          "readiness": 83
+        },
+        {
+          "id": "gong",
+          "outcome": "안정 도시",
+          "food": 5,
+          "issuesResolved": 2,
+          "readiness": 42
+        }
+      ]
+    },
+    {
+      "seed": 101005,
+      "plan": "life",
+      "completed": true,
+      "steps": 108,
+      "retreats": 0,
+      "failures": [],
+      "cities": [
+        "xingyang",
+        "chenggao",
+        "gong"
+      ],
+      "results": [
+        {
+          "id": "xingyang",
+          "outcome": "안정 도시",
+          "food": 7,
+          "issuesResolved": 3,
+          "readiness": 35
+        },
+        {
+          "id": "chenggao",
+          "outcome": "안정 도시",
+          "food": 6,
+          "issuesResolved": 3,
+          "readiness": 93
+        },
+        {
+          "id": "gong",
+          "outcome": "안정 도시",
+          "food": 15,
+          "issuesResolved": 2,
+          "readiness": 32
+        }
+      ]
+    },
+    {
+      "seed": 101006,
+      "plan": "life",
+      "completed": true,
+      "steps": 106,
+      "retreats": 0,
+      "failures": [],
+      "cities": [
+        "xingyang",
+        "chenggao",
+        "gong"
+      ],
+      "results": [
+        {
+          "id": "xingyang",
+          "outcome": "안정 도시",
+          "food": 10,
+          "issuesResolved": 3,
+          "readiness": 39
+        },
+        {
+          "id": "chenggao",
+          "outcome": "군사 주둔지",
+          "food": 14,
+          "issuesResolved": 2,
+          "readiness": 87
+        },
+        {
+          "id": "gong",
+          "outcome": "안정 도시",
+          "food": 6,
+          "issuesResolved": 3,
+          "readiness": 32
+        }
+      ]
+    },
+    {
+      "seed": 101007,
+      "plan": "life",
+      "completed": true,
+      "steps": 83,
+      "retreats": 0,
+      "failures": [],
+      "cities": [
+        "xingyang",
+        "chenggao",
+        "gong"
+      ],
+      "results": [
+        {
+          "id": "xingyang",
+          "outcome": "안정 도시",
+          "food": 0,
+          "issuesResolved": 2,
+          "readiness": 35
+        },
+        {
+          "id": "chenggao",
+          "outcome": "안정 도시",
+          "food": 10,
+          "issuesResolved": 3,
+          "readiness": 87
+        },
+        {
+          "id": "gong",
+          "outcome": "안정 도시",
+          "food": 12,
+          "issuesResolved": 3,
+          "readiness": 42
+        }
+      ]
+    },
+    {
+      "seed": 101008,
+      "plan": "life",
+      "completed": true,
+      "steps": 106,
+      "retreats": 0,
+      "failures": [],
+      "cities": [
+        "xingyang",
+        "chenggao",
+        "gong"
+      ],
+      "results": [
+        {
+          "id": "xingyang",
+          "outcome": "안정 도시",
+          "food": 4,
+          "issuesResolved": 1,
+          "readiness": 25
+        },
+        {
+          "id": "chenggao",
+          "outcome": "안정 도시",
+          "food": 4,
+          "issuesResolved": 2,
+          "readiness": 83
+        },
+        {
+          "id": "gong",
+          "outcome": "안정 도시",
+          "food": 6,
+          "issuesResolved": 2,
+          "readiness": 42
+        }
+      ]
+    },
+    {
+      "seed": 101009,
+      "plan": "life",
+      "completed": true,
+      "steps": 129,
+      "retreats": 0,
+      "failures": [],
+      "cities": [
+        "xingyang",
+        "chenggao",
+        "gong"
+      ],
+      "results": [
+        {
+          "id": "xingyang",
+          "outcome": "안정 도시",
+          "food": 7,
+          "issuesResolved": 3,
+          "readiness": 25
+        },
+        {
+          "id": "chenggao",
+          "outcome": "안정 도시",
+          "food": 0,
+          "issuesResolved": 3,
+          "readiness": 74
+        },
+        {
+          "id": "gong",
+          "outcome": "안정 도시",
+          "food": 10,
+          "issuesResolved": 2,
+          "readiness": 36
+        }
+      ]
+    },
+    {
+      "seed": 101010,
+      "plan": "life",
+      "completed": true,
+      "steps": 130,
+      "retreats": 0,
+      "failures": [],
+      "cities": [
+        "xingyang",
+        "chenggao",
+        "gong"
+      ],
+      "results": [
+        {
+          "id": "xingyang",
+          "outcome": "안정 도시",
+          "food": 5,
+          "issuesResolved": 3,
+          "readiness": 35
+        },
+        {
+          "id": "chenggao",
+          "outcome": "안정 도시",
+          "food": 0,
+          "issuesResolved": 3,
+          "readiness": 87
+        },
+        {
+          "id": "gong",
+          "outcome": "안정 도시",
+          "food": 11,
+          "issuesResolved": 3,
+          "readiness": 42
+        }
+      ]
+    },
+    {
+      "seed": 101011,
+      "plan": "life",
+      "completed": true,
+      "steps": 86,
+      "retreats": 0,
+      "failures": [],
+      "cities": [
+        "xingyang",
+        "chenggao",
+        "gong"
+      ],
+      "results": [
+        {
+          "id": "xingyang",
+          "outcome": "안정 도시",
+          "food": 6,
+          "issuesResolved": 3,
+          "readiness": 39
+        },
+        {
+          "id": "chenggao",
+          "outcome": "안정 도시",
+          "food": 1,
+          "issuesResolved": 1,
+          "readiness": 73
+        },
+        {
+          "id": "gong",
+          "outcome": "안정 도시",
+          "food": 18,
+          "issuesResolved": 3,
+          "readiness": 32
+        }
+      ]
+    },
+    {
+      "seed": 101012,
+      "plan": "life",
+      "completed": true,
+      "steps": 128,
+      "retreats": 0,
+      "failures": [],
+      "cities": [
+        "xingyang",
+        "chenggao",
+        "gong"
+      ],
+      "results": [
+        {
+          "id": "xingyang",
+          "outcome": "안정 도시",
+          "food": 4,
+          "issuesResolved": 2,
+          "readiness": 39
+        },
+        {
+          "id": "chenggao",
+          "outcome": "안정 도시",
+          "food": 13,
+          "issuesResolved": 3,
+          "readiness": 77
+        },
+        {
+          "id": "gong",
+          "outcome": "안정 도시",
+          "food": 22,
+          "issuesResolved": 3,
+          "readiness": 42
+        }
+      ]
+    },
+    {
+      "seed": 101001,
+      "plan": "military",
+      "completed": true,
+      "steps": 98,
+      "retreats": 0,
+      "failures": [],
+      "cities": [
+        "xingyang",
+        "chenggao",
+        "gong"
+      ],
+      "results": [
+        {
+          "id": "xingyang",
+          "outcome": "안정 도시",
+          "food": 4,
+          "issuesResolved": 2,
+          "readiness": 45
+        },
+        {
+          "id": "chenggao",
+          "outcome": "군사 주둔지",
+          "food": 13,
+          "issuesResolved": 2,
+          "readiness": 93
+        },
+        {
+          "id": "gong",
+          "outcome": "군사 주둔지",
+          "food": 8,
+          "issuesResolved": 2,
+          "readiness": 42
+        }
+      ]
+    },
+    {
+      "seed": 101002,
+      "plan": "military",
+      "completed": true,
+      "steps": 121,
+      "retreats": 0,
+      "failures": [],
+      "cities": [
+        "xingyang",
+        "chenggao",
+        "gong"
+      ],
+      "results": [
+        {
+          "id": "xingyang",
+          "outcome": "안정 도시",
+          "food": 2,
+          "issuesResolved": 1,
+          "readiness": 45
+        },
+        {
+          "id": "chenggao",
+          "outcome": "군사 주둔지",
+          "food": 1,
+          "issuesResolved": 3,
+          "readiness": 100
+        },
+        {
+          "id": "gong",
+          "outcome": "안정 도시",
+          "food": 10,
+          "issuesResolved": 3,
+          "readiness": 52
+        }
+      ]
+    },
+    {
+      "seed": 101003,
+      "plan": "military",
+      "completed": true,
+      "steps": 124,
+      "retreats": 0,
+      "failures": [],
+      "cities": [
+        "xingyang",
+        "chenggao",
+        "gong"
+      ],
+      "results": [
+        {
+          "id": "xingyang",
+          "outcome": "안정 도시",
+          "food": 12,
+          "issuesResolved": 2,
+          "readiness": 45
+        },
+        {
+          "id": "chenggao",
+          "outcome": "안정 도시",
+          "food": 3,
+          "issuesResolved": 2,
+          "readiness": 86
+        },
+        {
+          "id": "gong",
+          "outcome": "안정 도시",
+          "food": 22,
+          "issuesResolved": 3,
+          "readiness": 46
+        }
+      ]
+    },
+    {
+      "seed": 101004,
+      "plan": "military",
+      "completed": true,
+      "steps": 147,
+      "retreats": 0,
+      "failures": [],
+      "cities": [
+        "xingyang",
+        "chenggao",
+        "gong"
+      ],
+      "results": [
+        {
+          "id": "xingyang",
+          "outcome": "안정 도시",
+          "food": 0,
+          "issuesResolved": 2,
+          "readiness": 45
+        },
+        {
+          "id": "chenggao",
+          "outcome": "군사 주둔지",
+          "food": 15,
+          "issuesResolved": 3,
+          "readiness": 100
+        },
+        {
+          "id": "gong",
+          "outcome": "안정 도시",
+          "food": 8,
+          "issuesResolved": 2,
+          "readiness": 42
+        }
+      ]
+    },
+    {
+      "seed": 101005,
+      "plan": "military",
+      "completed": true,
+      "steps": 134,
+      "retreats": 0,
+      "failures": [],
+      "cities": [
+        "xingyang",
+        "chenggao",
+        "gong"
+      ],
+      "results": [
+        {
+          "id": "xingyang",
+          "outcome": "안정 도시",
+          "food": 10,
+          "issuesResolved": 2,
+          "readiness": 45
+        },
+        {
+          "id": "chenggao",
+          "outcome": "안정 도시",
+          "food": 5,
+          "issuesResolved": 2,
+          "readiness": 89
+        },
+        {
+          "id": "gong",
+          "outcome": "안정 도시",
+          "food": 15,
+          "issuesResolved": 2,
+          "readiness": 42
+        }
+      ]
+    },
+    {
+      "seed": 101006,
+      "plan": "military",
+      "completed": true,
+      "steps": 127,
+      "retreats": 0,
+      "failures": [],
+      "cities": [
+        "xingyang",
+        "chenggao",
+        "gong"
+      ],
+      "results": [
+        {
+          "id": "xingyang",
+          "outcome": "안정 도시",
+          "food": 8,
+          "issuesResolved": 3,
+          "readiness": 49
+        },
+        {
+          "id": "chenggao",
+          "outcome": "안정 도시",
+          "food": 0,
+          "issuesResolved": 1,
+          "readiness": 99
+        },
+        {
+          "id": "gong",
+          "outcome": "안정 도시",
+          "food": 13,
+          "issuesResolved": 3,
+          "readiness": 42
+        }
+      ]
+    },
+    {
+      "seed": 101007,
+      "plan": "military",
+      "completed": true,
+      "steps": 101,
+      "retreats": 0,
+      "failures": [],
+      "cities": [
+        "xingyang",
+        "chenggao",
+        "gong"
+      ],
+      "results": [
+        {
+          "id": "xingyang",
+          "outcome": "안정 도시",
+          "food": 3,
+          "issuesResolved": 2,
+          "readiness": 45
+        },
+        {
+          "id": "chenggao",
+          "outcome": "군사 주둔지",
+          "food": 8,
+          "issuesResolved": 1,
+          "readiness": 86
+        },
+        {
+          "id": "gong",
+          "outcome": "안정 도시",
+          "food": 15,
+          "issuesResolved": 3,
+          "readiness": 32
+        }
+      ]
+    },
+    {
+      "seed": 101008,
+      "plan": "military",
+      "completed": true,
+      "steps": 106,
+      "retreats": 0,
+      "failures": [],
+      "cities": [
+        "xingyang",
+        "chenggao",
+        "gong"
+      ],
+      "results": [
+        {
+          "id": "xingyang",
+          "outcome": "안정 도시",
+          "food": 2,
+          "issuesResolved": 2,
+          "readiness": 35
+        },
+        {
+          "id": "chenggao",
+          "outcome": "군사 주둔지",
+          "food": 13,
+          "issuesResolved": 2,
+          "readiness": 79
+        },
+        {
+          "id": "gong",
+          "outcome": "안정 도시",
+          "food": 9,
+          "issuesResolved": 2,
+          "readiness": 32
+        }
+      ]
+    },
+    {
+      "seed": 101009,
+      "plan": "military",
+      "completed": true,
+      "steps": 99,
+      "retreats": 0,
+      "failures": [],
+      "cities": [
+        "xingyang",
+        "chenggao",
+        "gong"
+      ],
+      "results": [
+        {
+          "id": "xingyang",
+          "outcome": "안정 도시",
+          "food": 12,
+          "issuesResolved": 3,
+          "readiness": 45
+        },
+        {
+          "id": "chenggao",
+          "outcome": "안정 도시",
+          "food": 0,
+          "issuesResolved": 3,
+          "readiness": 100
+        },
+        {
+          "id": "gong",
+          "outcome": "안정 도시",
+          "food": 22,
+          "issuesResolved": 2,
+          "readiness": 42
+        }
+      ]
+    },
+    {
+      "seed": 101010,
+      "plan": "military",
+      "completed": true,
+      "steps": 115,
+      "retreats": 0,
+      "failures": [],
+      "cities": [
+        "xingyang",
+        "chenggao",
+        "gong"
+      ],
+      "results": [
+        {
+          "id": "xingyang",
+          "outcome": "안정 도시",
+          "food": 6,
+          "issuesResolved": 3,
+          "readiness": 45
+        },
+        {
+          "id": "chenggao",
+          "outcome": "안정 도시",
+          "food": 1,
+          "issuesResolved": 2,
+          "readiness": 96
+        },
+        {
+          "id": "gong",
+          "outcome": "안정 도시",
+          "food": 14,
+          "issuesResolved": 3,
+          "readiness": 46
+        }
+      ]
+    },
+    {
+      "seed": 101011,
+      "plan": "military",
+      "completed": true,
+      "steps": 89,
+      "retreats": 0,
+      "failures": [],
+      "cities": [
+        "xingyang",
+        "chenggao",
+        "gong"
+      ],
+      "results": [
+        {
+          "id": "xingyang",
+          "outcome": "안정 도시",
+          "food": 14,
+          "issuesResolved": 3,
+          "readiness": 49
+        },
+        {
+          "id": "chenggao",
+          "outcome": "군사 주둔지",
+          "food": 5,
+          "issuesResolved": 2,
+          "readiness": 93
+        },
+        {
+          "id": "gong",
+          "outcome": "안정 도시",
+          "food": 21,
+          "issuesResolved": 3,
+          "readiness": 46
+        }
+      ]
+    },
+    {
+      "seed": 101012,
+      "plan": "military",
+      "completed": true,
+      "steps": 103,
+      "retreats": 0,
+      "failures": [],
+      "cities": [
+        "xingyang",
+        "chenggao",
+        "gong"
+      ],
+      "results": [
+        {
+          "id": "xingyang",
+          "outcome": "안정 도시",
+          "food": 5,
+          "issuesResolved": 3,
+          "readiness": 39
+        },
+        {
+          "id": "chenggao",
+          "outcome": "안정 도시",
+          "food": 13,
+          "issuesResolved": 3,
+          "readiness": 96
+        },
+        {
+          "id": "gong",
+          "outcome": "안정 도시",
+          "food": 19,
+          "issuesResolved": 2,
+          "readiness": 42
+        }
+      ]
+    },
+    {
+      "seed": 101001,
+      "plan": "issues",
+      "completed": true,
+      "steps": 130,
+      "retreats": 0,
+      "failures": [],
+      "cities": [
+        "xingyang",
+        "chenggao",
+        "gong"
+      ],
+      "results": [
+        {
+          "id": "xingyang",
+          "outcome": "안정 도시",
+          "food": 1,
+          "issuesResolved": 3,
+          "readiness": 45
+        },
+        {
+          "id": "chenggao",
+          "outcome": "안정 도시",
+          "food": 6,
+          "issuesResolved": 3,
+          "readiness": 90
+        },
+        {
+          "id": "gong",
+          "outcome": "안정 도시",
+          "food": 15,
+          "issuesResolved": 2,
+          "readiness": 32
+        }
+      ]
+    },
+    {
+      "seed": 101002,
+      "plan": "issues",
+      "completed": true,
+      "steps": 108,
+      "retreats": 0,
+      "failures": [],
+      "cities": [
+        "xingyang",
+        "chenggao",
+        "gong"
+      ],
+      "results": [
+        {
+          "id": "xingyang",
+          "outcome": "안정 도시",
+          "food": 1,
+          "issuesResolved": 2,
+          "readiness": 35
+        },
+        {
+          "id": "chenggao",
+          "outcome": "안정 도시",
+          "food": 4,
+          "issuesResolved": 3,
+          "readiness": 83
+        },
+        {
+          "id": "gong",
+          "outcome": "안정 도시",
+          "food": 19,
+          "issuesResolved": 2,
+          "readiness": 36
+        }
+      ]
+    },
+    {
+      "seed": 101003,
+      "plan": "issues",
+      "completed": true,
+      "steps": 124,
+      "retreats": 0,
+      "failures": [],
+      "cities": [
+        "xingyang",
+        "chenggao",
+        "gong"
+      ],
+      "results": [
+        {
+          "id": "xingyang",
+          "outcome": "안정 도시",
+          "food": 9,
+          "issuesResolved": 3,
+          "readiness": 45
+        },
+        {
+          "id": "chenggao",
+          "outcome": "안정 도시",
+          "food": 0,
+          "issuesResolved": 2,
+          "readiness": 70
+        },
+        {
+          "id": "gong",
+          "outcome": "안정 도시",
+          "food": 21,
+          "issuesResolved": 3,
+          "readiness": 36
+        }
+      ]
+    },
+    {
+      "seed": 101004,
+      "plan": "issues",
+      "completed": true,
+      "steps": 118,
+      "retreats": 0,
+      "failures": [],
+      "cities": [
+        "xingyang",
+        "chenggao",
+        "gong"
+      ],
+      "results": [
+        {
+          "id": "xingyang",
+          "outcome": "안정 도시",
+          "food": 0,
+          "issuesResolved": 2,
+          "readiness": 45
+        },
+        {
+          "id": "chenggao",
+          "outcome": "안정 도시",
+          "food": 4,
+          "issuesResolved": 2,
+          "readiness": 83
+        },
+        {
+          "id": "gong",
+          "outcome": "안정 도시",
+          "food": 8,
+          "issuesResolved": 2,
+          "readiness": 42
+        }
+      ]
+    },
+    {
+      "seed": 101005,
+      "plan": "issues",
+      "completed": true,
+      "steps": 108,
+      "retreats": 0,
+      "failures": [],
+      "cities": [
+        "xingyang",
+        "chenggao",
+        "gong"
+      ],
+      "results": [
+        {
+          "id": "xingyang",
+          "outcome": "안정 도시",
+          "food": 3,
+          "issuesResolved": 3,
+          "readiness": 35
+        },
+        {
+          "id": "chenggao",
+          "outcome": "안정 도시",
+          "food": 6,
+          "issuesResolved": 3,
+          "readiness": 93
+        },
+        {
+          "id": "gong",
+          "outcome": "안정 도시",
+          "food": 11,
+          "issuesResolved": 2,
+          "readiness": 42
+        }
+      ]
+    },
+    {
+      "seed": 101006,
+      "plan": "issues",
+      "completed": true,
+      "steps": 106,
+      "retreats": 0,
+      "failures": [],
+      "cities": [
+        "xingyang",
+        "chenggao",
+        "gong"
+      ],
+      "results": [
+        {
+          "id": "xingyang",
+          "outcome": "안정 도시",
+          "food": 8,
+          "issuesResolved": 3,
+          "readiness": 49
+        },
+        {
+          "id": "chenggao",
+          "outcome": "군사 주둔지",
+          "food": 14,
+          "issuesResolved": 2,
+          "readiness": 87
+        },
+        {
+          "id": "gong",
+          "outcome": "안정 도시",
+          "food": 8,
+          "issuesResolved": 3,
+          "readiness": 42
+        }
+      ]
+    },
+    {
+      "seed": 101007,
+      "plan": "issues",
+      "completed": true,
+      "steps": 86,
+      "retreats": 0,
+      "failures": [],
+      "cities": [
+        "xingyang",
+        "chenggao",
+        "gong"
+      ],
+      "results": [
+        {
+          "id": "xingyang",
+          "outcome": "안정 도시",
+          "food": 3,
+          "issuesResolved": 2,
+          "readiness": 45
+        },
+        {
+          "id": "chenggao",
+          "outcome": "안정 도시",
+          "food": 9,
+          "issuesResolved": 3,
+          "readiness": 73
+        },
+        {
+          "id": "gong",
+          "outcome": "안정 도시",
+          "food": 12,
+          "issuesResolved": 1,
+          "readiness": 42
+        }
+      ]
+    },
+    {
+      "seed": 101008,
+      "plan": "issues",
+      "completed": true,
+      "steps": 106,
+      "retreats": 0,
+      "failures": [],
+      "cities": [
+        "xingyang",
+        "chenggao",
+        "gong"
+      ],
+      "results": [
+        {
+          "id": "xingyang",
+          "outcome": "안정 도시",
+          "food": 5,
+          "issuesResolved": 1,
+          "readiness": 35
+        },
+        {
+          "id": "chenggao",
+          "outcome": "군사 주둔지",
+          "food": 9,
+          "issuesResolved": 1,
+          "readiness": 76
+        },
+        {
+          "id": "gong",
+          "outcome": "안정 도시",
+          "food": 6,
+          "issuesResolved": 2,
+          "readiness": 42
+        }
+      ]
+    },
+    {
+      "seed": 101009,
+      "plan": "issues",
+      "completed": true,
+      "steps": 124,
+      "retreats": 0,
+      "failures": [],
+      "cities": [
+        "xingyang",
+        "chenggao",
+        "gong"
+      ],
+      "results": [
+        {
+          "id": "xingyang",
+          "outcome": "안정 도시",
+          "food": 9,
+          "issuesResolved": 3,
+          "readiness": 45
+        },
+        {
+          "id": "chenggao",
+          "outcome": "안정 도시",
+          "food": 4,
+          "issuesResolved": 3,
+          "readiness": 90
+        },
+        {
+          "id": "gong",
+          "outcome": "안정 도시",
+          "food": 20,
+          "issuesResolved": 3,
+          "readiness": 32
+        }
+      ]
+    },
+    {
+      "seed": 101010,
+      "plan": "issues",
+      "completed": true,
+      "steps": 98,
+      "retreats": 0,
+      "failures": [],
+      "cities": [
+        "xingyang",
+        "chenggao",
+        "gong"
+      ],
+      "results": [
+        {
+          "id": "xingyang",
+          "outcome": "안정 도시",
+          "food": 4,
+          "issuesResolved": 3,
+          "readiness": 45
+        },
+        {
+          "id": "chenggao",
+          "outcome": "군사 주둔지",
+          "food": 6,
+          "issuesResolved": 2,
+          "readiness": 87
+        },
+        {
+          "id": "gong",
+          "outcome": "안정 도시",
+          "food": 14,
+          "issuesResolved": 2,
+          "readiness": 42
+        }
+      ]
+    },
+    {
+      "seed": 101011,
+      "plan": "issues",
+      "completed": true,
+      "steps": 86,
+      "retreats": 0,
+      "failures": [],
+      "cities": [
+        "xingyang",
+        "chenggao",
+        "gong"
+      ],
+      "results": [
+        {
+          "id": "xingyang",
+          "outcome": "안정 도시",
+          "food": 11,
+          "issuesResolved": 3,
+          "readiness": 49
+        },
+        {
+          "id": "chenggao",
+          "outcome": "군사 주둔지",
+          "food": 0,
+          "issuesResolved": 1,
+          "readiness": 80
+        },
+        {
+          "id": "gong",
+          "outcome": "안정 도시",
+          "food": 19,
+          "issuesResolved": 3,
+          "readiness": 42
+        }
+      ]
+    },
+    {
+      "seed": 101012,
+      "plan": "issues",
+      "completed": true,
+      "steps": 103,
+      "retreats": 0,
+      "failures": [],
+      "cities": [
+        "xingyang",
+        "chenggao",
+        "gong"
+      ],
+      "results": [
+        {
+          "id": "xingyang",
+          "outcome": "안정 도시",
+          "food": 7,
+          "issuesResolved": 3,
+          "readiness": 49
+        },
+        {
+          "id": "chenggao",
+          "outcome": "안정 도시",
+          "food": 4,
+          "issuesResolved": 3,
+          "readiness": 90
+        },
+        {
+          "id": "gong",
+          "outcome": "안정 도시",
+          "food": 26,
+          "issuesResolved": 3,
+          "readiness": 42
+        }
+      ]
+    }
+  ]
+}

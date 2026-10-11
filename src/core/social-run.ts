@@ -1,3 +1,6 @@
+import {recordPersonnelUse} from './personnel-rules.ts';
+import {startDeckDebate,offerDeckReward} from './debate-deck.ts';
+import {campaignDebateOutcome} from './city.ts';
 import { agreementQuote, accordsOnSupply } from './accords.ts';
 import { prepareNegotiation, negotiatedTerms } from './negotiation.ts';
 import { negotiationBuildTools } from './build.ts';
@@ -93,13 +96,13 @@ export function acceptParley(run: RunState, accept: boolean): Check {
     run.food -= terms.cost;
     if (p.mode === 'recruit') {
       if (!recruitPool(run, run.unlocked).includes(p.candidate)) { run.food += terms.cost; return { ok: false, reason: '이미 영입했거나 영입할 수 없는 장수입니다.' }; }
-      if (p.terms) run.flags.rewardPenalty += Math.max(p.terms.penalty, p.negotiated === 'partial' ? 1 : 0);
+      if (p.terms) run.flags.rewardPenalty += p.terms.deck?p.terms.penalty:Math.max(p.terms.penalty, p.negotiated === 'partial' ? 1 : 0);
       offerGeneral(run, p.candidate, { kind: 'socialResult', text });
     } else { run.food += terms.food; accordsOnSupply(run); if (p.terms) { run.flags.rewardPenalty += p.terms.penalty; if (p.negotiated === 'partial') run.hp = Math.min(run.maxHp, run.hp + 6); } run.pending = { kind: 'socialResult', text }; }
   } else run.pending = { kind: 'socialResult', text };
   run.history.push(text); return { ok: true };
 }
-export function beginDebate(run: RunState, generalId: string, trade?: string): Check {
+export function beginDebate(run: RunState, generalId: string, trade?: string, elite=false): Check {
   if (!nodeCheck(run).ok || !owns(run, generalId)) return { ok: false, reason: '군단의 대표 장수를 고르세요.' };
   const p = run.pending; const token = key(run, 'debate');
   if (run.social.used.includes(token)) return { ok: false, reason: '이 장소에서는 이미 설전에 도전했습니다.' };
@@ -119,6 +122,9 @@ export function beginDebate(run: RunState, generalId: string, trade?: string): C
     if (quote.reason) return { ok: false, reason: quote.reason };
     context = { kind: 'diplomacy', faction: p.faction, trade: trade as TradeId }; opponentId = FACTIONS[p.faction].opponent;
   } else return { ok: false, reason: '설전으로 바꿀 수 있는 제안이 아닙니다.' };
+  if(run.debateBuild.assistant&&!owns(run,run.debateBuild.assistant))run.debateBuild.assistant=null;
+  if(run.debateBuild.assistant===generalId)return {ok:false,reason:'대표와 보좌는 서로 다른 장수여야 합니다.'};
+  if(elite&&opponentId!=='scholar')return {ok:false,reason:'정예 공개 변론은 재야 인재에게만 신청 가능합니다.'};
   run.food--; run.social.used.push(token);
   const state = createDebate(seed(run), generalId, opponentId, context);
   if (run.social.protocol === 'clauses') {
@@ -127,25 +133,33 @@ export function beginDebate(run: RunState, generalId: string, trade?: string): C
     const credentials = Object.values(run.social.relations).filter(n => n > 0).length + run.social.accords.agreements.filter(a => a.status === 'active').length;
     prepareNegotiation(state, run.food, tools.reports + report + (state.traits.includes('insight') ? 1 : 0), credentials, tools.focus);
   }
+  if(run.social.protocol==='clauses'&&run.debateBuild.enabled)startDeckDebate(state,run.debateBuild,elite,run.social.accords.agreements.some(a=>a.status==='active'),run.campaign?.world);
   run.pending = { kind: 'debate', state };
   return { ok: true };
 }
 export function actDebate(run: RunState, action: string, round: number): Check {
   if (!nodeCheck(run).ok || run.pending.kind !== 'debate') return { ok: false, reason: '설전 중이 아닙니다.' };
-  const result = resolveDebateAction(run.pending.state, action, round);
+  const personal=action.startsWith('card:')?run.pending.state.deck?.cards.find(c=>c.uid===Number(action.slice(5)))?.personnelCard:undefined;
+  const result = resolveDebateAction(run.pending.state, action, round);if(result.ok&&personal!==undefined)recordPersonnelUse(run,personal);
   if (result.ok && run.pending.state.negotiation) run.food = run.pending.state.negotiation.food;
   return result;
 }
 export function finishDebate(run: RunState, reward: string = 'terms'): Check {
   if (!nodeCheck(run).ok || run.pending.kind !== 'debate' || run.pending.state.result === 'ongoing') return { ok: false, reason: '확인할 설전 결과가 없습니다.' };
   const s = run.pending.state; const c = s.context;
-  if (!['terms', 'growth'].includes(reward) || reward === 'growth' && (!s.negotiation || s.result !== 'success' || !run.build.doctrines.length)) return { ok: false, reason: '선택할 설전 보상이 없습니다.' };
+  if(run.campaign?.world){const w=run.campaign.world;w.growth[s.generalId]??={combat:0,debate:0,governance:0};w.growth[s.generalId].debate++;}
+  if(campaignDebateOutcome(run,s))return {ok:true};
+  if (!['terms', 'growth'].includes(reward) || reward === 'growth' && (s.deck || !s.negotiation || s.result !== 'success' || !run.build.doctrines.length)) return { ok: false, reason: '선택할 설전 보상이 없습니다.' };
   const terms = s.negotiation ? negotiatedTerms(s) : undefined;
   const grade = reward === 'growth' ? 'partial' as const : s.result;
   run.history.push(`설전 · ${GENERALS[s.generalId].name}: ${s.result === 'success' ? '성공' : s.result === 'partial' ? '부분 성공' : '실패'}. 조건을 확인하고 수락·포기하세요.`);
   if (c.kind === 'agreement') run.pending = { kind: 'council', faction: c.faction, negotiated: { clause: c.clause, result: grade, terms: terms! } };
   else if (c.kind === 'diplomacy') run.pending = { kind: 'diplomacy', faction: c.faction, negotiated: { trade: c.trade, result: s.result } };
   else run.pending = c.kind === 'recruit' ? { kind: 'parley', mode: 'recruit', candidate: c.candidate, negotiated: grade, ...(terms ? { terms } : {}) } : { kind: 'parley', mode: 'supply', negotiated: grade, ...(terms ? { terms } : {}) };
+  if(s.deck){
+    for(const kind of s.deck.promises){const id=`${run.floor}:${run.col}:${kind}`;if(!run.debateBuild.obligations.some(o=>o.id===id)){run.debateBuild.obligations.push({id,kind,due:Math.min(7,run.floor+1),status:'active'});if(kind==='authority')run.flags.rewardPenalty++;}}
+    if(s.result==='success'||s.result==='partial')offerDeckReward(run,run.pending,s.result,s.deck.elite);
+  }
   if (reward === 'growth') { offerGrowth(run, `debate:${run.floor}:${run.col}`, run.pending); run.history.push(' 설전 성장 보상을 선택: 거래는 부분 합의 조건으로 전환.'); }
   return { ok: true };
 }

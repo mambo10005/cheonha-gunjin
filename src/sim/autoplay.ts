@@ -6,7 +6,7 @@ import { CARDS } from '../data/cards.ts';
 import { socialBotStep } from './social-policy.ts';
 import { EVENTS } from '../data/events.ts';
 import { GENERALS } from '../data/generals.ts';
-import { aliveEnemies, canPlay, cardDef, endTurn, incomingPreview, playCard } from '../core/combat.ts';
+import { aliveEnemies, canPlay, cardDef, endTurn, incomingEstimate as incomingPreview, playCard } from '../core/combat.ts';
 import {
   availableMoves,
   buyRelic,
@@ -26,7 +26,7 @@ import {
   restHeal,
   supplyChoose,
 } from '../core/run.ts';
-import type { BattleState, Difficulty, PlayTarget, Row, RunState } from '../core/types.ts';
+import type { BattleState, Difficulty, PlayTarget, Row, RunState, MapNode } from '../core/types.ts';
 
 function evalState(b: BattleState): number {
   if (b.result === 'win') return 1e6;
@@ -127,8 +127,11 @@ export function simulateRun(
   difficulty: Difficulty = 0,
   unlocked: string[] = [],
   onBattleEnd?: (b: BattleState, run: RunState) => void,
+  configure?: (run:RunState)=>void,
+  chooseMove?: (run:RunState,options:MapNode[])=>MapNode,
 ): SimResult {
   const run = newRun(seed, lordId, difficulty, unlocked);
+  configure?.(run);
   chooseDoctrine(run, ['bastion', 'breakthrough', 'scheme'][seed % 3]);
   let turns = 0;
   let killedBy: string | null = null;
@@ -139,7 +142,8 @@ export function simulateRun(
       const obligations=activeAgreements(run).flatMap(a=>[a.target,...(a.supply && a.stage==='waiting'?[a.supply]:[])]);
       const compliant=moves.filter(n=>obligations.every(c=>c.floor<n.floor || c.floor===n.floor && c.col===n.col || c.floor>n.floor && reachableNodes(run,n).some(r=>r.floor===c.floor && r.col===c.col)));
       const options=compliant.length?compliant:moves;
-      const best = options.reduce((a, n) => (nodeScore(run, n.type) > nodeScore(run, a.type) ? n : a));
+      const chosen = chooseMove?.(run,options);
+      const best = chosen&&options.includes(chosen)?chosen:options.reduce((a, n) => (nodeScore(run, n.type) > nodeScore(run, a.type) ? n : a));
       moveTo(run, best.col);
       continue;
     }

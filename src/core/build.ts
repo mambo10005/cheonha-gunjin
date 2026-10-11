@@ -18,9 +18,9 @@ const generate = (trigger: Trigger, token: Token): Rule => ({ scope: 'both', tar
 const spend = (token: Token, amount: number, damage: number): Rule => ({ scope: 'both', target: 'opponent', expires: 'encounter', trigger: 'attack', cost: { token, amount }, limit: 2, operations: [{ kind: 'damage', amount: damage }] });
 const follow = (token: Token, kind: 'damage' | 'block' | 'weaken' | 'draw', amount: number): Rule => ({ scope: 'both', target: kind === 'damage' || kind === 'weaken' ? 'opponent' : 'actingSide', expires: 'encounter', trigger: 'spent', token, limit: 2, operations: [{ kind, amount }] });
 export const DOCTRINES: Record<Direction, Definition> = {
-  bastion: { negotiation: { reports: 1 }, name: '수비 반격', direction: 'bastion', text: '완전 방어 → 반격 준비 +1(최대 2). 다음 武의 첫 피해 / 대결 공격에 준비 1 소비 → 피해 +5. 일반 전투는 다음 턴까지 준비 유지. 대결은 방어로 실제 피해 0일 때 발동.', rules: [generate('guarded', 'riposte'), spend('riposte', 1, 5)] },
-  breakthrough: { negotiation: { focus: 1 }, name: '교대 돌파', direction: 'breakthrough', text: '防·策 전법 다음 武 / 대결에서 방어·견제 다음 공격 → 돌파 준비 +1(최대 2). 다음 武의 첫 피해 / 대결 공격에 준비 2 소비 → 피해 +10. 공격만 반복하면 준비되지 않음.', rules: [generate('setup', 'charge'), spend('charge', 2, 10)] },
-  scheme: { negotiation: { reports: 1 }, name: '허점 공략', direction: 'scheme', text: '공격 의도 조작 / 대결 견제 → 정보 +1(최대 2). 다음 武의 첫 피해 / 대결 공격에 정보 1 소비 → 피해 +5. 계책 뒤 공격할 전법이 필요함.', rules: [generate('changed', 'insight'), spend('insight', 1, 5)] },
+  bastion: { negotiation: { reports: 1 }, name: '수비 반격', direction: 'bastion', text: '완전 방어 → 반격 준비 +1(최대 2). 다음 공격의 첫 피해 / 대결 공격에 준비 1 소비 → 피해 +5. 일반 전투는 다음 턴까지 준비 유지. 대결은 방어로 실제 피해 0일 때 발동.', rules: [generate('guarded', 'riposte'), spend('riposte', 1, 5)] },
+  breakthrough: { negotiation: { focus: 1 }, name: '교대 돌파', direction: 'breakthrough', text: '방어·계책 전법 다음 공격 / 대결에서 방어·견제 다음 공격 → 돌파 준비 +1(최대 2). 다음 공격의 첫 피해 / 대결 공격에 준비 2 소비 → 피해 +10. 공격만 반복하면 준비되지 않음.', rules: [generate('setup', 'charge'), spend('charge', 2, 10)] },
+  scheme: { negotiation: { reports: 1 }, name: '허점 공략', direction: 'scheme', text: '공격 의도 조작 / 대결 견제 → 정보 +1(최대 2). 다음 공격의 첫 피해 / 대결 공격에 정보 1 소비 → 피해 +5. 계책 뒤 공격할 전법이 필요함.', rules: [generate('changed', 'insight'), spend('insight', 1, 5)] },
 };
 export const GROWTH: Record<GrowthId, Definition> = {
   guardian: { negotiation: { reports: 1 }, name: '호위', direction: 'bastion', text: '완전 방어 → 반격 준비 +1. 반격 준비 소비 → 양 열 방비 3 / 대결 보호 3. 강화 시 보호 6.', rules: [generate('guarded', 'riposte'), follow('riposte', 'block', 3)] },

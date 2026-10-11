@@ -87,7 +87,7 @@ test('설전·협정·활동 의무·성장 진행의 저장 재현과 손상 �
 test('버전3 진행 중 설전은 기존 규칙으로 유지하며 장수 성장·RNG 보존',()=>{
  const r=demo();merchant(r);r.social.protocol='legacy'; // council entry differs; use parley directly
  (r as RunState).pending={kind:'parley',mode:'supply'};beginDebate(r,'guojia');actDebate(r,'proposal',0);
- const old:any=structuredClone(r);old.version=3;delete old.social.protocol;delete old.social.accords;const kv=memoryKV();kv.setItem(RUN_KEY,JSON.stringify({version:3,data:old}));const l=loadRun(kv);assert.ok(l.ok);assert.equal(l.data.version,4);assert.equal(l.data.social.protocol,'legacy');assert.deepEqual(l.data.build,r.build);assert.equal(l.data.rng,r.rng);assert.deepEqual(l.data.pending,(r as RunState).pending);
+ const old:any=structuredClone(r);old.version=3;delete old.social.protocol;delete old.social.accords;const kv=memoryKV();kv.setItem(RUN_KEY,JSON.stringify({version:3,data:old}));const l=loadRun(kv);assert.ok(l.ok);assert.equal(l.data.version,6);assert.equal(l.data.social.protocol,'legacy');assert.deepEqual(l.data.build,r.build);assert.equal(l.data.rng,r.rng);assert.deepEqual(l.data.pending,(r as RunState).pending);
 });
 test('설전 화면은 정확한 요구·자원·후속 대가를 표시하고 렌더는 상태 불변',()=>{
  const r=demo();merchant(r);beginDebate(r,'guojia','sponsorship');const before=structuredClone(r);const html=socialView(r)!;for(const t of ['미충족','2회 답변','작전 정보 공개','실물 군량','활동 권한','協定'.replace('協定','협정 신용')])assert.ok(html.includes(t),t);assert.deepEqual(r,before);

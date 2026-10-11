@@ -1,3 +1,4 @@
+import {cardDefinition,cardText,activeCard} from '../core/debate-deck.ts';
 import type { DebateEvent } from '../core/debate-events.ts';
 import type { DebateState } from '../core/social-types.ts';
 import { ARGUMENT_VISUALS, characterPresentation, opponentLine, portraitPose } from '../data/debate-presentation.ts';
@@ -85,7 +86,7 @@ export class DebatePlayback {
     if(e.kind==='speechStarted'||e.kind==='actionUsed')scene.dataset.speaker='player';
     if(e.kind==='opponentCountered'||e.kind==='opponentResponded')scene.dataset.speaker='opponent';
     const feedback=this.root.querySelector('[data-scene-feedback]');if(feedback)feedback.textContent=eventText(e);
-    const symbol=this.root.querySelector('[data-effect-symbol]');if(symbol)symbol.textContent=ARGUMENT_VISUALS[action]?.symbol??'議';
+    const symbol=this.root.querySelector('[data-effect-symbol]');if(symbol)symbol.textContent=ARGUMENT_VISUALS[action]?.symbol??'설전';
     const who=e.kind==='opponentCountered'||e.kind==='opponentResponded'?'opponent':'player';
     const person=this.root.querySelector<HTMLElement>('.debate-person.'+who);
     if(person){const pose=e.kind==='opponentCountered'?'press':e.kind==='debateResolved'?'concede':e.kind==='speechStarted'?'speak':e.kind==='traitTriggered'?'advantage':'idle';this.setPose(person,portraitPose(who==='player'?s.generalId:s.opponentId,pose));}
@@ -121,13 +122,14 @@ export function attachSceneControls(root:HTMLElement,getState:()=>DebateState|nu
   }
   function preview(card:HTMLElement,selected=false):void{
     const s=getState();if(!s||suppressPreview)return;const id=card.dataset.debateSelect!;
-    const key=`${s.rng}:${s.generalId}:${s.opponentId}:${s.round}`;if(key!==selectionKey){selectedId=null;selectionKey=key;}
+    const key=`${s.rng}:${s.generalId}:${s.opponentId}:${s.round}:${s.deck?.revision??0}`;if(key!==selectionKey){selectedId=null;selectionKey=key;}
     if(!selected&&selectedId&&selectedId!==id)return;
-    const definition=s.negotiation?ARGUMENTS[id as keyof typeof ARGUMENTS]:DEBATE_ACTIONS[id as keyof typeof DEBATE_ACTIONS];
+    const deckDef=s.deck?cardDefinition(s,id):undefined;
+    const definition=deckDef?{name:deckDef.name,text:cardText(activeCard(s,Number(id.slice(5)))!)}:s.negotiation?ARGUMENTS[id as keyof typeof ARGUMENTS]:DEBATE_ACTIONS[id as keyof typeof DEBATE_ACTIONS];
     const el=root.querySelector<HTMLElement>('[data-argument-detail]');if(!el)return;el.hidden=false;
     if(selected){selectedId=id;el.setAttribute('aria-modal','true');}
     if(selected)root.querySelectorAll<HTMLElement>('[data-debate-select]').forEach(c=>{c.classList.toggle('selected',c===card);c.setAttribute('aria-pressed',String(c===card));});
-    el.innerHTML=`<h3>${esc(definition.name)}</h3><p>${esc(definition.text)}</p>${argumentPreview(s,id)}<p class="preview-source">효과 출처: 현재 설전 규칙 · 대표 적성/특성 · 공개된 반론 포함</p><div class="detail-controls">${card.getAttribute('aria-disabled')==='true'?'':activityButton('debate-action',definition.name+' 실행',{choice:id,round:s.round})}<button class="btn ghost" data-close-argument>취소 · 닫기</button></div>`;
+    el.innerHTML=`<h3>${esc(definition.name)}</h3><p>${esc(definition.text)}</p>${argumentPreview(s,id)}<p class="preview-source">효과 출처: 현재 설전 규칙 · 대표 적성/특성 · 공개된 반론 포함</p><div class="detail-controls">${card.getAttribute('aria-disabled')==='true'?'':activityButton('debate-action',definition.name+' 실행',{choice:id,round:s.deck?.revision??s.round})}<button class="btn ghost" data-close-argument>취소 · 닫기</button></div>`;
     if(selected)el.focus();
     const pv=previewDebateActionForForecast(s,id);
     for(const r of requirements(s)){const next=requirements(pv).find(v=>v.key===r.key);const forecast=root.querySelector<HTMLElement>(`[data-forecast="${r.key}"]`);if(forecast){forecast.textContent=next?`예상 ${r.value} → ${next.value}${r.needed!==next.needed?' · 요구 '+next.needed:''}`:'';forecast.closest('.requirement')?.classList.toggle('preview-target',Boolean(next&&(next.value!==r.value||next.needed!==r.needed)));}}

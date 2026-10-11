@@ -1,0 +1,92 @@
+[
+  {
+    "id": "innkeeper",
+    "generatedSource": "exec-9a6617a6-ed52-41b7-9c4b-dd32d3e02aea.png",
+    "asset": "/assets/inn/innkeeper-v1.webp",
+    "size": [
+      1024,
+      1536
+    ],
+    "alphaRange": [
+      0,
+      254
+    ],
+    "tool": "built-in image_gen",
+    "status": "generated production art; human art review unverified",
+    "operations": "WebP encoding only, composition unchanged"
+  },
+  {
+    "id": "xunyu",
+    "generatedSource": "exec-48241348-86bf-4d1f-a92a-fb2004b4b78e.png",
+    "asset": "/assets/inn/xunyu-v1.webp",
+    "size": [
+      1024,
+      1536
+    ],
+    "alphaRange": [
+      0,
+      254
+    ],
+    "tool": "built-in image_gen",
+    "status": "generated production art; human art review unverified",
+    "operations": "WebP encoding only, composition unchanged"
+  },
+  {
+    "id": "interior",
+    "generatedSource": "exec-32d1f738-3103-4e95-98fa-8d8a4119c23b.png",
+    "asset": "/assets/inn/interior-v1.webp",
+    "size": [
+      1672,
+      941
+    ],
+    "alphaRange": null,
+    "tool": "built-in image_gen",
+    "status": "generated production art; human art review unverified",
+    "operations": "WebP encoding only, composition unchanged"
+  },
+  {
+    "id": "lusu",
+    "generatedSource": "exec-05fd2cdd-2777-4cb6-81e8-bedf2348fa9c.png",
+    "asset": "/assets/inn/lusu-v1.webp",
+    "size": [
+      1024,
+      1536
+    ],
+    "alphaRange": [
+      0,
+      254
+    ],
+    "tool": "built-in image_gen",
+    "status": "generated production art; human art review unverified",
+    "operations": "WebP encoding only, composition unchanged"
+  },
+  {
+    "id": "merchant",
+    "generatedSource": "exec-25153e30-3572-4f33-902a-17028e71de21.png",
+    "asset": "/assets/inn/merchant-v1.webp",
+    "size": [
+      1024,
+      1536
+    ],
+    "alphaRange": [
+      0,
+      254
+    ],
+    "tool": "built-in image_gen",
+    "status": "generated production art; human art review unverified",
+    "operations": "WebP encoding only, composition unchanged"
+  },
+  {
+    "id": "traveler",
+    "generatedSource": "exec-6d4186a6-ab73-4a9a-9097-5177d7f52817.png",
+    "asset": "/assets/inn/traveler-v1.webp",
+    "size": [
+      1144,
+      1375
+    ],
+    "alphaRange": null,
+    "tool": "built-in image_gen",
+    "status": "generated production art; human art review unverified",
+    "operations": "WebP encoding only, composition unchanged"
+  }
+]

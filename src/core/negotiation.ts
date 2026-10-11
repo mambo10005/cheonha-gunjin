@@ -74,6 +74,6 @@ export function missingDemands(s: DebateState): string {
 }
 export function negotiatedTerms(s: DebateState): NegotiatedTerms {
   const n = s.negotiation!;
-  const penalty = n.promise && s.result !== 'failure' ? 1 : 0;
-  return { penalty, paid: n.paid, description: `이미 지불한 군량 ${n.paid}${penalty ? ' · 수락 시 다음 카드 보상 1회 선택지 -1' : ''}. ${missingDemands(s)}` };
+  const penalty = !s.deck && n.promise && s.result !== 'failure' ? 1 : 0;
+  return { ...(s.deck?{deck:true}:{}), penalty, paid: n.paid, description: `이미 지불한 군량 ${n.paid}${penalty ? ' · 수락 시 다음 카드 보상 1회 선택지 -1' : ''}. ${missingDemands(s)}` };
 }

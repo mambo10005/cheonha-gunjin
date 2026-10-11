@@ -1,0 +1,34 @@
+{
+  "generator": "built-in image_gen",
+  "date": "2026-10-09",
+  "assets": [
+    {
+      "name": "dianwei-v1.png",
+      "path": "public/assets/battle/dianwei-v1.png",
+      "source": "exec-91fa70cb-73ef-48e7-ae26-4149dacf3432.png",
+      "size": [
+        1024,
+        1536
+      ],
+      "mode": "RGBA",
+      "alphaRange": [
+        0,
+        254
+      ],
+      "prompt": "Use case: historical-scene. Asset type: original character bust for a Korean Three Kingdoms roguelite army battle UI. Subject: Dian Wei, a mature broad-shouldered Chinese guard general, powerful stocky physique, weathered distinctive face, short dark beard, serious protective expression, late Eastern Han inspired iron lamellar armor with indigo cloth and worn leather, one restrained halberd handle visible. Style: polished cinematic painted historical game illustration with credible anatomy and detailed fabric/metal, independent character design; no imitation of any commercial game or named artist. Composition: single half-body portrait from head to waist, centered, no cropped head or shoulders, frontal three-quarter facing right, reads clearly at 100px tall; transparent background with clean alpha and no shadows behind canvas. Lighting: soft cold rimlight, warm face highlights. No text, letters, symbols, logos, interface, extra characters, excessive violence. Single illustration, not sprite sheet. Prefer portrait canvas 1024x1536."
+    },
+    {
+      "name": "plains-v1.png",
+      "path": "public/assets/battle/plains-v1.png",
+      "source": "exec-a7715bbf-da78-4d7d-9cdc-003fe21a7dd6.png",
+      "size": [
+        1672,
+        941
+      ],
+      "mode": "RGB",
+      "prompt": "Use case: historical-scene. Asset type: original cinematic 2.5D battlefield background plate for a Korean Three Kingdoms tactical card roguelite. Broad open plains in late Eastern Han China, low grass and trampled ochre ground, hazy distant rounded hills and pale autumn sky, muted blue-green and warm ochre palette, subtle early morning directional sunlight, polished painted historical strategy scene with atmospheric depth. Composition: wide landscape around 16:9, horizon in upper third, foreground opens into large uninterrupted maneuvering area, no soldiers, people, horses, buildings, flags, text, logos or UI. Keep central and lower 70 percent calm and low contrast for independent game units and readable overlay, no bright sun in central battle space. No imitation of commercial game assets or famous artworks. Prefer landscape canvas 2048x1152."
+    }
+  ],
+  "status": "Generated production candidates; standalone artwork visually inspected; browser composition and professional final approval unverified.",
+  "processing": "Copied unchanged. No reference images, external game assets, cropping or pixel editing."
+}

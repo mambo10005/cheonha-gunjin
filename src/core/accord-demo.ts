@@ -2,6 +2,7 @@ import { chooseDoctrine } from './build.ts';
 import type { RunState } from './types.ts';
 /** Same public entrances and generated coordinates; no injected agreements or rewards. */
 export function configureAccordDemo(run: RunState): void {
+ run.debateBuild.enabled=false; // Historical fixed-argument regression scenario (51001).
  run.food=20; run.generals=[{id:'dianwei',row:'front'},{id:'guojia',row:'rear'}]; chooseDoctrine(run,'scheme');
  for (let f=0; f<7; f++) for (const n of run.map[f]) {
   n.next=f===6?[0]:[0,1,2]; n.terrain='plains';

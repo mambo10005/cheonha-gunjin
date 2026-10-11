@@ -1,3 +1,4 @@
+import {canDeckAction,resolveDeckAction} from './debate-deck.ts';
 import { canArgument, resolveArgument } from './negotiation.ts';
 import { debateReceipt, finalizeDebateEvents } from './debate-events.ts';
 import { GENERALS } from '../data/generals.ts';
@@ -18,6 +19,7 @@ function reveal(s: DebateState): void {
   s.revealed = s.concerns.slice(0, Math.min(s.maxRounds, s.round + (s.traits.includes('insight') ? 2 : 1)));
 }
 export function canDebateAction(s: DebateState, action: string, round: number): Check {
+  if(s.deck)return canDeckAction(s,action,round);
   if (s.negotiation) return canArgument(s, action, round);
   if (s.result !== 'ongoing' || s.round !== round) return { ok: false, reason: '이미 처리한 행동이거나 종료된 설전입니다.' };
   if (action === 'withdraw') return { ok: true };
@@ -26,6 +28,7 @@ export function canDebateAction(s: DebateState, action: string, round: number): 
   return { ok: true };
 }
 export function resolveDebateAction(s: DebateState, action: string, round: number): Check {
+  if(s.deck)return resolveDeckAction(s,action,round);
   if (s.negotiation) return resolveArgument(s, action, round);
   const c = canDebateAction(s, action, round); if (!c.ok) return c;
   const {events, emit} = debateReceipt(s, action);
@@ -53,5 +56,5 @@ export function resolveDebateAction(s: DebateState, action: string, round: numbe
   return { ok: true, events:finalizeDebateEvents(events,s) };
 }
 export function previewDebateAction(s: DebateState, action: string): { check: Check; state: DebateState } {
-  const state = structuredClone(s); return { check: resolveDebateAction(state, action, s.round), state };
+  const state = structuredClone(s); return { check: resolveDebateAction(state, action, s.deck?.revision ?? s.round), state };
 }

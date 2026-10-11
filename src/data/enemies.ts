@@ -84,6 +84,9 @@ export const ENEMIES: Record<string, EnemyDef> = {
 };
 
 export const ENCOUNTERS: Record<string, Encounter> = {
+  city_xingyang: {id:'city_xingyang',name:'형양 성문 수비대',enemies:['shield','archer'],tier:'boss'},
+  city_chenggao: {id:'city_chenggao',name:'성고 관문 수비대',enemies:['shield','xbow','guard'],tier:'boss'},
+  city_gong: {id:'city_gong',name:'공현 나루 수비대',enemies:['pikeman','archer','guard'],tier:'boss'},
   e_yt: { id: 'e_yt', name: '황건 잔당', enemies: ['ytsoldier', 'ytsoldier', 'ytsoldier'], tier: 'early' },
   e_bandit: { id: 'e_bandit', name: '산적 무리', enemies: ['bandit', 'bandit'], tier: 'early' },
   e_archers: { id: 'e_archers', name: '궁병대', enemies: ['archer', 'pikeman', 'archer'], tier: 'early' },

@@ -1,0 +1,8 @@
+import type {ExplorationPlan} from './city-exploration-types.ts';
+export type InnArea='counter'|'hall'|'private'|'yard';
+export type InnView={kind:'overview'}|{kind:'conversation';person:string;topic:string}|{kind:'offer';quest:string}|{kind:'report';quest:string}|{kind:'lodging'}|{kind:'rumors'}|{kind:'incident'};
+export type QuestStatus='offered'|'accepted'|'active'|'readyToReport'|'completed'|'failed'|'expired'|'abandoned';
+export interface InnQuestState {id:string;giver:string;status:QuestStatus;step:number;acceptedAt:number;due:number;approaches:string[];evidence:string[];result:null|'complete'|'partial'|'failure';conclusion:string;reported:boolean;escrow:number;}
+export interface InnRumor {id:string;source:string;reliability:'verified'|'likely'|'uncertain';location:string;character:string|null;expires:number;confirmed:boolean;verification:string;text:string;}
+export interface InnState {version:1;view:InnView;area:InnArea;trust:number;reputation:number;dialogue:string;heard:string[];rumors:InnRumor[];quests:Record<string,InnQuestState>;visits:number;privateAccess:boolean;selectedItem:number|null;activity:null|{event:string;quest:string|null;resume:string|null;kind:'debate'|'duel'};claims:string[];lodgedDays:number[];arrivals:string[];postTurn:number;stats:{topics:number;rumors:number;accepted:number;reported:number;failures:number;lodgings:number;debates:number;duels:number};}
+export interface InnQuestDefinition {id:string;giver:string;title:string;summary:string;motive:string;risk:string;timeLimit:number;escrow:number;resource:'food'|'funds';steps:{id:string;location:string;objective:string;approaches:string[]}[];reward:string;postImpact:string;plan?:ExplorationPlan;}

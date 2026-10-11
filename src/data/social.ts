@@ -1,11 +1,14 @@
 import type { ActivityProfile, ActivityTrait, Concern, DebateAction, DuelAction, FactionId } from '../core/social-types.ts';
 
 export const TRAIT_TEXT: Record<ActivityTrait, string> = {
-  parry: '守勢: 방어 반격 +2', surge: '돌파: 승부수 피해 +2', composure: '침착: 연속 행동의 효율 감소 없음',
+  parry: '수세: 방어 반격 +2', surge: '돌파: 승부수 피해 +2', composure: '침착: 연속 행동의 효율 감소 없음',
   insight: '통찰: 설전 정보 +1 / 구형 설전 다음 논점 공개', mediator: '중재: 양보 시 신뢰 +1 추가',
   quartermaster: '보급 운영: 실물 군량의 안전 +1 / 구형 설전 실리·안전 합의 +1', envoy: '사절: 외교 비용 -1 (최소 1)',
 };
 export const GENERAL_PROFILES: Record<string, ActivityProfile> = {
+  xunyu:{duel:1,debate:3,traits:['envoy']},lusu:{duel:1,debate:3,traits:['insight']},local_broker:{duel:1,debate:2,traits:['quartermaster']},
+  rival_guard:{duel:1,debate:1,traits:['parry']},
+  local_captain:{duel:1,debate:1,traits:['quartermaster']},local_scribe:{duel:1,debate:2,traits:['envoy']},
   dianwei: { duel: 2, debate: 1, traits: ['parry'] }, chengpu: { duel: 2, debate: 2, traits: ['composure'] },
   caoren: { duel: 1, debate: 2, traits: ['parry', 'quartermaster'] }, haozhao: { duel: 1, debate: 2, traits: ['parry', 'quartermaster'] },
   huanggai: { duel: 2, debate: 1, traits: ['surge'] }, luxun: { duel: 1, debate: 3, traits: ['insight'] },
@@ -20,6 +23,7 @@ export const DUEL_ACTIONS: Record<DuelAction, { name: string; text: string }> = 
   finisher: { name: '승부수', text: '기세 2 소비. 피해 9+적성. 상대 방어를 관통한다.' },
 };
 export const DUEL_OPPONENTS: Record<string, { name: string; hp: number; power: number; pattern: DuelAction[]; tendency: string }> = {
+  inn_guard: {name:'객사 호위 대표',hp:24,power:7,pattern:['strike','strike','guard','finisher'],tendency:'강공으로 시험하고 방어 뒤 승부수를 씁니다. 패배해도 의뢰의 유료 우회가 남습니다.'},
   champion: { name: '화웅의 선봉 무장', hp: 24, power: 7, pattern: ['strike', 'strike', 'guard', 'finisher'], tendency: '강공이 잦다. 방어 반격으로 틈을 노려라.' },
   rider: { name: '서량 기병 대장', hp: 22, power: 6, pattern: ['probe', 'guard', 'strike', 'finisher'], tendency: '견제와 방어 뒤에 돌파한다.' },
   sentinel: { name: '장보의 호위 무장', hp: 26, power: 5, pattern: ['guard', 'probe', 'strike', 'guard'], tendency: '수비가 단단하다. 기세를 모아 관통하라.' },

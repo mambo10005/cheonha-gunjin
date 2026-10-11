@@ -1,0 +1,149 @@
+{
+  "warning": "Descriptive association across whole compressed runs; policy/representative/other cards confound this. Not causality or card power.",
+  "cards": [
+    {
+      "card": "answer",
+      "plays": 1,
+      "runsContainingCard": 1,
+      "fullAgreementRateInThoseRuns": 0.3333333333333333
+    },
+    {
+      "card": "assurance",
+      "plays": 305,
+      "runsContainingCard": 111,
+      "fullAgreementRateInThoseRuns": 0.6006006006006006
+    },
+    {
+      "card": "bond",
+      "plays": 45,
+      "runsContainingCard": 22,
+      "fullAgreementRateInThoseRuns": 0.6363636363636364
+    },
+    {
+      "card": "bridge",
+      "plays": 21,
+      "runsContainingCard": 14,
+      "fullAgreementRateInThoseRuns": 0.5714285714285714
+    },
+    {
+      "card": "c_accept",
+      "plays": 132,
+      "runsContainingCard": 60,
+      "fullAgreementRateInThoseRuns": 0.6055555555555555
+    },
+    {
+      "card": "c_cut",
+      "plays": 166,
+      "runsContainingCard": 59,
+      "fullAgreementRateInThoseRuns": 0.6101694915254238
+    },
+    {
+      "card": "c_turn",
+      "plays": 129,
+      "runsContainingCard": 57,
+      "fullAgreementRateInThoseRuns": 0.5964912280701754
+    },
+    {
+      "card": "delay",
+      "plays": 11,
+      "runsContainingCard": 11,
+      "fullAgreementRateInThoseRuns": 0.5757575757575758
+    },
+    {
+      "card": "doubt",
+      "plays": 5,
+      "runsContainingCard": 5,
+      "fullAgreementRateInThoseRuns": 0.4
+    },
+    {
+      "card": "draft",
+      "plays": 8,
+      "runsContainingCard": 8,
+      "fullAgreementRateInThoseRuns": 0.5833333333333334
+    },
+    {
+      "card": "echo",
+      "plays": 13,
+      "runsContainingCard": 9,
+      "fullAgreementRateInThoseRuns": 0.5185185185185185
+    },
+    {
+      "card": "g_dispatch",
+      "plays": 225,
+      "runsContainingCard": 60,
+      "fullAgreementRateInThoseRuns": 0.5777777777777777
+    },
+    {
+      "card": "g_read",
+      "plays": 150,
+      "runsContainingCard": 60,
+      "fullAgreementRateInThoseRuns": 0.5777777777777777
+    },
+    {
+      "card": "g_trap",
+      "plays": 207,
+      "runsContainingCard": 59,
+      "fullAgreementRateInThoseRuns": 0.5819209039548022
+    },
+    {
+      "card": "grounds",
+      "plays": 289,
+      "runsContainingCard": 118,
+      "fullAgreementRateInThoseRuns": 0.596045197740113
+    },
+    {
+      "card": "inspect",
+      "plays": 12,
+      "runsContainingCard": 7,
+      "fullAgreementRateInThoseRuns": 0.6190476190476191
+    },
+    {
+      "card": "petition",
+      "plays": 290,
+      "runsContainingCard": 116,
+      "fullAgreementRateInThoseRuns": 0.5977011494252874
+    },
+    {
+      "card": "plan",
+      "plays": 308,
+      "runsContainingCard": 120,
+      "fullAgreementRateInThoseRuns": 0.5916666666666667
+    },
+    {
+      "card": "quibble",
+      "plays": 53,
+      "runsContainingCard": 50,
+      "fullAgreementRateInThoseRuns": 0.5933333333333334
+    },
+    {
+      "card": "ration",
+      "plays": 1,
+      "runsContainingCard": 1,
+      "fullAgreementRateInThoseRuns": 0.3333333333333333
+    },
+    {
+      "card": "refine",
+      "plays": 8,
+      "runsContainingCard": 4,
+      "fullAgreementRateInThoseRuns": 0.6666666666666666
+    },
+    {
+      "card": "supplies",
+      "plays": 529,
+      "runsContainingCard": 120,
+      "fullAgreementRateInThoseRuns": 0.5916666666666667
+    },
+    {
+      "card": "unsettled",
+      "plays": 52,
+      "runsContainingCard": 50,
+      "fullAgreementRateInThoseRuns": 0.5933333333333334
+    },
+    {
+      "card": "yield",
+      "plays": 279,
+      "runsContainingCard": 115,
+      "fullAgreementRateInThoseRuns": 0.6
+    }
+  ]
+}

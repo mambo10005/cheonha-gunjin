@@ -1,8 +1,10 @@
 // 저장/불러오기. 버전 필드로 호환성을 판단한다. 저장소는 localStorage와 같은 최소 인터페이스.
 import { defaultMeta, RUN_VERSION } from './run.ts';
+import {compatibleGeography} from './geography.ts';
 import type { MetaState, RunState } from './types.ts';
 import { validateAndMigrateRun } from './save-validation.ts';
 import { GENERALS } from '../data/generals.ts';
+import {saveCampaign} from './campaign-save.ts';
 
 export interface KV {
   getItem(key: string): string | null;
@@ -21,6 +23,7 @@ interface Envelope<T> {
 }
 
 export function saveRun(kv: KV, run: RunState): boolean {
+  if(run.campaign?.world)return saveCampaign(kv,run);
   const env: Envelope<RunState> = { version: RUN_VERSION, savedAt: Date.now(), data: run };
   try { kv.setItem(RUN_KEY, JSON.stringify(env)); return true; } catch { return false; }
 }
@@ -32,8 +35,9 @@ export function loadRun(kv: KV): LoadResult<RunState> {
     const raw = kv.getItem(RUN_KEY);
     if (!raw) return { ok: false, reason: 'none' };
     const env = JSON.parse(raw) as Envelope<RunState>;
-    if (!env || ![1, 2, 3, RUN_VERSION].includes(env.version)) return { ok: false, reason: 'version' };
+    if (!env || ![1, 2, 3, 4, 5, RUN_VERSION].includes(env.version)) return { ok: false, reason: 'version' };
     const data = validateAndMigrateRun(env.data, env.version);
+    if(data?.geography&&!compatibleGeography(data)){delete data.geography;data.history.push('역사 지도 데이터 버전이 변경되어 기존 원정 지도에서 계속합니다. 경로·지형·군량·협정은 보존됩니다.');}
     return data ? { ok: true, data } : { ok: false, reason: 'corrupt' };
   } catch {
     return { ok: false, reason: 'corrupt' };

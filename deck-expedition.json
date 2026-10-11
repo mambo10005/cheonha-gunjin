@@ -1,0 +1,30 @@
+[
+  {
+    "general": "guojia",
+    "won": false,
+    "floor": 7,
+    "hp": 0,
+    "killedBy": "boss_dongzhuo",
+    "generals": [
+      "전위",
+      "조인",
+      "곽가",
+      "육손"
+    ],
+    "turns": 13
+  },
+  {
+    "general": "chengong",
+    "won": false,
+    "floor": 7,
+    "hp": 0,
+    "killedBy": "boss_dongzhuo",
+    "generals": [
+      "전위",
+      "조인",
+      "진궁",
+      "육손"
+    ],
+    "turns": 13
+  }
+]

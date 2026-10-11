@@ -4,6 +4,12 @@ import { GENERAL_PROFILES } from './social.ts';
 // 장수 능력의 실제 처리는 core/combat.ts의 장수 훅에 있다. ability 문구와 처리 코드를 함께 수정할 것.
 // 역사 인물의 성격은 게임적 해석이며 사실 고증이 아니다.
 export const GENERALS: Record<string, GeneralDef> = {
+  xunyu:{id:'xunyu',name:'순욱',faction:'위',role:'명망·행정',row:'rear',affinity:'scheme',scholar:true,starterOnly:true,ability:'탐색에서 얻은 개인 카드를 활동별로 편성한다.',weakness:'도시 근무 중에는 원정 카드 사용 불가.',pairs:'하남 서리'},
+  lusu:{id:'lusu',name:'노숙',faction:'오',role:'외교·중재',row:'rear',affinity:'scheme',scholar:true,starterOnly:true,ability:'중재와 조건 제안 개인 카드를 해금한다.',weakness:'계약의 채무가 남을 수 있다.',pairs:'나루 중개인'},
+  local_broker:{id:'local_broker',name:'나루 중개인',faction:'군웅',role:'물류·중재 (창작)',row:'rear',affinity:'scheme',starterOnly:true,ability:'지역 교역과 통행 카드를 활동별로 편성한다.',weakness:'직접 군사 효과가 적다.',pairs:'노숙'},
+  rival_guard:{id:'rival_guard',name:'관문 수비장',faction:'군웅',role:'경쟁 세력 지휘관 (창작)',row:'front',affinity:'bang',starterOnly:true,ability:'경쟁 세력의 관문 방어와 원정군을 지휘한다.',weakness:'플레이어의 기본 탐문 후보가 아니다.',pairs:'관문 수비대'},
+  local_captain:{id:'local_captain',name:'향촌 훈련관',faction:'군웅',role:'향병·군사 준비',row:'front',affinity:'bang',starterOnly:true,ability:'전열에서 전투 시작 방비 +4. 도시 군사 명령은 군량 1을 써서 준비 +3.',weakness:'군사 업무가 식량을 소비한다.',pairs:'향병 조직·훈련장'},
+  local_scribe:{id:'local_scribe',name:'하남 서리',faction:'군웅',role:'서신·행정 기록',row:'rear',affinity:'scheme',scholar:true,starterOnly:true,ability:'후열에서 전투 시작 카드 +1. 도시 기록 명령 뒤 다음 비용 −1.',weakness:'직접 공격·군사 준비 효과가 없다.',pairs:'창고 감찰·문서고'},
   dianwei: {
     id: 'dianwei', name: '전위', faction: '위', role: '호위·반격', row: 'front', affinity: 'bang',
     ability: '전열에서: 적이 전열을 공격할 때마다 공격자에게 반격 3 + (공격을 막고 남은 전열 방비의 절반).',
@@ -48,7 +54,7 @@ export const GENERALS: Record<string, GeneralDef> = {
   },
   lubu: {
     id: 'lubu', name: '여포', faction: '군웅', role: '폭발적 돌파', row: 'front', affinity: 'cavalry',
-    ability: '전열에서: 이번 턴 3번째 이후로 사용한 武 카드의 피해를 한 번 더 발동. 턴 종료 시 기세가 3 미만이면 병력 3을 잃는다(불만).',
+    ability: '전열에서: 이번 턴 3번째 이후로 사용한 공격 카드의 피해를 한 번 더 발동. 턴 종료 시 기세가 3 미만이면 병력 3을 잃는다(불만).',
     weakness: '카드를 적게 쓰는 턴마다 병력을 잃는다.',
     pairs: '군령, 추격, 징발, 장료',
   },
@@ -66,8 +72,8 @@ export const GENERALS: Record<string, GeneralDef> = {
   },
   chengong: {
     id: 'chengong', name: '진궁', faction: '군웅', role: '계책→공격 연계', row: 'rear', affinity: 'scheme', scholar: true, unlock: true,
-    ability: '후열에서: 策 카드를 쓸 때마다 이번 턴 다음 武 카드 피해 +4(최대 +12).',
-    weakness: '武 카드와 策 카드를 둘 다 들고 있어야 한다.',
+    ability: '후열에서: 계책 카드를 쓸 때마다 이번 턴 다음 공격 카드 피해 +4(최대 +12).',
+    weakness: '공격 카드와 계책 카드를 둘 다 들고 있어야 한다.',
     pairs: '군령, 허보, 무장 대결',
   },
   machao: {

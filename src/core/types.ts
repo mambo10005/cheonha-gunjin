@@ -58,6 +58,7 @@ export interface CardDef {
 }
 
 export interface CardInst {
+  personnelCard?:number;personnelOwners?:string[]; personnelCost?:number;
   uid: number;
   id: string;
 }
@@ -182,7 +183,7 @@ export interface BattleState {
   nextEnemyUid: number;
   /** 무한 연쇄 방지용 처리 예산 (턴마다 초기화) */
   budget: number;
-  stats: { damageTaken: Record<string, number>; damageDealt: number; cardsPlayed: number; rowTaken: Record<Row, number> };
+  stats: { personnelPlays?:Record<number,number>; damageTaken: Record<string, number>; damageDealt: number; cardsPlayed: number; rowTaken: Record<Row, number> };
   encounterId: string;
   difficulty: number;
 }
@@ -206,7 +207,7 @@ export interface MapNode {
   eventId?: string;
 }
 
-export type Pending = { kind: 'growth'; token: string; then: Pending; general?: string } | SocialPending
+export type Pending = {kind:'debateReward';reward:import('./debate-deck-types.ts').DeckReward;then:Pending} | { kind: 'growth'; token: string; then: Pending; general?: string } | SocialPending
   | { kind: 'none' }
   | { kind: 'reward'; food: number; cards: string[]; picked: boolean; extra?: { type: 'relic' | 'general'; options: string[]; picked: boolean } }
   | { kind: 'recruit'; options: string[] }
@@ -220,6 +221,9 @@ export type Pending = { kind: 'growth'; token: string; then: Pending; general?: 
 export type RunScreen = 'map' | 'battle' | 'node' | 'victory' | 'defeat';
 
 export interface RunState {
+  campaign?: import('./city-types.ts').CampaignState;
+  geography?: import('./geography.ts').GeographyState;
+  debateBuild: import('./debate-deck-types.ts').DeckCampaign;
   build: ExpeditionBuild;
   social: SocialState;
   version: number;
@@ -235,6 +239,8 @@ export interface RunState {
   generals: GeneralInst[];
   relics: string[];
   map: MapNode[][];
+  /** Actual visited coordinates; older saves may have no historical trail. */
+  mapTrail?: {floor:number;col:number}[];
   floor: number; // 현재 층(-1이면 출발 전)
   col: number;
   screen: RunScreen;

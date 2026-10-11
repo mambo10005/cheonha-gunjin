@@ -24,6 +24,7 @@ export type FactionId = 'caravan' | 'militia' | 'villages';
 export type TradeId = 'supply' | 'passage' | 'support';
 export type DebateContext = { kind: 'recruit'; candidate: string } | { kind: 'supply' } | { kind: 'diplomacy'; faction: FactionId; trade: TradeId } | { kind: 'agreement'; faction: FactionId; clause: ClauseId };
 export interface DebateState {
+  deck?: import('./debate-deck-types.ts').DeckRuntime;
   dialogueLog?: {source:string;round:number;text:string}[];
   negotiation?: Negotiation;
   rng: number; opponentId: string; generalId: string; round: number; maxRounds: number;

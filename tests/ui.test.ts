@@ -7,7 +7,7 @@ import { loadRun, saveRun, RUN_KEY, META_KEY } from '../src/core/save.ts';
 import type { RunState } from '../src/core/types.ts';
 
 test('화면 통합: 실제 클릭·저장·이어하기·대결→전투→보상·설전→외교', { timeout: 30000 }, async () => {
-  const bundle = await build({ logLevel: 'silent', build: { write: false } });
+  const bundle = await build({ logLevel: 'silent', define: { 'import.meta.env.DEV': 'true' }, build: { write: false } });
   const single = Array.isArray(bundle) ? bundle[0] : bundle;
   assert.ok('output' in single);
   const out = single.output;
@@ -15,7 +15,7 @@ test('화면 통합: 실제 클릭·저장·이어하기·대결→전투→보�
   const html = readFileSync('index.html', 'utf8').replace(/<script[^>]+src="\/src\/ui\/main.ts"[^>]*><\/script>/, '');
   const errors: string[] = [];
   function app(saved: Record<string, string> = {}): JSDOM {
-    const dom = new JSDOM(html, { url: 'http://localhost/', runScripts: 'outside-only', beforeParse(w) {
+    const dom = new JSDOM(html, { url: 'http://localhost/?dev=1', runScripts: 'outside-only', beforeParse(w) {
       w.structuredClone = structuredClone;
       for (const [key, value] of Object.entries(saved)) w.localStorage.setItem(key, value);
       w.addEventListener('error', e => errors.push(String(e.error)));
@@ -23,6 +23,7 @@ test('화면 통합: 실제 클릭·저장·이어하기·대결→전투→보�
     dom.window.eval(chunk!.type === 'chunk' ? chunk!.code : ''); return dom;
   }
   function click(dom: JSDOM, selector: string): void {
+    if(selector.includes('data-a="move"')) { const col=selector.match(/data-col="(\d+)"/)?.[1]; const floor=state(dom).floor+1; dom.window.document.querySelector<HTMLButtonElement>(`[data-map-action="select"][data-key="${floor}:${col}"]`)?.click(); }
     let el = dom.window.document.querySelector<HTMLButtonElement>(selector); if (!el && selector.includes("debate-action")) { const choice = selector.match(/data-choice="([^"]+)"/)?.[1]; dom.window.document.querySelector<HTMLButtonElement>(`[data-debate-select="${choice}"]`)?.click(); el = dom.window.document.querySelector<HTMLButtonElement>(selector); } assert.ok(el, selector); assert.equal(el.disabled, false, selector); el.click();
   }
   function snapshot(dom: JSDOM): Record<string, string> {
@@ -47,6 +48,8 @@ test('화면 통합: 실제 클릭·저장·이어하기·대결→전투→보�
     battle.battle.hand = [{ uid: 9999, id: 'ironcav' }]; battle.battle.energy = 3;
     saveRun(dom.window.localStorage, battle); dom = reload(dom);
     click(dom, '[data-a="card"][data-i="0"]'); click(dom, '[data-a="card"][data-i="0"]');
+    // The rules transaction is committed before playback; skip presentation explicitly.
+    dom.window.document.querySelector<HTMLButtonElement>('[data-a="skip-battle"]')?.click();
     click(dom, '[data-a="finish-battle"]'); click(dom, '[data-a="reward-skip"]');
     if (dom.window.document.querySelector('[data-a="reward-extra"][data-id=""]')) click(dom, '[data-a="reward-extra"][data-id=""]');
     click(dom, '[data-a="leave"]'); assert.equal(state(dom).screen, 'map');
@@ -65,18 +68,18 @@ test('화면 통합: 실제 클릭·저장·이어하기·대결→전투→보�
 });
 
 test('새 원정 교리→초반 성장→대결 전술→성장 보상·저장 복원의 실제 화면 입력', { timeout: 30000 }, async () => {
-  const bundle = await build({ logLevel: 'silent', build: { write: false } });
+  const bundle = await build({ logLevel: 'silent', define: { 'import.meta.env.DEV': 'true' }, build: { write: false } });
   const single = Array.isArray(bundle) ? bundle[0] : bundle; assert.ok('output' in single);
   const chunk = single.output.find(o => o.type === 'chunk'); assert.ok(chunk && chunk.type === 'chunk');
   const html = readFileSync('index.html', 'utf8').replace(/<script[^>]+src="\/src\/ui\/main.ts"[^>]*><\/script>/, '');
   const errors: string[] = [];
   function open(saved?: string): JSDOM {
-    const dom = new JSDOM(html, { url: 'http://localhost/', runScripts: 'outside-only', beforeParse(w) {
+    const dom = new JSDOM(html, { url: 'http://localhost/?dev=1', runScripts: 'outside-only', beforeParse(w) {
       w.structuredClone = structuredClone; if (saved) w.localStorage.setItem(RUN_KEY, saved);
       w.addEventListener('error', e => errors.push(String(e.error)));
     } }); dom.window.eval(chunk!.type === 'chunk' ? chunk!.code : ''); return dom;
   }
-  function click(dom: JSDOM, selector: string): void { let el = dom.window.document.querySelector<HTMLButtonElement>(selector); if (!el && selector.includes("debate-action")) { const choice = selector.match(/data-choice="([^"]+)"/)?.[1]; dom.window.document.querySelector<HTMLButtonElement>(`[data-debate-select="${choice}"]`)?.click(); el = dom.window.document.querySelector<HTMLButtonElement>(selector); } assert.ok(el, selector); assert.equal(el.disabled, false); el.click(); }
+  function click(dom: JSDOM, selector: string): void { if(selector.includes('data-a="move"')){const col=selector.match(/data-col="(\d+)"/)?.[1];const loaded=loadRun(dom.window.localStorage);if(loaded.ok)dom.window.document.querySelector<HTMLButtonElement>(`[data-map-action="select"][data-key="${loaded.data.floor+1}:${col}"]`)?.click();} let el = dom.window.document.querySelector<HTMLButtonElement>(selector); if (!el && selector.includes("debate-action")) { const choice = selector.match(/data-choice="([^"]+)"/)?.[1]; dom.window.document.querySelector<HTMLButtonElement>(`[data-debate-select="${choice}"]`)?.click(); el = dom.window.document.querySelector<HTMLButtonElement>(selector); } assert.ok(el, selector); assert.equal(el.disabled, false); el.click(); }
   function state(dom: JSDOM): RunState { const r = loadRun(dom.window.localStorage); assert.ok(r.ok); return r.data; }
   let dom = open();
   try {
@@ -87,10 +90,14 @@ test('새 원정 교리→초반 성장→대결 전술→성장 보상·저장 
     // Short battle fixture; the rule tests cover its combat chain separately.
     const r = state(dom); assert.ok(r.battle); r.battle.result = 'win'; saveRun(dom.window.localStorage, r);
     let saved = dom.window.localStorage.getItem(RUN_KEY)!; dom.window.close(); dom = open(saved); click(dom, '[data-a="continue"]');
+    // The rules transaction is committed before playback; skip presentation explicitly.
+    dom.window.document.querySelector<HTMLButtonElement>('[data-a="skip-battle"]')?.click();
     click(dom, '[data-a="finish-battle"]'); click(dom, '[data-a="reward-skip"]'); click(dom, '[data-a="leave"]');
     assert.equal(state(dom).pending.kind, 'growth'); click(dom, '[data-kind="growth"][data-choice="saboteur"]');
     assert.deepEqual(state(dom).build.growth.dianwei, { branch: 'saboteur', level: 1 });
-    const duel = state(dom); duel.floor = 3; duel.col = 0; duel.screen = 'node'; duel.pending = { kind: 'duelOffer', opponentId: 'champion' };
+    const duel = state(dom); duel.floor = 3; duel.col = 0; duel.mapTrail = [{floor:3,col:0}]; duel.screen = 'node'; duel.pending = { kind: 'duelOffer', opponentId: 'champion' };
+    // This isolated duel fixture deliberately jumps stages; keep it a legacy map, not a forged geographic travel history.
+    delete duel.geography;
     duel.map[3][0].type = 'elite'; duel.map[3][0].encounterId = 'el_huaxiong'; saveRun(dom.window.localStorage, duel);
     saved = dom.window.localStorage.getItem(RUN_KEY)!; dom.window.close(); dom = open(saved); click(dom, '[data-a="continue"]');
     dom.window.document.querySelector<HTMLSelectElement>('#tactic-one')!.value = 'feint';

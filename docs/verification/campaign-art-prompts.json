@@ -1,0 +1,26 @@
+{
+  "tool": "built-in image_gen",
+  "created": "2026-10-10",
+  "assets": [
+    {
+      "id": "chengong",
+      "path": "public/assets/campaign/chengong-v1.webp",
+      "prompt": "Use case: historical-scene. Asset type: original cinematic character portrait for the Korean Three Kingdoms strategy game Cheonha Gunjin. High-end hand-painted realistic historical concept illustration with subtle ink wash, highly detailed face and period fabrics, restrained weathered brass accents, dark jade and charcoal palette, warm rim light and cool mist. Portrait aspect ratio 2:3, waist-up, head fully visible, dignified strong silhouette, facing slightly left but eyes towards viewer, character fills frame, uncluttered dark atmospheric backdrop. No text, letters, logos, frames, UI, watermarks, modern clothing, anime, or recognizable existing game character designs. Subject: Chen Gong, an East Asian male strategist in his early forties, thoughtful sharp eyes, neatly trimmed mustache and short beard, dark scholarly headpiece, layered ivory and deep teal Han dynasty scholar robes, holding a closed bamboo document scroll. Calm conviction, warm amber scholarly light, subtle paper and scholarly tent in background."
+    },
+    {
+      "id": "zhangliao",
+      "path": "public/assets/campaign/zhangliao-v1.webp",
+      "prompt": "Use case: historical-scene. Asset type: original cinematic character portrait for the Korean Three Kingdoms strategy game Cheonha Gunjin. High-end hand-painted realistic historical concept illustration with subtle ink wash, highly detailed face and period fabrics, restrained weathered brass accents, dark jade and charcoal palette, warm rim light and cool mist. Portrait aspect ratio 2:3, waist-up, head fully visible, dignified strong silhouette, facing slightly left but eyes towards viewer, character fills frame, uncluttered dark atmospheric backdrop. No text, letters, logos, frames, UI, watermarks, modern clothing, anime, or recognizable existing game character designs. Subject: Zhang Liao, a formidable East Asian male commander in his thirties, angular face, strong brows, short mustache, black hair tied in a high topknot, historically inspired late Han dark iron lamellar armor, oxblood cloak and weathered gold fittings, hand resting on sword hilt. Resolute disciplined energy, ember-lit military camp silhouettes behind him. No extravagant fantasy horns."
+    },
+    {
+      "id": "guojia",
+      "path": "public/assets/campaign/guojia-v1.webp",
+      "prompt": "Use case: historical-scene. Asset type: original cinematic character portrait for the Korean Three Kingdoms strategy game Cheonha Gunjin. High-end hand-painted realistic historical concept illustration with subtle ink wash, highly detailed face and period fabrics, restrained weathered brass accents, dark jade and charcoal palette, warm rim light and cool mist. Portrait aspect ratio 2:3, waist-up, head fully visible, dignified strong silhouette, facing slightly left but eyes towards viewer, character fills frame, uncluttered dark atmospheric backdrop. No text, letters, logos, frames, UI, watermarks, modern clothing, anime, or recognizable existing game character designs. Subject: Guo Jia, an East Asian male strategist around thirty, slender refined face, keen intelligent eyes, slight mustache, black scholar cap, midnight blue and desaturated green Han dynasty robes, holding a folded silk dispatch and an elegant small wooden tally. A subtle confident expression, cool moonlit mist and distant lanterns."
+    },
+    {
+      "id": "henan",
+      "path": "public/assets/campaign/henan-v1.webp",
+      "prompt": "Use case: historical-scene. Asset type: original landscape backdrop for an interactive late Han dynasty Henan campaign selection map. Wide 16:9 premium painterly bird's-eye oblique panorama: massive Yellow River curves through upper half, distant misty mountain ranges at horizon, subtle rice fields and ochre rural lanes below, three small period walled settlements clustered across central area, southwestern wooded mountain passes. Refined ink wash plus richly textured historical concept painting. Desaturated jade, moss, warm parchment, charcoal with soft sunrise gold. Geography is evocative illustrative atmosphere, not an exact cartographic survey. Keep central area low contrast for city markers and bottom left quiet for UI captions. No labels, text, typography, pins, borders, UI, flags with characters, existing game artwork or watermarks."
+    }
+  ]
+}

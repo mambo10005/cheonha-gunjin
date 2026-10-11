@@ -1,0 +1,31 @@
+import {OFFICERS,PROTAGONISTS,PERSONAL_CARDS,JOINT_CARDS} from '../data/personnel.ts';
+import {RAISING_CARDS} from '../data/raising.ts';
+import {conversionFor,personnelAvailability,isRecruited,personnelCost} from './personnel-rules.ts';
+import type {RunState} from './types.ts';
+import type {PersonnelActivity} from './personnel-types.ts';
+const obj=(x:unknown):x is Record<string,any>=>!!x&&typeof x==='object'&&!Array.isArray(x);
+const int=(x:unknown,min=0,max=100000)=>typeof x==='number'&&Number.isInteger(x)&&x>=min&&x<=max;
+const list=(x:unknown,max=200):x is string[]=>Array.isArray(x)&&x.length<=max&&x.every(v=>typeof v==='string'&&v.length<2000);
+const unique=(x:unknown[])=>new Set(x).size===x.length;
+export function validPersonnel(r:RunState):boolean {
+ const p=r.campaign?.personnel,q=r.campaign?.world?.raising;if(!p)return !q?.cards.some(c=>c.personnelCard!==undefined||RAISING_CARDS[c.id]?.discovery);
+ if(!obj(p)||p.version!==1||!q||!Object.hasOwn(PROTAGONISTS,p.protagonistId)||r.campaign!.world!.founder!==p.protagonistId||!['notable','militia','official'].includes(p.background)||typeof p.goal!=='string'||!list(p.record)||!int(p.nextUid,1)||!int(p.revision)||!int(p.turn)||typeof p.refined!=='boolean')return false;
+ if(!obj(p.officers)||Object.keys(p.officers).length!==8||!Object.keys(OFFICERS).every(id=>Object.hasOwn(p.officers,id)))return false;
+ for(const [id,o] of Object.entries(p.officers))if(!obj(o)||id!==o.id||!int(o.information,0,4)||!int(o.trust,0,100)||!int(o.loyalty,0,100)||!int(o.xp,0,99)||!int(o.fatigue,0,6)||!int(o.until)||!['unknown','contact','cooperating','trusted','recruited','valued','core','departed'].includes(o.relationship)||!['available','rest','mission','moving','injured','captive','departed','rival'].includes(o.duty)||typeof o.task!=='boolean'||typeof o.proof!=='boolean'||!list(o.events,100)||![null,'card','relation','decline'].includes(o.cooperation)||![null,'expert','authority'].includes(o.growth)||isRecruited(o)&&!r.campaign!.roster.includes(id))return false;
+ if(!obj(p.encounters)||Object.keys(p.encounters).length!==18||!q.route.flat().every(n=>Object.hasOwn(OFFICERS,p.encounters[n.id]))||!list(p.party,3)||!unique(p.party)||!p.party.every(id=>Object.hasOwn(OFFICERS,id)&&p.officers[id].information>=2))return false;
+ if(!list(p.jointEvents,4)||!unique(p.jointEvents)||!p.jointEvents.every(id=>JOINT_CARDS.some(j=>j.id===id))||!list(p.claims)||!unique(p.claims)||![null,'people','law','strategy'].includes(p.doctrine))return false;
+ const eligible=[p.protagonistId,...Object.keys(p.officers).filter(id=>p.officers[id].information>=2)];if(p.representative!==null&&!eligible.includes(p.representative)||p.assistant!==null&&(!eligible.includes(p.assistant)||p.assistant===p.representative)||q.plan!==null&&q.representative!==p.representative||q.converted&&!p.doctrine)return false;
+ if(!Array.isArray(p.library)||p.library.length<6||p.library.length>100||!unique(p.library.map(c=>c.uid)))return false;
+ for(const c of p.library){if(!obj(c)||!int(c.uid,1,p.nextUid-1)||!Object.hasOwn(RAISING_CARDS,c.id)||!['protagonist','officer','city','event','joint'].includes(c.sourceType)||typeof c.sourceId!=='string'||!['personal','faction','city','temporary','promise','consumable'].includes(c.ownerType)||!list(c.owners,2)||!unique(c.owners)||!c.owners.every(id=>id===p.protagonistId||Object.hasOwn(OFFICERS,id))||!list(c.activities,5)||!unique(c.activities)||!c.activities.every(a=>['raising','combat','debate','admin','diplomacy'].includes(a))||!(c.expires===null||int(c.expires,0,6))||typeof c.spent!=='boolean'||c.upgrade!==undefined&&!['bold','quiet'].includes(c.upgrade)||c.mod!==undefined&&!['opening','fleeting','cycle'].includes(c.mod))return false;
+  if(c.raisingExhausted!==undefined&&typeof c.raisingExhausted!=='boolean')return false;if(c.sourceType==='protagonist'&&(c.owners.length!==1||c.owners[0]!==p.protagonistId)||c.sourceType==='city'&&(c.owners.length!==0||c.sourceId!==r.campaign!.world!.startCity))return false;
+  const d=PERSONAL_CARDS[c.id];if(d){if(c.sourceType==='joint'){const j=JOINT_CARDS.find(j=>j.id===c.id);if(!j||!p.jointEvents.includes(j.id)||JSON.stringify(c.owners)!==JSON.stringify(j.owners))return false;}else{const o=OFFICERS[c.sourceId];if(!o||c.owners.length!==1||c.owners[0]!==o.id||![...o.roles,...o.unique,o.support].includes(c.id)||!['personal','temporary'].includes(c.ownerType))return false;}}
+ }
+ if(!obj(p.loadouts)||Object.keys(p.loadouts).length!==5)return false;
+ for(const a of ['raising','combat','debate','admin','diplomacy'] as PersonnelActivity[]){const ids=p.loadouts[a];if(!Array.isArray(ids)||ids.length>(a==='raising'?14:6)||!unique(ids)||!ids.every(uid=>int(uid,1,p.nextUid-1)&&p.library.some(l=>l.uid===uid)))return false;}
+ if(q.cards.some(c=>!p.library.some(l=>l.uid===c.personnelCard&&l.id===c.id)))return false;
+ if(!obj(p.stats)||!['recruits','excluded','jointPlays','loyaltyCosts'].every(k=>int(p.stats[k as keyof typeof p.stats]))||!['equips','plays','growth'].every(k=>obj(p.stats[k as keyof typeof p.stats])&&Object.values(p.stats[k as 'equips'|'plays'|'growth']).every(n=>int(n))))return false;
+ for(const field of ['officerPlays','officerEquips'] as const){const values=p.stats[field];if(values!==undefined&&(!obj(values)||!Object.entries(values).every(([id,n])=>eligible.includes(id)&&int(n))))return false;}
+ // A projected copy must refer back to an eligible library source, including its deterministic surcharge.
+ for(const [a,cards,city] of [['combat',r.deck,undefined],['debate',r.debateBuild.cards,undefined],...Object.values(r.campaign!.cities).map(c=>['admin',c!.cards,c!.id])] as [PersonnelActivity,{personnelCard?:number;personnelOwners?:string[];personnelCost?:number;id:string}[],string|undefined][]){const ids=cards.filter(c=>c.personnelCard!==undefined).map(c=>c.personnelCard!);if(!unique(ids))return false;for(const c of cards){if(c.personnelCard===undefined)continue;const l=p.library.find(l=>l.uid===c.personnelCard);if(!l||JSON.stringify(c.personnelOwners)!==JSON.stringify(l.owners)||!p.loadouts[a].includes(l.uid)||conversionFor(l,a)!==c.id||personnelAvailability(r,l,a,city)||c.personnelCost!==personnelCost(r,l))return false;}}
+ return true;
+}

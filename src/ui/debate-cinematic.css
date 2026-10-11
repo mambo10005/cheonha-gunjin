@@ -27,3 +27,63 @@
 .portrait-frame:not([data-ready=true]){background-image:var(--portrait-low);background-size:contain;background-position:center;background-repeat:no-repeat}.cinematic{--serif:Georgia,'Batang','Noto Serif KR',serif;--sans:'Malgun Gothic','Noto Sans KR',system-ui,sans-serif}
 
 @media(max-width:560px){.scene-utilities summary,.scene-utilities>.btn,.withdraw-control .btn,.cinematic-hud .btn{min-height:44px}.scene-utilities{max-width:calc(100% - 86px)}}
+
+.deck-principles{position:absolute;z-index:11;left:18px;top:85px;font-size:12px;max-width:32%}.deck-principles summary{cursor:pointer;background:#101e2de0;padding:8px}.deck-principles .utility-content{top:38px;bottom:auto}.deck-turn-controls{display:flex;gap:6px;flex-wrap:wrap;margin-top:5px}.deck-turn-controls .btn{min-height:36px;font-size:11px}.deck-hand{bottom:14px}.deck-hand .argument-summary{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.deck-chain-preview{font-size:12px}.deck-preparation{padding:10px;border:1px solid #78899c;margin:8px 0}.deck-preparation p{font-size:12px;line-height:1.6}
+@media(max-width:560px){.deck-principles{top:53px;left:8px;max-width:90%;font-size:10px}.deck-hand{bottom:56px}.deck-hand .argument-card{height:130px;min-height:130px}.deck-turn-controls .btn{min-height:44px;font-size:10px;padding:4px}.deck-hand .hand-title{font-size:11px}.cinematic:has(.deck-hand) .scene-feedback{bottom:260px}.deck-principles .utility-content{width:calc(100vw - 20px)}}
+
+/* Readable Korean text: scene and hand flow vertically instead of clipping a fixed-height dock. */
+.cinematic{height:auto;min-height:calc(100svh - 70px);font-size:16px}
+.cinematic .debate-stage{position:relative;inset:auto;height:500px;margin-top:64px}
+.cinematic .debate-person{bottom:0;height:95%}
+.cinematic .speech{top:72%}
+.cinematic .speech p{font-size:calc(18px * var(--text-scale,1))}
+.cinematic .speech span,.cinematic .eyebrow,.cinematic .round-seal small{font-size:14px}
+.cinematic .debate-heading h1 span{font-size:16px}
+.cinematic .topic-label,.cinematic .goal,.cinematic .burden-line,.cinematic .counter-note{font-size:calc(16px * var(--text-scale,1));line-height:1.6}
+.cinematic .requirement-front{flex-wrap:wrap;gap:8px}
+.cinematic .requirement{width:100px;flex-shrink:0}
+.cinematic .requirement b,.cinematic .requirement em,.cinematic .requirement small,.cinematic .requirement-forecast{font-size:14px}
+.cinematic .axis-symbol{width:auto;min-width:48px;font-size:16px;clip-path:none;padding:2px 4px}
+.cinematic .argument-collision span{font-size:32px}
+.cinematic .hand-dock,.cinematic[data-large-text=true] .hand-dock{position:relative;inset:auto;margin:10px 17% 16px;max-height:none}
+.cinematic .hand-title{font-size:20px;flex-wrap:wrap;gap:8px}
+.cinematic .hand-title small{font-size:14px;line-height:1.6}
+.cinematic .chain-help{font-size:16px;line-height:1.65;background:#101e2df2;border-left:3px solid #a3c5be;padding:10px 12px;margin:8px 0;color:#f2e8d5}
+.cinematic .argument-hand{align-items:stretch;padding-top:14px}
+.cinematic .argument-card,.cinematic[data-large-text=true] .argument-card{flex-basis:210px;height:auto;min-height:235px;padding:14px;gap:9px;overflow:visible}
+.cinematic .argument-category{font-size:14px;gap:8px}
+.cinematic .argument-symbol{position:static;align-self:flex-end;font-size:15px;line-height:1.4;border:1px solid var(--argument-tone);padding:2px 7px}
+.cinematic .argument-card>strong{font-size:calc(20px * var(--text-scale,1));padding-right:0;min-height:0;line-height:1.5;overflow-wrap:anywhere}
+.cinematic .argument-summary,.cinematic .argument-match{font-size:calc(16px * var(--text-scale,1));line-height:1.65;max-width:none;white-space:normal;overflow:visible;text-overflow:clip;display:block;-webkit-line-clamp:unset}
+.cinematic .argument-card>small,.cinematic .lock-reason{font-size:calc(14px * var(--text-scale,1));line-height:1.6;max-height:none;overflow:visible}
+.cinematic .scene-feedback,.cinematic[data-large-text=true] .scene-feedback{position:relative;inset:auto;margin:8px 17%;font-size:16px;line-height:1.65;text-align:left;max-height:110px;background:#101e2df2}
+.cinematic .argument-detail{bottom:calc(100% - 20px);font-size:16px;width:min(580px,calc(100% - 16px));max-height:65vh}
+.cinematic .argument-detail p,.cinematic .debate-result p{font-size:calc(16px * var(--text-scale,1))}
+.cinematic .preview-values span,.cinematic .deck-chain-preview,.cinematic .utility-content p,.cinematic .settings-grid label,.cinematic .deck-principles,.cinematic .deck-preparation p{font-size:16px}
+.cinematic .deck-turn-controls .btn,.cinematic .argument-detail .btn{font-size:16px;min-height:44px;white-space:normal}
+.cinematic .scene-utilities,.cinematic .withdraw-control{position:relative;inset:auto;max-width:none;margin:10px 17%;flex-direction:row;flex-wrap:wrap;gap:8px}
+.cinematic .scene-utilities summary,.cinematic .scene-utilities>.btn,.cinematic .withdraw-control .btn{font-size:14px;min-height:44px}
+.cinematic-hud{font-size:16px;flex-wrap:wrap;line-height:1.6}
+.cinematic-hud .btn,.cinematic-hud .hud-details summary{font-size:14px;min-height:44px}
+@media(max-width:860px){
+ .cinematic .debate-stage{height:560px}
+ .cinematic .debate-person{height:78%;width:47%}
+ .cinematic .hand-dock,.cinematic[data-large-text=true] .hand-dock,.cinematic .scene-feedback,.cinematic[data-large-text=true] .scene-feedback,.cinematic .scene-utilities,.cinematic .withdraw-control{margin-left:12px;margin-right:12px}
+ .cinematic .speech{max-width:36%}
+}
+@media(max-width:560px){
+ .cinematic{min-height:calc(100svh - 48px)}
+ .cinematic .debate-stage{height:640px;margin-top:80px}
+ .cinematic .debate-person{height:43%;width:84%;bottom:auto;top:5px}
+ .cinematic .speech{top:32%;max-width:82%}
+ .cinematic .speech p{font-size:calc(16px * var(--text-scale,1))}
+ .cinematic .debate-center,.cinematic[data-large-text=true] .debate-center{top:44%;left:12px;right:12px}
+ .cinematic[data-large-text=true] .goal{display:block}
+ .cinematic .requirement{display:flex;width:88px;padding:6px}
+ .cinematic .axis-symbol{grid-row:auto;min-width:48px;height:auto;font-size:16px}
+ .cinematic .requirement strong{font-size:22px}
+ .cinematic .argument-card,.cinematic[data-large-text=true] .argument-card{flex-basis:210px;min-height:235px;height:auto}
+ .cinematic .argument-detail{bottom:0;max-height:70vh}
+ .cinematic .deck-principles{top:64px;font-size:14px}
+ .cinematic .hand-title{font-size:18px}
+}

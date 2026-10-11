@@ -1,5 +1,9 @@
+import {recordPersonnelUse} from './personnel-rules.ts';
 import { accordsOnMove, accordsOnSupply, accordsBattleOpening, accordsAfterBattle, accordsOnDismiss } from './accords.ts';
+import {campaignBattleOutcome} from './city.ts';
+import {initializeGeography,extraTravelFood,arriveGeography} from './geography.ts';
 // 원정(런) 진행 규칙. 전투 상태(BattleState)와 원정 상태(RunState)를 분리해서 다룬다.
+import {defaultDebateBuild,onDeckMove} from './debate-deck.ts';
 import { defaultBuild, offerGrowth } from './build.ts';
 import { CARDS, LORD_DECKS, REWARD_POOL } from '../data/cards.ts';
 import { ENCOUNTERS } from '../data/enemies.ts';
@@ -27,7 +31,7 @@ import type {
   Terrain,
 } from './types.ts';
 
-export const RUN_VERSION = 4;
+export const RUN_VERSION = 6;
 export const START_HP = 60;
 export const START_FOOD = 10;
 export const BOSS_FLOOR = 7;
@@ -65,6 +69,7 @@ export function newRun(seed: number, lordId: string, difficulty: Difficulty = 0,
   const lord = LORDS[lordId];
   if (!lord) throw new Error(`알 수 없는 군주: ${lordId}`);
   const run: RunState = {
+    debateBuild: defaultDebateBuild(),
     build: defaultBuild(),
     social: defaultSocial(),
     version: RUN_VERSION,
@@ -80,6 +85,7 @@ export function newRun(seed: number, lordId: string, difficulty: Difficulty = 0,
     generals: [{ id: lord.startGeneral, row: 'front' }],
     relics: [],
     map: [],
+    mapTrail: [],
     floor: -1,
     col: -1,
     screen: 'map',
@@ -142,6 +148,10 @@ export function currentNode(run: RunState): MapNode | null {
   return run.map[run.floor][run.col];
 }
 
+export function newRegionalRun(seed:number,lordId:string,difficulty:Difficulty=0,unlocked:string[]=[]):RunState{
+ const run=newRun(seed,lordId,difficulty,unlocked);initializeGeography(run);return run;
+}
+
 export function availableMoves(run: RunState): MapNode[] {
   if (run.screen !== 'map') return [];
   if (run.floor < 0) return run.map[0];
@@ -163,7 +173,7 @@ export function moveTo(run: RunState, col: number): Result {
   }
   accordsOnMove(run, target);
   const passage = run.social.passage;
-  const cost = Math.max(0, TERRAINS[target.terrain].moveCost - (passage?.discount ?? 0));
+  const cost = Math.max(0, TERRAINS[target.terrain].moveCost - (passage?.discount ?? 0)) + extraTravelFood(run,target);
   if (passage) {
     passage.moves--;
     run.history.push(`통행 협정: 이번 이동 군량 비용 -${passage.discount}, 남은 ${passage.moves}회.`);
@@ -174,7 +184,10 @@ export function moveTo(run: RunState, col: number): Result {
   const missing = cost - paid;
   run.floor = target.floor;
   run.col = target.col;
-  run.history.push(`${target.floor + 1}층 ${NODE_NAME[target.type]}(${TERRAINS[target.terrain].name})로 이동: 군량 -${paid}`);
+  (run.mapTrail ??= []).push({floor:target.floor,col:target.col});
+  arriveGeography(run,target);
+  onDeckMove(run);
+  run.history.push(`${target.floor + 1}행군 ${NODE_NAME[target.type]}(${TERRAINS[target.terrain].name})로 이동: 군량 -${paid}`);
   if (missing > 0) {
     run.hp -= missing * 5;
     run.history.push(`군량이 모자라 병사들이 이탈했다: 병력 -${missing * 5}`);
@@ -190,6 +203,9 @@ export function moveTo(run: RunState, col: number): Result {
 }
 
 function enterNode(run: RunState, node: MapNode): void {
+  if(node.type==='boss'&&run.campaign?.stage==='expedition'){
+    run.campaign.stage='approach';run.screen='map';run.pending={kind:'none'};return;
+  }
   switch (node.type) {
     case 'battle':
     case 'elite':
@@ -236,7 +252,7 @@ export function beginBattle(run: RunState, node: MapNode, duelOpening = { block:
     enemies: enc.enemies,
     difficulty: run.difficulty,
     allyBlessing: run.flags.allyBlessing,
-    opening: { block: duelOpening.block + (support?.block ?? 0) + accord.block, damage: (support?.damage ?? 0) + accord.damage, energyPenalty: duelOpening.energyPenalty },
+    opening: { block: (run.campaign?.world?.operation?.training??0)*3 + duelOpening.block + (support?.block ?? 0) + accord.block, damage: (support?.damage ?? 0) + accord.damage, energyPenalty: duelOpening.energyPenalty },
   });
   run.battle.rewardReduction = support?.rewardPenalty ?? 0;
   if (support) { run.social.support = null; run.history.push('군사 지원을 이번 전투에 1회 적용했다.'); }
@@ -254,8 +270,11 @@ export function finishBattle(run: RunState): Result {
   run.food = b.food;
   run.generals = b.generals.map((g) => ({ ...g }));
   const enc = ENCOUNTERS[b.encounterId];
+  for(const [uid,count] of Object.entries(b.stats.personnelPlays??{}))recordPersonnelUse(run,Number(uid),count);
   run.lastBattleSummary = summarizeBattle(run);
   run.battle = null;
+  if(run.campaign?.world){const w=run.campaign.world;for(const g of run.generals){w.growth[g.id]??={combat:0,debate:0,governance:0};w.growth[g.id].combat++;}}
+  if(campaignBattleOutcome(run,b.result==='win',b.stats.rowTaken.front+b.stats.rowTaken.rear))return {ok:true};
   if (b.result === 'lose') {
     accordsAfterBattle(run, false);
     run.screen = 'defeat';
@@ -542,9 +561,11 @@ export function deckPick(run: RunState, uid: number | null): Result {
   }
   const card = run.deck.find((c) => c.uid === uid);
   if (!card) return { ok: false, reason: '없는 카드' };
+  if(card.personnelCard!==undefined&&p.mode!=='remove')return {ok:false,reason:'개인 카드는 복제할 수 없습니다. 인재 성장으로 강화하세요.'};
   if (run.food < p.cost) return { ok: false, reason: '군량 부족' };
   run.food -= p.cost;
   if (p.mode === 'remove') {
+    if(card.personnelCard!==undefined&&run.campaign?.personnel)run.campaign.personnel.loadouts.combat=run.campaign.personnel.loadouts.combat.filter(id=>id!==card.personnelCard);
     run.deck = run.deck.filter((c) => c.uid !== uid);
     run.history.push(`「${CARDS[card.id].name}」 제거${p.cost ? ` (군량 -${p.cost})` : ''}`);
     if (p.then.kind === 'market') p.then.removed = true;
@@ -565,7 +586,7 @@ function settle(run: RunState): void {
 export function leaveNode(run: RunState): Result {
   if (run.screen !== 'node') return { ok: false, reason: '노드에 있지 않다' };
   const p = run.pending;
-  if (['growth', 'duelOffer', 'duel', 'debate', 'parley', 'diplomacy', 'council'].includes(p.kind)) return { ok: false, reason: '활동의 선택이나 결과 확인을 먼저 끝내세요.' };
+  if (['debateReward', 'growth', 'duelOffer', 'duel', 'debate', 'parley', 'diplomacy', 'council'].includes(p.kind)) return { ok: false, reason: '활동의 선택이나 결과 확인을 먼저 끝내세요.' };
   if (p.kind === 'replaceGeneral' || p.kind === 'deckPick') return { ok: false, reason: '먼저 선택을 끝내세요' };
   if (p.kind === 'event' && !p.resultText) return { ok: false, reason: '선택지를 고르세요' };
   if ([0, 2, 4].includes(run.floor) && run.build.doctrines.length && !run.build.claimed.includes(`camp:${run.floor}`)) {

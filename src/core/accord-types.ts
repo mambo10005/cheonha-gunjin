@@ -10,7 +10,7 @@ export interface Negotiation {
   counter: { axis: Axis; amount: number; applied: boolean };
   lastArgument: Argument | null;
 }
-export interface NegotiatedTerms { penalty: number; paid: number; description: string }
+export interface NegotiatedTerms { deck?:boolean; penalty: number; paid: number; description: string }
 export interface Coordinate { floor: number; col: number }
 export interface Agreement {
   uid: number; clause: ClauseId; faction: FactionId;

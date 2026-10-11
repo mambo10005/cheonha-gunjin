@@ -1,3 +1,4 @@
+import {deckPolicyAction,deckRewardPolicy} from './debate-deck-policy.ts';
 import { ARGUMENTS } from '../data/arguments.ts';
 import { CLAUSES, agreementQuote, signAgreement, resetCouncil, declineCouncil } from '../core/accords.ts';
 import type { DebateState } from '../core/social-types.ts';
@@ -16,6 +17,7 @@ import type { DebateAction } from '../core/social-types.ts';
 export function socialBotStep(run: RunState): boolean {
   const p = run.pending;
   switch (p.kind) {
+    case 'debateReward':deckRewardPolicy(run);return true;
     case 'growth': {
       const dir = run.build.doctrines[0];
       const candidates = Object.entries(GROWTH).filter(([, d]) => d.direction === dir);
@@ -44,12 +46,14 @@ export function socialBotStep(run: RunState): boolean {
     }
     case 'parley':
       if (!p.negotiated && run.food >= 1) {
-        const representative = run.generals.reduce((a, b) => GENERALS[a.id].activities!.debate >= GENERALS[b.id].activities!.debate ? a : b);
+        const specialized=run.generals.filter(g=>['guojia','chengong'].includes(g.id));
+        const representative=run.debateBuild.enabled&&specialized.length?specialized[(run.seed+run.floor)%specialized.length]:run.generals.reduce((a,b)=>GENERALS[a.id].activities!.debate>=GENERALS[b.id].activities!.debate?a:b);
         if (beginDebate(run, representative.id).ok) return true;
       }
       acceptParley(run, run.food >= parleyTerms(run).cost); return true;
     case 'debate': {
       if (p.state.result !== 'ongoing') finishDebate(run);
+      else if(p.state.deck){actDebate(run,deckPolicyAction(p.state),p.state.deck.revision);}
       else {
         const options = (Object.keys(p.state.negotiation ? ARGUMENTS : DEBATE_ACTIONS) as DebateAction[]).map(action => ({ action, ...previewDebateAction(p.state, action) })).filter(o => o.check.ok);
         const score = (o: typeof options[number]) => p.state.negotiation ? negotiationPlanScore(o.state) : o.state.agreement + Math.min(2, o.state.trust) + o.state.resolve * 0.3;
@@ -62,7 +66,8 @@ export function socialBotStep(run: RunState): boolean {
       if (p.negotiated?.result === 'failure') {resetCouncil(run);return true;}
       const clause=Object.keys(CLAUSES).find(id => { const q=agreementQuote(run,id); return !q.reason && run.food >= q.cost; });
       if (!clause) {declineCouncil(run);return true;}
-      const general=run.generals.reduce((a,b)=>GENERALS[a.id].activities!.debate>=GENERALS[b.id].activities!.debate?a:b);
+      const specialists=run.generals.filter(g=>['guojia','chengong'].includes(g.id));
+      const general=run.debateBuild.enabled&&specialists.length?specialists[(run.seed+run.floor)%specialists.length]:run.generals.reduce((a,b)=>GENERALS[a.id].activities!.debate>=GENERALS[b.id].activities!.debate?a:b);
       if (!p.negotiated && !run.social.used.includes(run.floor+':'+run.col+':debate') && run.food>=agreementQuote(run,clause).cost+3) beginDebate(run,general.id,clause);
       else signAgreement(run,clause,general.id); return true;
     }

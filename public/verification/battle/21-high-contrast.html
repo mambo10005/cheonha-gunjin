@@ -1,0 +1,918 @@
+<!doctype html><html lang="ko"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>21-high-contrast · 정적 검토</title><style>:root {
+  --ink: #16120f;
+  --ink-2: #211b16;
+  --ink-3: #2c241d;
+  --line: #4a3c2f;
+  --paper: #efe4cf;
+  --paper-dim: #c9b99c;
+  --muted: #9a8a73;
+  --seal: #c23b2a;
+  --seal-dim: #7d2a1f;
+  --gold: #d6a84a;
+  --mu: #c4572f;
+  --bang: #4f7fa8;
+  --chaek: #4f9a77;
+  --fire: #e2763a;
+  --ok: #7fb069;
+  --warn: #e0b04f;
+  --danger: #e05a47;
+  --radius: 10px;
+  --serif: 'Gowun Batang', 'Noto Serif KR', serif;
+  --sans: 'Noto Sans KR', system-ui, sans-serif;
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  background: var(--ink) radial-gradient(1200px 700px at 50% -10%, #2b211a 0%, var(--ink) 60%) no-repeat;
+  color: var(--paper);
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.45;
+  min-height: 100vh;
+}
+
+#app {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 12px 16px 40px;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+.btn {
+  background: var(--ink-3);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px 14px;
+  transition: background 0.12s, border-color 0.12s, transform 0.08s;
+}
+.btn:hover:not(:disabled) {
+  border-color: var(--gold);
+  background: #3a2f25;
+}
+.btn:active:not(:disabled) {
+  transform: translateY(1px);
+}
+.btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.btn.primary {
+  background: var(--seal);
+  border-color: var(--seal);
+  color: #fff6ea;
+  font-weight: 700;
+}
+.btn.primary:hover:not(:disabled) {
+  background: #d4483a;
+}
+.btn.small {
+  padding: 4px 10px;
+  font-size: 13px;
+}
+.btn.ghost {
+  background: transparent;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--serif);
+  margin: 0;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.muted {
+  color: var(--muted);
+}
+.small {
+  font-size: 13px;
+}
+.tiny {
+  font-size: 12px;
+}
+.row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.grow {
+  flex: 1;
+}
+.panel {
+  background: color-mix(in oklab, var(--ink-2) 92%, transparent);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 14px;
+}
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--ink-3);
+  color: var(--paper-dim);
+  white-space: nowrap;
+}
+.chip.fire {
+  border-color: var(--fire);
+  color: #ffc39b;
+}
+.chip.cavalry {
+  border-color: #b48a4a;
+  color: #f0d29c;
+}
+.chip.scheme {
+  border-color: var(--chaek);
+  color: #b5e3cb;
+}
+.chip.warn {
+  border-color: var(--warn);
+  color: var(--warn);
+}
+.chip.danger {
+  border-color: var(--danger);
+  color: #ffb3a7;
+}
+.chip.ok {
+  border-color: var(--ok);
+  color: #cdeabc;
+}
+
+/* ───── 타이틀 ───── */
+.title-screen {
+  min-height: 80vh;
+  display: grid;
+  place-items: center;
+  text-align: center;
+}
+.title-mark {
+  font-family: var(--serif);
+  font-size: clamp(44px, 9vw, 84px);
+  letter-spacing: 0.12em;
+  line-height: 1.1;
+}
+.title-mark .seal {
+  display: inline-grid;
+  place-items: center;
+  width: 1.25em;
+  height: 1.25em;
+  margin-left: 0.15em;
+  background: var(--seal);
+  color: #fff3e3;
+  border-radius: 6px;
+  font-size: 0.55em;
+  vertical-align: middle;
+  transform: rotate(-4deg);
+}
+.title-sub {
+  font-family: var(--serif);
+  color: var(--paper-dim);
+  margin: 10px 0 28px;
+}
+.title-actions {
+  display: grid;
+  gap: 10px;
+  width: min(320px, 90vw);
+  margin: 0 auto;
+}
+.title-actions .btn {
+  padding: 12px;
+  font-size: 16px;
+}
+
+/* ───── 군주 선택 ───── */
+.lord-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 14px;
+  margin-top: 16px;
+}
+.lord-card {
+  text-align: left;
+  background: linear-gradient(180deg, #2d241c, #1c1712);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 18px;
+  display: grid;
+  gap: 10px;
+}
+.lord-card:hover {
+  border-color: var(--gold);
+}
+.lord-name {
+  font-family: var(--serif);
+  font-size: 30px;
+}
+.lord-title {
+  color: var(--gold);
+  font-family: var(--serif);
+}
+
+/* ───── 상단 정보줄 ───── */
+.hud {
+  display: flex;
+  gap: 8px 16px;
+  align-items: center;
+  flex-wrap: wrap;
+  padding: 10px 14px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid var(--line);
+}
+.hud .stat {
+  display: flex;
+  gap: 6px;
+  align-items: baseline;
+}
+.hud .stat b {
+  font-size: 18px;
+  font-family: var(--serif);
+}
+.hud .lord {
+  font-family: var(--serif);
+  font-size: 20px;
+}
+.hpbar {
+  width: 120px;
+  height: 8px;
+  background: #3a2b22;
+  border-radius: 99px;
+  overflow: hidden;
+  align-self: center;
+}
+.hpbar > i {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, var(--seal), #e86b4f);
+}
+
+/* ───── 지도 ───── */
+.map-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 16px;
+}
+@media (max-width: 860px) {
+  .map-layout {
+    grid-template-columns: 1fr;
+  }
+}
+.map-wrap {
+  position: relative;
+  padding: 10px 0;
+}
+.map-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.map-floor {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  align-items: center;
+  height: 78px;
+  position: relative;
+}
+.floor-label {
+  position: absolute;
+  left: -34px;
+  font-family: var(--serif);
+  color: var(--muted);
+  font-size: 13px;
+}
+.node {
+  justify-self: center;
+  width: 112px;
+  min-height: 56px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: var(--ink-2);
+  display: grid;
+  place-items: center;
+  padding: 4px;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+.node .t {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: 15px;
+}
+.node .terr {
+  font-size: 11px;
+  color: var(--muted);
+}
+.node.reach {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 2px color-mix(in oklab, var(--gold) 35%, transparent);
+  cursor: pointer;
+}
+.node.reach:hover {
+  background: #3a2f25;
+}
+.node.here {
+  background: var(--seal-dim);
+  border-color: var(--seal);
+}
+.node.past {
+  opacity: 0.45;
+}
+.node.dim {
+  opacity: 0.6;
+}
+.node.boss {
+  width: 180px;
+  border-color: var(--seal);
+}
+.node.type-elite .t {
+  color: #ffb08a;
+}
+.node.type-boss .t {
+  color: #ff8d7a;
+}
+.node.type-recruit .t {
+  color: var(--gold);
+}
+.node.type-rest .t,
+.node.type-supply .t {
+  color: #b5e3cb;
+}
+@media (max-width: 520px) {
+  .node {
+    width: 84px;
+  }
+}
+
+/* ───── 장수 ───── */
+.gen-list {
+  display: grid;
+  gap: 8px;
+}
+.gen {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 8px 10px;
+  background: var(--ink-3);
+}
+.gen .name {
+  font-family: var(--serif);
+  font-size: 17px;
+  font-weight: 700;
+}
+.gen .ability {
+  font-size: 13px;
+  color: var(--paper-dim);
+}
+.gen.off {
+  opacity: 0.55;
+}
+
+/* ───── 전투 ───── */
+.battle {
+  display: grid;
+  gap: 12px;
+}
+.terrain-bar {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  font-size: 13px;
+}
+.enemies {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 10px;
+}
+.enemy {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: linear-gradient(180deg, #2a1f1a, #1b1511);
+  padding: 10px 12px;
+  display: grid;
+  gap: 6px;
+  text-align: left;
+  position: relative;
+}
+.enemy.targetable {
+  border-color: var(--gold);
+  cursor: crosshair;
+}
+.enemy.targetable:hover,
+.enemy.hovered {
+  background: #3a2a20;
+}
+.enemy.dead {
+  opacity: 0.3;
+  filter: grayscale(1);
+}
+.enemy .ename {
+  font-family: var(--serif);
+  font-size: 18px;
+  font-weight: 700;
+}
+.intent {
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 8px;
+  background: #3a221c;
+  border: 1px solid var(--seal-dim);
+  font-size: 14px;
+}
+.intent.nonattack {
+  background: #1f2a2e;
+  border-color: #3a5560;
+}
+.statline {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.bar {
+  height: 7px;
+  background: #3a2b22;
+  border-radius: 99px;
+  overflow: hidden;
+}
+.bar > i {
+  display: block;
+  height: 100%;
+  background: var(--danger);
+}
+.bar.preview > i {
+  background: var(--warn);
+}
+
+.formation {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+@media (max-width: 640px) {
+  .formation {
+    grid-template-columns: 1fr;
+  }
+}
+.rowbox {
+  border: 1px dashed var(--line);
+  border-radius: 12px;
+  padding: 10px 12px;
+  display: grid;
+  gap: 8px;
+  background: color-mix(in oklab, var(--ink-2) 80%, transparent);
+  text-align: left;
+}
+.rowbox.targetable {
+  border: 1px solid var(--gold);
+  cursor: pointer;
+}
+.rowbox.targetable:hover {
+  background: #2f261e;
+}
+.rowbox h3 {
+  font-size: 16px;
+}
+.rowbox .incoming {
+  font-size: 13px;
+}
+.rowbox .incoming b {
+  color: var(--danger);
+}
+.rowbox .incoming.safe b {
+  color: var(--ok);
+}
+.rowgens {
+  display: grid;
+  gap: 6px;
+}
+
+.handbar {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 12px;
+  align-items: end;
+}
+@media (max-width: 760px) {
+  .handbar {
+    grid-template-columns: 1fr;
+  }
+}
+.orb {
+  width: 74px;
+  height: 74px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(circle at 35% 30%, #e0b75e, #8a5a1e);
+  color: #20150b;
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: 26px;
+  box-shadow: 0 0 0 3px #3a2b1c;
+}
+.orb small {
+  display: block;
+  font-size: 11px;
+  font-family: var(--sans);
+  margin-top: -6px;
+}
+.hand {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.card {
+  width: 132px;
+  min-height: 176px;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #f3e9d6, #e2d3b6);
+  color: #2a1f16;
+  border: 2px solid #b6a07a;
+  padding: 8px 9px 9px;
+  text-align: left;
+  display: grid;
+  grid-template-rows: auto auto 1fr auto;
+  gap: 4px;
+  position: relative;
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+.card:hover:not(:disabled) {
+  transform: translateY(-4px);
+}
+.card.selected {
+  transform: translateY(-10px);
+  box-shadow: 0 0 0 3px var(--gold), 0 10px 24px #0008;
+}
+.card.dim {
+  opacity: 0.55;
+}
+.card:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.card .cost {
+  position: absolute;
+  top: -8px;
+  left: -8px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  color: #fff;
+  background: #3b2b1f;
+  border: 2px solid #e2d3b6;
+}
+.card .cost.discount {
+  background: var(--chaek);
+}
+.card .cname {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: 17px;
+  padding-left: 14px;
+}
+.card .fam {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+.card.mu {
+  border-color: var(--mu);
+}
+.card.bang {
+  border-color: var(--bang);
+}
+.card.chaek {
+  border-color: var(--chaek);
+}
+.card.curse {
+  background: linear-gradient(180deg, #cdbfa8, #a99a80);
+  border-color: #5a4d3e;
+}
+.card .fam.mu {
+  color: var(--mu);
+}
+.card .fam.bang {
+  color: var(--bang);
+}
+.card .fam.chaek {
+  color: #2f7a57;
+}
+.card .desc {
+  font-size: 12.5px;
+  line-height: 1.35;
+}
+.card .tags {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+.card .tags span {
+  font-size: 10.5px;
+  border-radius: 99px;
+  padding: 0 6px;
+  background: #2a1f16;
+  color: #f3e9d6;
+}
+.card.big {
+  width: 160px;
+  min-height: 200px;
+}
+.side-actions {
+  display: grid;
+  gap: 8px;
+  justify-items: stretch;
+  min-width: 140px;
+}
+.pile-info {
+  font-size: 12px;
+  color: var(--muted);
+  text-align: center;
+}
+
+.preview {
+  border: 1px solid var(--gold);
+  border-radius: 10px;
+  padding: 8px 12px;
+  background: #251d16;
+  font-size: 13px;
+}
+.preview ul {
+  margin: 4px 0 0;
+  padding-left: 18px;
+}
+
+.battle-bottom {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 12px;
+}
+@media (max-width: 960px) {
+  .battle-bottom {
+    grid-template-columns: 1fr;
+  }
+}
+.log {
+  max-height: 260px;
+  overflow: auto;
+  font-size: 12.5px;
+  font-family: var(--sans);
+  background: #120f0c;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 8px 10px;
+}
+.log div {
+  padding: 1px 0;
+}
+.log .player {
+  color: #e9dcc3;
+}
+.log .enemy {
+  color: #ffab9b;
+}
+.log .general {
+  color: var(--gold);
+}
+.log .damage {
+  color: #f0c9a0;
+}
+.log .warn {
+  color: var(--warn);
+}
+.log .info {
+  color: var(--muted);
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: #000a;
+  display: grid;
+  place-items: center;
+  z-index: 50;
+  padding: 16px;
+}
+.modal {
+  background: var(--ink-2);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 18px;
+  width: min(820px, 100%);
+  max-height: 88vh;
+  overflow: auto;
+}
+.modal h2 {
+  margin-bottom: 8px;
+}
+
+/* ───── 노드 화면 ───── */
+.node-screen {
+  display: grid;
+  gap: 14px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+.choice-grid {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.option {
+  text-align: left;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 12px 14px;
+  background: var(--ink-3);
+  display: grid;
+  gap: 4px;
+}
+.option:hover:not(:disabled) {
+  border-color: var(--gold);
+}
+.option:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.option .head {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: 17px;
+}
+.gen-card {
+  width: 250px;
+}
+.story {
+  font-family: var(--serif);
+  font-size: 17px;
+  line-height: 1.7;
+}
+.deck-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+
+.end-screen {
+  text-align: center;
+  display: grid;
+  gap: 14px;
+  justify-items: center;
+  padding-top: 40px;
+}
+.end-screen .big {
+  font-family: var(--serif);
+  font-size: 52px;
+}
+.end-screen ul {
+  text-align: left;
+}
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 20px;
+  transform: translateX(-50%);
+  background: #3a221c;
+  border: 1px solid var(--seal);
+  padding: 8px 16px;
+  border-radius: 10px;
+  z-index: 60;
+}
+.kbd {
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 0 4px;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.social-screen { display: grid; gap: 14px; }
+.activity-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); gap: 12px; }
+.activity-grid .panel { display: grid; align-content: start; gap: 8px; }
+.activity-log { font-size: 13px; line-height: 1.7; }
+.social-status { line-height: 1.7; }
+.representatives { display: grid; gap: 5px; margin: 8px 0; }
+#social-general { background: var(--ink-3); color: var(--paper); padding: 8px; max-width: 100%; }
+@media (max-width: 560px) {
+  #app {
+    padding: 8px 16px 32px;
+  }
+  .hand {
+    gap: 6px;
+  }
+  .card {
+    width: calc(33.3% - 6px);
+    min-height: 128px;
+    padding: 6px 6px 7px;
+  }
+  .card .cname {
+    font-size: 14px;
+  }
+  .card .desc {
+    font-size: 11.5px;
+  }
+  .card .cost {
+    width: 24px;
+    height: 24px;
+    top: -6px;
+    left: -6px;
+  }
+  .card.big {
+    width: calc(50% - 8px);
+  }
+  .enemy .ename {
+    font-size: 16px;
+  }
+  .hud .hpbar {
+    width: 70px;
+  }
+  .orb {
+    width: 58px;
+    height: 58px;
+    font-size: 22px;
+  }
+  .handbar .side-actions {
+    grid-template-columns: 1fr 1fr;
+  }
+  .handbar .pile-info {
+    grid-column: 1 / -1;
+  }
+}
+
+.build-status { border-left: 3px solid var(--gold); }
+.activity-log div:has(+ div) { padding-bottom: 5px; }
+.social-screen select { max-width: 100%; padding: 8px; }
+
+/* Original 2.5D composition. Numbers remain DOM text; no simulated soldier count. */
+body:has(.cinematic-battle){overflow:hidden}#app:has(.cinematic-battle){max-width:none;padding:8px 16px;height:100dvh;display:flex;flex-direction:column;gap:4px}
+#app:has(.cinematic-battle)>.hud{min-height:48px;margin:0;flex-shrink:0;gap:12px;font-size:16px}#app:has(.cinematic-battle)>.hud .chip{display:none}
+.cinematic-battle{--battle-text:1;flex:1;min-height:0;display:grid!important;grid-template-rows:34px minmax(230px,1fr) minmax(180px,25%) 32px;gap:4px;font-size:calc(16px * var(--battle-text));color:#eee2ce}
+.battle-topline,.battle-utilities{display:flex;align-items:center;gap:20px;padding:0 14px;background:#152029}.battle-topline>b{color:#dcc18a;font-size:1.1em}.battle-topline details{margin-left:auto}.battle-topline summary,.battle-utilities summary{cursor:pointer}.battle-topline details p,.battle-utilities details>label,.battle-utilities details>span{display:block;padding:10px}
+.battlefield{position:relative;min-height:0;isolation:isolate;overflow:hidden;border:1px solid #887a5b;background:#24373b}.battle-landscape{position:absolute;inset:0;width:100%;height:100%;z-index:-3}.battle-haze{position:absolute;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(0deg,#0d1a27ba,transparent 55%,#0e182540)}
+.enemy-ranks{position:absolute;top:4%;right:8%;width:52%;height:50%;display:flex;align-items:flex-start;justify-content:space-around;gap:18px}.army-unit{position:relative;border:0;background:none;color:inherit;max-width:235px;min-width:0;width:30%;padding:0 4px;cursor:pointer;font:inherit;display:flex;align-items:center;flex-direction:column;text-align:center}.army-unit:nth-child(2){margin-top:4%}.army-unit.dead{opacity:.3;filter:grayscale(1)}.unit-banner{background:#5a4233;border:1px solid #b38a5c;padding:6px 14px;box-shadow:0 6px 16px #0005;letter-spacing:.08em}.unit-banner b{color:#fff1c4}.unit-intent{font-weight:bold;border:1px solid #b77a5e;background:#18252beb;padding:4px 10px;border-radius:16px;margin-bottom:8px;white-space:nowrap;font-size:.94em}.cohort{width:100%;height:auto;max-height:125px;filter:drop-shadow(2px 6px 3px #0007);pointer-events:none}.unit-stat,.unit-status{display:block;font-size:.9em;background:#142128cc;padding:2px 8px}.unit-stat b{color:#f0d69c}.unit-hp{width:75%;height:5px;background:#171c21;margin:4px}.unit-hp i{height:100%;display:block;background:#c5866a}.unit-trait{font-size:.85em;background:#0d1c24df;max-width:230px}.intent-arrow{position:absolute;right:70%;top:52%;width:100px;height:3px;background:#d88f69;transform-origin:right;transform:rotate(-24deg);pointer-events:none;opacity:.75}.intent-arrow:before{content:'';position:absolute;left:-6px;top:-5px;border-right:10px solid #d88f69;border-top:6px solid transparent;border-bottom:6px solid transparent}.intent-arrow.rear{transform:rotate(18deg);width:190px}.intent-arrow.both{box-shadow:0 18px #d88f69}.is-target .intent-arrow{background:#eed185}.clash-line{position:absolute;top:48%;left:32%;width:60%;height:1px;background:linear-gradient(90deg,transparent,#d5b98888,transparent);transform:rotate(-16deg)}.clash-line span{position:absolute;left:30%;top:10px;font-size:.8em;color:#d1bc95}
+.allied-lane{position:absolute;left:3%;display:flex;align-items:center;width:46%;height:36%;padding:10px;gap:10px;z-index:2}.allied-lane.rear{top:25%;width:39%;transform:scale(.85);transform-origin:left top}.allied-lane.front{top:55%;left:16%;width:48%}.lane-label{min-width:120px;display:flex;flex-direction:column;gap:3px;z-index:3;padding:8px;background:linear-gradient(90deg,#102633ed,#14232b99);border-left:3px solid #86a9a9}.lane-label b{font-size:1.2em;color:#c7dada}.lane-label span{font-size:.98em}.lane-label small{font-size:.85em}.risk{color:#f2b198}.safe{color:#b2dcd1}.lane-commanders{display:flex;gap:12px;z-index:3}.commander{display:flex;align-items:end;position:relative;gap:6px}.commander-art{width:100px;height:135px;position:relative;border-bottom:2px solid #b29b70;overflow:hidden;background:linear-gradient(0deg,#17303c,transparent)}.commander-art img{width:100%;height:100%;object-fit:cover;object-position:50% 24%;mask-image:linear-gradient(#000 75%,transparent)}.commander-seal{position:absolute;bottom:0;left:0;right:0;text-align:center;background:#183140e8;color:#ead0a0;padding:4px;font:600 1.1em var(--serif)}.banner-fallback{width:65px;height:125px;clip-path:polygon(0 0,100% 0,100% 88%,50% 100%,0 88%);background:linear-gradient(90deg,#345060,#152a38,#345060);border:1px solid #bba77d}.banner-fallback .commander-seal{writing-mode:vertical-rl;font-size:1.45em;letter-spacing:.2em;top:8px;bottom:20px;display:grid;place-items:center}.commander-caption{display:flex;flex-direction:column;gap:3px;width:100px;background:#152630b8;padding:4px;font-size:.85em}.commander-caption>b{font-size:1.25em}.commander-caption details p{position:absolute;bottom:100%;left:0;width:280px;padding:10px;background:#152630;border:1px solid #a99e87;z-index:8;margin:0}.commander-caption details p+p{display:none}.allied-cohort{position:absolute;right:0;bottom:-20px;opacity:.5;width:42%;z-index:1}.shield-line{position:absolute;bottom:0;left:10%;width:88%;height:20px;border-top:4px solid #82bbc0;border-radius:50%;box-shadow:0 -10px 25px #7acbd047;pointer-events:none}.shield-line span{display:none}.shield-line.projected{border-top-style:dashed;opacity:.65}.targetable{outline:2px dashed #dacb8c;outline-offset:3px;border-radius:8px}.is-target{outline:3px solid #f1d697}.battle-card:focus-visible,.army-unit:focus-visible,.allied-lane:focus-visible{outline:3px solid #f4d694;outline-offset:2px}
+.battle-feedback{position:absolute;bottom:6px;left:14px;right:14px;font-size:.86em;background:#111f29d9;padding:6px 12px;border-left:2px solid #b69b65;z-index:9}.battle-feedback>b{color:#dcc593}.battle-cutin{position:absolute;top:38%;right:3%;width:32%;padding:20px;border-block:1px solid #bca370;background:linear-gradient(90deg,#102534ee,#15212be0);z-index:8;display:flex;flex-direction:column;gap:8px}.battle-cutin>b{font:600 1.5em var(--serif);color:#e5cc95}.battle-preview{position:absolute;right:12px;bottom:45px;width:32%;font-size:.88em;z-index:7;background:#112431ed;border:1px solid #7f918f;padding:8px 12px}.battle-preview [data-battle-preview]{display:flex;flex-wrap:wrap;gap:6px}.battle-preview span{display:block;width:100%}.battle-preview details{max-height:100px;overflow:auto}.battle-preview b{color:#e8ce94}.battle-preview p{margin:4px 0}
+.battle-command-dock{display:flex;align-items:stretch;gap:16px;min-height:0;background:linear-gradient(#20303b,#101b26);padding:8px 14px;border-top:1px solid #b3a17b}.command-resources,.command-end{display:flex;flex-direction:column;justify-content:center;gap:8px;min-width:125px}.command-resources b{color:#e3c899;font-size:1.2em}.energy-tokens{color:#e1c27d;letter-spacing:3px}.command-resources small,.command-end small{font-size:.85em;line-height:1.5}.battle-hand{display:flex;align-items:stretch;gap:10px;overflow-x:auto;overflow-y:hidden;flex:1;padding:6px}.battle-card{position:relative;flex:0 0 145px;min-height:140px;padding:8px 10px;border:1px solid #8c826e;border-radius:8px 8px 2px 2px;background:linear-gradient(145deg,#33404c,#152431);font:inherit;color:#e8dbc2;text-align:left;display:flex;flex-direction:column;gap:8px;cursor:pointer;box-shadow:0 7px 10px #0005;transition:transform .15s}.battle-card.mu{border-top:4px solid #c59271}.battle-card.bang{border-top:4px solid #87b7ba;border-radius:18px 18px 3px 3px}.battle-card.chaek{border-top:4px solid #b9a47b;clip-path:polygon(0 0,94% 0,100% 7%,100% 100%,0 100%)}.battle-card.selected{outline:2px solid #eed297;transform:translateY(-5px);background:linear-gradient(145deg,#475462,#243446)}.battle-card b{font:600 1.2em var(--serif)}.card-command{position:absolute;right:8px;top:6px;background:#b69c61;color:#182736;border-radius:50%;width:26px;height:26px;display:grid;place-items:center;font-weight:bold}.card-family{padding-right:25px;font-size:.8em;color:#c9c1ab}.card-rule{font-size:.95em;line-height:1.45}.battle-card small{font-size:.8em;margin-top:auto;color:#b1d0c8}.unavailable{font-size:.8em;color:#e5afa4}.battle-utilities{justify-content:space-between;font-size:14px;position:relative;z-index:15}.battle-utilities details[open]{position:absolute;bottom:0;background:#172731;border:1px solid #87938a;padding:10px;max-height:65vh;max-width:90vw;overflow:auto}.battle-records[open]{width:650px}.battle-utilities .log{max-height:45vh;overflow:auto;font-size:16px}.battle-resolution h2{font:600 40px var(--serif);color:#e7d095}.cinematic-battle[data-particles=true][data-motion=full] .battle-haze{animation:battle-mist 10s infinite alternate}.cinematic-battle[data-motion=full][data-camera=counter] .shield-line{animation:shield-pulse .4s}.cinematic-battle[data-camera=enemyAction] .clash-line,.cinematic-battle[data-camera=playerAction] .clash-line{height:3px;box-shadow:0 0 18px #e8d6aa}.cinematic-battle[data-contrast=high]{color:white}.cinematic-battle[data-contrast=high] .battlefield{background:black}.cinematic-battle[data-contrast=high] .battle-landscape{opacity:.25}.cinematic-battle[data-motion=reduced] *{animation:none!important;transition:none!important}.cinematic-battle:has(.battle-card:focus-visible) .battle-preview{border-color:#f6d99b}
+@keyframes battle-mist{to{opacity:.6;transform:translateX(8px)}}@keyframes shield-pulse{50%{filter:brightness(1.7)}}
+@media(max-height:760px) and (min-width:901px){.cinematic-battle{grid-template-rows:30px minmax(200px,1fr) 185px 26px}.commander-art{height:100px;width:75px}.commander-caption{width:90px}.cohort{max-height:90px}.battle-card{gap:5px;flex-basis:135px}.battle-preview{font-size:14px}.army-unit .unit-status{font-size:13px}.unit-trait{display:none}}
+@media(max-width:1100px){.enemy-ranks{right:2%;width:56%;gap:6px}.allied-lane.front{left:8%;width:55%}.commander-art{width:75px}.commander-caption{width:85px}.lane-label{min-width:100px}.battle-command-dock{gap:8px}.battle-topline{gap:12px}.battle-preview{width:35%}}
+@media(max-width:700px){body:has(.cinematic-battle){overflow:auto}#app:has(.cinematic-battle){padding:6px;height:auto;min-height:100dvh}#app:has(.cinematic-battle)>.hud{font-size:14px;gap:6px;flex-wrap:wrap}#app:has(.cinematic-battle)>.hud .hpbar{display:none}.cinematic-battle{grid-template-rows:auto minmax(530px,63dvh) 240px 36px;font-size:16px}.battle-topline{padding:8px;font-size:14px;flex-wrap:wrap;gap:8px}.battle-topline details{margin:0}.enemy-ranks{top:2%;left:2%;width:96%;right:2%;height:30%;gap:5px}.army-unit{width:32%;padding:0}.army-unit:nth-child(2){margin-top:0}.unit-intent{font-size:12px;padding:5px;white-space:normal;min-height:30px}.unit-banner{font-size:15px;padding:4px 8px}.cohort{max-height:78px}.unit-stat,.unit-status{font-size:13px}.unit-trait{display:none}.intent-arrow{width:70px;transform:rotate(-75deg);top:90%;right:50%;opacity:.35}.intent-arrow.rear{transform:rotate(-100deg);width:110px}.clash-line{top:38%;left:5%;width:90%;transform:none}.allied-lane.rear{top:39%;left:2%;width:93%;height:20%;transform:none}.allied-lane.front{top:60%;left:2%;width:93%;height:20%}.commander-art{width:55px;height:84px}.banner-fallback{width:42px}.commander-caption{width:88px;font-size:13px}.lane-label{min-width:108px;font-size:14px;padding:5px}.lane-label small{font-size:12px}.allied-cohort{width:25%;opacity:.4}.battle-preview{left:4px;right:4px;width:auto;bottom:36px;font-size:14px;max-height:100px;overflow:auto}.battle-feedback{left:4px;right:4px;bottom:4px;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.battle-cutin{top:34%;right:2%;width:75%;font-size:15px;padding:12px}.battle-command-dock{padding:5px;display:grid;grid-template-columns:1fr 120px;grid-template-rows:40px 1fr;gap:3px;position:sticky;bottom:0;z-index:12}.command-resources{grid-column:1;grid-row:1;flex-direction:row;align-items:center;min-width:0;gap:8px;font-size:14px}.command-resources small,.energy-tokens{display:none}.command-end{grid-row:1/3;grid-column:2;min-width:0;padding:3px;gap:6px}.command-end .btn{font-size:14px;padding:10px 5px}.command-end small{font-size:13px}.battle-hand{grid-column:1;grid-row:2;gap:6px;padding:3px}.battle-card{flex-basis:134px;font-size:16px;gap:5px;padding:8px;min-height:170px}.battle-utilities>span{display:none}.battle-utilities{padding:5px}.battle-utilities details[open]{max-width:calc(100vw - 24px);bottom:0}.commander-caption .btn{padding:5px;font-size:13px}}
+@media(prefers-reduced-motion:reduce){.cinematic-battle *{animation:none!important;transition:none!important}}
+
+.intent-arrow{display:none}.intent-routes{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:4;overflow:visible}.intent-routes path{fill:none;stroke:#ddad87;stroke-width:2;stroke-dasharray:6 5;opacity:.65}.intent-routes circle{fill:#edd39e}.intent-routes text{fill:#fff0c6;font:700 16px system-ui;paint-order:stroke;stroke:#13262c;stroke-width:4px}.intent-routes .route-turncoat{stroke:#9cd1c8}.event-target{filter:brightness(1.2)}.cinematic-battle[data-motion=full][data-event=attackStarted] .event-target .cohort{animation:formation-impact .25s}.cinematic-battle[data-event=damageBlocked] .shield-line{border-color:#e0e3ac}.cinematic-battle[data-event=formationMoved] .commander{outline:1px solid #cebf91}.cinematic-battle[data-event=unitDefeated] .event-target{filter:grayscale(1)}
+@keyframes formation-impact{50%{transform:translateX(-8px)}}
+
+@media(max-width:700px){.cinematic-battle{font-size:calc(16px * var(--battle-text))}.battle-card{font-size:inherit}.unit-intent{font-size:.9em}.unit-stat,.unit-status{font-size:.9em}.lane-label{font-size:.94em}.commander-caption{font-size:.85em}.battle-preview{font-size:.9em}}
+
+.battle-painted-background{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;z-index:-2;pointer-events:none;filter:saturate(.65) brightness(.66)}.commander-art img{transform:scale(1.12);transform-origin:50% 24%}.cinematic-battle[data-contrast=high] .battle-painted-background{opacity:.3}
+
+.battle-cutin{min-height:90px;padding-left:20px}.battle-cutin:has(img){padding-left:105px}.battle-cutin img{position:absolute;left:8px;bottom:0;max-width:92px;height:120px;object-fit:cover;object-position:50% 24%;mask-image:linear-gradient(#000 80%,transparent)}
+</style><body><main id="app"><div class="hud panel">조조 · 군단 병력 60/60 · 군량 10 · 전투 정적 검토 (상호작용 없음)</div><div class="battle cinematic-battle" data-motion="full" data-particles="true" data-contrast="high" data-event="idle" data-camera="overview" style="--battle-text:1">
+ <div class="battle-topline"><b>궁병대</b><span>평야 · 제 1턴</span><details><summary>지형·준비 정보</summary><p>기병 카드 피해 +3</p><p>현재 배치와 원정 지원 효과는 적용된 상태입니다. 전투 중 교대는 실제 지휘력을 소비합니다.</p></details></div>
+ <div class="battlefield terrain-plains" data-busy="false"><svg class="battle-landscape" viewBox="0 0 1600 800" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs><linearGradient id="sky" x2="0" y2="1"><stop stop-color="#162d37"/><stop offset="1" stop-color="#ab9575"/></linearGradient><linearGradient id="earth" x2="0" y2="1"><stop stop-color="#666854"/><stop offset="1" stop-color="#272c2c"/></linearGradient></defs><path fill="url(#sky)" d="M0 0H1600V800H0Z"/><circle cx="1130" cy="160" r="75" fill="#d2b584" opacity=".26"/><path d="M0 290L180 195 360 300 630 208 800 292 1080 220 1300 303 1600 206V800H0Z" fill="#314d53" opacity=".7"/><path d="M0 355Q400 250 800 350T1600 340V800H0Z" fill="url(#earth)"/><path d="M1000 350L250 800H1050L1160 350Z" fill="#b0a17a" opacity=".12"/><path d="M0 680Q400 580 800 730T1600 660V800H0Z" fill="#142428" opacity=".5"/></svg><img class="battle-painted-background" src="/assets/battle/plains-v1.png" alt="" data-battle-background/><div class="battle-haze"></div><div class="enemy-ranks"><button class="army-unit enemy-unit    " data-a="inspect-enemy" data-uid="1" data-hover-enemy="1" data-unit="1" style="--unit-order:0" aria-label="황건병 1 · 체력 13/13 · 전열 공격 6">
+   <span class="unit-intent">전열 공격 6</span><span class="intent-arrow front" aria-hidden="true"></span>
+   <span class="unit-banner">황건병 <b>1</b></span><svg class="cohort" viewBox="0 0 230 100" aria-hidden="true"><defs><linearGradient id="metal"><stop stop-color="#c4bbb0"/><stop offset="1" stop-color="#393f46"/></linearGradient></defs><g transform="translate(20 18)"><path d="M-10 49 L-6 17 L6 17 L11 49 Z" fill="#695644"/><path d="M-7 16 Q-7 1 0 0 Q8 1 7 16 Z" fill="url(#metal)"/><path d="M-12 29 L-11 47 Q-2 52 0 45 L-1 27 Z" fill="#918771" stroke="#d1c4a3"/><path d="M9 40 L12 -12" stroke="#bdb6a3" stroke-width="2"/><path d="M12 -18 L9 -9 L14 -10 Z" fill="#cfc8b8"/></g><g transform="translate(55 18)"><path d="M-10 49 L-6 17 L6 17 L11 49 Z" fill="#695644"/><path d="M-7 16 Q-7 1 0 0 Q8 1 7 16 Z" fill="url(#metal)"/><path d="M-12 29 L-11 47 Q-2 52 0 45 L-1 27 Z" fill="#918771" stroke="#d1c4a3"/><path d="M9 40 L12 -12" stroke="#bdb6a3" stroke-width="2"/><path d="M12 -18 L9 -9 L14 -10 Z" fill="#cfc8b8"/></g><g transform="translate(90 18)"><path d="M-10 49 L-6 17 L6 17 L11 49 Z" fill="#695644"/><path d="M-7 16 Q-7 1 0 0 Q8 1 7 16 Z" fill="url(#metal)"/><path d="M-12 29 L-11 47 Q-2 52 0 45 L-1 27 Z" fill="#918771" stroke="#d1c4a3"/><path d="M9 40 L12 -12" stroke="#bdb6a3" stroke-width="2"/><path d="M12 -18 L9 -9 L14 -10 Z" fill="#cfc8b8"/></g><g transform="translate(125 18)"><path d="M-10 49 L-6 17 L6 17 L11 49 Z" fill="#695644"/><path d="M-7 16 Q-7 1 0 0 Q8 1 7 16 Z" fill="url(#metal)"/><path d="M-12 29 L-11 47 Q-2 52 0 45 L-1 27 Z" fill="#918771" stroke="#d1c4a3"/><path d="M9 40 L12 -12" stroke="#bdb6a3" stroke-width="2"/><path d="M12 -18 L9 -9 L14 -10 Z" fill="#cfc8b8"/></g><g transform="translate(160 18)"><path d="M-10 49 L-6 17 L6 17 L11 49 Z" fill="#695644"/><path d="M-7 16 Q-7 1 0 0 Q8 1 7 16 Z" fill="url(#metal)"/><path d="M-12 29 L-11 47 Q-2 52 0 45 L-1 27 Z" fill="#918771" stroke="#d1c4a3"/><path d="M9 40 L12 -12" stroke="#bdb6a3" stroke-width="2"/><path d="M12 -18 L9 -9 L14 -10 Z" fill="#cfc8b8"/></g><g transform="translate(195 18)"><path d="M-10 49 L-6 17 L6 17 L11 49 Z" fill="#695644"/><path d="M-7 16 Q-7 1 0 0 Q8 1 7 16 Z" fill="url(#metal)"/><path d="M-12 29 L-11 47 Q-2 52 0 45 L-1 27 Z" fill="#918771" stroke="#d1c4a3"/><path d="M9 40 L12 -12" stroke="#bdb6a3" stroke-width="2"/><path d="M12 -18 L9 -9 L14 -10 Z" fill="#cfc8b8"/></g><g transform="translate(29 42)"><path d="M-10 49 L-6 17 L6 17 L11 49 Z" fill="#695644"/><path d="M-7 16 Q-7 1 0 0 Q8 1 7 16 Z" fill="url(#metal)"/><path d="M-12 29 L-11 47 Q-2 52 0 45 L-1 27 Z" fill="#918771" stroke="#d1c4a3"/><path d="M9 40 L12 -12" stroke="#bdb6a3" stroke-width="2"/><path d="M12 -18 L9 -9 L14 -10 Z" fill="#cfc8b8"/></g><g transform="translate(64 42)"><path d="M-10 49 L-6 17 L6 17 L11 49 Z" fill="#695644"/><path d="M-7 16 Q-7 1 0 0 Q8 1 7 16 Z" fill="url(#metal)"/><path d="M-12 29 L-11 47 Q-2 52 0 45 L-1 27 Z" fill="#918771" stroke="#d1c4a3"/><path d="M9 40 L12 -12" stroke="#bdb6a3" stroke-width="2"/><path d="M12 -18 L9 -9 L14 -10 Z" fill="#cfc8b8"/></g><g transform="translate(99 42)"><path d="M-10 49 L-6 17 L6 17 L11 49 Z" fill="#695644"/><path d="M-7 16 Q-7 1 0 0 Q8 1 7 16 Z" fill="url(#metal)"/><path d="M-12 29 L-11 47 Q-2 52 0 45 L-1 27 Z" fill="#918771" stroke="#d1c4a3"/><path d="M9 40 L12 -12" stroke="#bdb6a3" stroke-width="2"/><path d="M12 -18 L9 -9 L14 -10 Z" fill="#cfc8b8"/></g><g transform="translate(134 42)"><path d="M-10 49 L-6 17 L6 17 L11 49 Z" fill="#695644"/><path d="M-7 16 Q-7 1 0 0 Q8 1 7 16 Z" fill="url(#metal)"/><path d="M-12 29 L-11 47 Q-2 52 0 45 L-1 27 Z" fill="#918771" stroke="#d1c4a3"/><path d="M9 40 L12 -12" stroke="#bdb6a3" stroke-width="2"/><path d="M12 -18 L9 -9 L14 -10 Z" fill="#cfc8b8"/></g><g transform="translate(169 42)"><path d="M-10 49 L-6 17 L6 17 L11 49 Z" fill="#695644"/><path d="M-7 16 Q-7 1 0 0 Q8 1 7 16 Z" fill="url(#metal)"/><path d="M-12 29 L-11 47 Q-2 52 0 45 L-1 27 Z" fill="#918771" stroke="#d1c4a3"/><path d="M9 40 L12 -12" stroke="#bdb6a3" stroke-width="2"/><path d="M12 -18 L9 -9 L14 -10 Z" fill="#cfc8b8"/></g><g transform="translate(204 42)"><path d="M-10 49 L-6 17 L6 17 L11 49 Z" fill="#695644"/><path d="M-7 16 Q-7 1 0 0 Q8 1 7 16 Z" fill="url(#metal)"/><path d="M-12 29 L-11 47 Q-2 52 0 45 L-1 27 Z" fill="#918771" stroke="#d1c4a3"/><path d="M9 40 L12 -12" stroke="#bdb6a3" stroke-width="2"/><path d="M12 -18 L9 -9 L14 -10 Z" fill="#cfc8b8"/></g></svg><span class="unit-stat">적 체력 <b>13</b> / 13</span>
+   <span class="unit-hp"><i style="width:100%"></i></span>
+   <span class="unit-status">방비 0</span>
+   
+  </button><button class="army-unit enemy-unit    " data-a="inspect-enemy" data-uid="2" data-hover-enemy="2" data-unit="2" style="--unit-order:1" aria-label="궁수 2 · 체력 11/11 · 후열 공격 6">
+   <span class="unit-intent">후열 공격 6</span><span class="intent-arrow rear" aria-hidden="true"></span>
+   <span class="unit-banner">궁수 <b>2</b></span><svg class="cohort" viewBox="0 0 230 100" aria-hidden="true"><defs><linearGradient id="metal"><stop stop-color="#c4bbb0"/><stop offset="1" stop-color="#393f46"/></linearGradient></defs><g transform="translate(20 18)"><path d="M-10 49 L-6 17 L6 17 L11 49 Z" fill="#695644"/><path d="M-7 16 Q-7 1 0 0 Q8 1 7 16 Z" fill="url(#metal)"/><path d="M-12 29 L-11 47 Q-2 52 0 45 L-1 27 Z" fill="#918771" stroke="#d1c4a3"/><path d="M9 3 Q27 27 9 48 M9 3 L9 48" fill="none" stroke="#d1b884" stroke-width="2"/></g><g transform="translate(55 18)"><path d="M-10 49 L-6 17 L6 17 L11 49 Z" fill="#695644"/><path d="M-7 16 Q-7 1 0 0 Q8 1 7 16 Z" fill="url(#metal)"/><path d="M-12 29 L-11 47 Q-2 52 0 45 L-1 27 Z" fill="#918771" stroke="#d1c4a3"/><path d="M9 3 Q27 27 9 48 M9 3 L9 48" fill="none" stroke="#d1b884" stroke-width="2"/></g><g transform="translate(90 18)"><path d="M-10 49 L-6 17 L6 17 L11 49 Z" fill="#695644"/><path d="M-7 16 Q-7 1 0 0 Q8 1 7 16 Z" fill="url(#metal)"/><path d="M-12 29 L-11 47 Q-2 52 0 45 L-1 27 Z" fill="#918771" stroke="#d1c4a3"/><path d="M9 3 Q27 27 9 48 M9 3 L9 48" fill="none" stroke="#d1b884" stroke-width="2"/></g><g transform="translate(125 18)"><path d="M-10 49 L-6 17 L6 17 L11 49 Z" fill="#695644"/><path d="M-7 16 Q-7 1 0 0 Q8 1 7 16 Z" fill="url(#metal)"/><path d="M-12 29 L-11 47 Q-2 52 0 45 L-1 27 Z" fill="#918771" stroke="#d1c4a3"/><path d="M9 3 Q27 27 9 48 M9 3 L9 48" fill="none" stroke="#d1b884" stroke-width="2"/></g><g transform="translate(160 18)"><path d="M-10 49 L-6 17 L6 17 L11 49 Z" fill="#695644"/><path d="M-7 16 Q-7 1 0 0 Q8 1 7 16 Z" fill="url(#metal)"/><path d="M-12 29 L-11 47 Q-2 52 0 45 L-1 27 Z" fill="#918771" stroke="#d1c4a3"/><path d="M9 3 Q27 27 9 48 M9 3 L9 48" fill="none" stroke="#d1b884" stroke-width="2"/></g><g transform="translate(195 18)"><path d="M-10 49 L-6 17 L6 17 L11 49 Z" fill="#695644"/><path d="M-7 16 Q-7 1 0 0 Q8 1 7 16 Z" fill="url(#metal)"/><path d="M-12 29 L-11 47 Q-2 52 0 45 L-1 27 Z" fill="#918771" stroke="#d1c4a3"/><path d="M9 3 Q27 27 9 48 M9 3 L9 48" fill="none" stroke="#d1b884" stroke-width="2"/></g><g transform="translate(29 42)"><path d="M-10 49 L-6 17 L6 17 L11 49 Z" fill="#695644"/><path d="M-7 16 Q-7 1 0 0 Q8 1 7 16 Z" fill="url(#metal)"/><path d="M-12 29 L-11 47 Q-2 52 0 45 L-1 27 Z" fill="#918771" stroke="#d1c4a3"/><path d="M9 3 Q27 27 9 48 M9 3 L9 48" fill="none" stroke="#d1b884" stroke-width="2"/></g><g transform="translate(64 42)"><path d="M-10 49 L-6 17 L6 17 L11 49 Z" fill="#695644"/><path d="M-7 16 Q-7 1 0 0 Q8 1 7 16 Z" fill="url(#metal)"/><path d="M-12 29 L-11 47 Q-2 52 0 45 L-1 27 Z" fill="#918771" stroke="#d1c4a3"/><path d="M9 3 Q27 27 9 48 M9 3 L9 48" fill="none" stroke="#d1b884" stroke-width="2"/></g><g transform="translate(99 42)"><path d="M-10 49 L-6 17 L6 17 L11 49 Z" fill="#695644"/><path d="M-7 16 Q-7 1 0 0 Q8 1 7 16 Z" fill="url(#metal)"/><path d="M-12 29 L-11 47 Q-2 52 0 45 L-1 27 Z" fill="#918771" stroke="#d1c4a3"/><path d="M9 3 Q27 27 9 48 M9 3 L9 48" fill="none" stroke="#d1b884" stroke-width="2"/></g><g transform="translate(134 42)"><path d="M-10 49 L-6 17 L6 17 L11 49 Z" fill="#695644"/><path d="M-7 16 Q-7 1 0 0 Q8 1 7 16 Z" fill="url(#metal)"/><path d="M-12 29 L-11 47 Q-2 52 0 45 L-1 27 Z" fill="#918771" stroke="#d1c4a3"/><path d="M9 3 Q27 27 9 48 M9 3 L9 48" fill="none" stroke="#d1b884" stroke-width="2"/></g><g transform="translate(169 42)"><path d="M-10 49 L-6 17 L6 17 L11 49 Z" fill="#695644"/><path d="M-7 16 Q-7 1 0 0 Q8 1 7 16 Z" fill="url(#metal)"/><path d="M-12 29 L-11 47 Q-2 52 0 45 L-1 27 Z" fill="#918771" stroke="#d1c4a3"/><path d="M9 3 Q27 27 9 48 M9 3 L9 48" fill="none" stroke="#d1b884" stroke-width="2"/></g><g transform="translate(204 42)"><path d="M-10 49 L-6 17 L6 17 L11 49 Z" fill="#695644"/><path d="M-7 16 Q-7 1 0 0 Q8 1 7 16 Z" fill="url(#metal)"/><path d="M-12 29 L-11 47 Q-2 52 0 45 L-1 27 Z" fill="#918771" stroke="#d1c4a3"/><path d="M9 3 Q27 27 9 48 M9 3 L9 48" fill="none" stroke="#d1b884" stroke-width="2"/></g></svg><span class="unit-stat">적 체력 <b>11</b> / 11</span>
+   <span class="unit-hp"><i style="width:100%"></i></span>
+   <span class="unit-status">방비 0</span>
+   
+  </button><button class="army-unit enemy-unit    " data-a="inspect-enemy" data-uid="3" data-hover-enemy="3" data-unit="3" style="--unit-order:2" aria-label="황건병 3 · 체력 13/13 · 전열 공격 6">
+   <span class="unit-intent">전열 공격 6</span><span class="intent-arrow front" aria-hidden="true"></span>
+   <span class="unit-banner">황건병 <b>3</b></span><svg class="cohort" viewBox="0 0 230 100" aria-hidden="true"><defs><linearGradient id="metal"><stop stop-color="#c4bbb0"/><stop offset="1" stop-color="#393f46"/></linearGradient></defs><g transform="translate(20 18)"><path d="M-10 49 L-6 17 L6 17 L11 49 Z" fill="#695644"/><path d="M-7 16 Q-7 1 0 0 Q8 1 7 16 Z" fill="url(#metal)"/><path d="M-12 29 L-11 47 Q-2 52 0 45 L-1 27 Z" fill="#918771" stroke="#d1c4a3"/><path d="M9 40 L12 -12" stroke="#bdb6a3" stroke-width="2"/><path d="M12 -18 L9 -9 L14 -10 Z" fill="#cfc8b8"/></g><g transform="translate(55 18)"><path d="M-10 49 L-6 17 L6 17 L11 49 Z" fill="#695644"/><path d="M-7 16 Q-7 1 0 0 Q8 1 7 16 Z" fill="url(#metal)"/><path d="M-12 29 L-11 47 Q-2 52 0 45 L-1 27 Z" fill="#918771" stroke="#d1c4a3"/><path d="M9 40 L12 -12" stroke="#bdb6a3" stroke-width="2"/><path d="M12 -18 L9 -9 L14 -10 Z" fill="#cfc8b8"/></g><g transform="translate(90 18)"><path d="M-10 49 L-6 17 L6 17 L11 49 Z" fill="#695644"/><path d="M-7 16 Q-7 1 0 0 Q8 1 7 16 Z" fill="url(#metal)"/><path d="M-12 29 L-11 47 Q-2 52 0 45 L-1 27 Z" fill="#918771" stroke="#d1c4a3"/><path d="M9 40 L12 -12" stroke="#bdb6a3" stroke-width="2"/><path d="M12 -18 L9 -9 L14 -10 Z" fill="#cfc8b8"/></g><g transform="translate(125 18)"><path d="M-10 49 L-6 17 L6 17 L11 49 Z" fill="#695644"/><path d="M-7 16 Q-7 1 0 0 Q8 1 7 16 Z" fill="url(#metal)"/><path d="M-12 29 L-11 47 Q-2 52 0 45 L-1 27 Z" fill="#918771" stroke="#d1c4a3"/><path d="M9 40 L12 -12" stroke="#bdb6a3" stroke-width="2"/><path d="M12 -18 L9 -9 L14 -10 Z" fill="#cfc8b8"/></g><g transform="translate(160 18)"><path d="M-10 49 L-6 17 L6 17 L11 49 Z" fill="#695644"/><path d="M-7 16 Q-7 1 0 0 Q8 1 7 16 Z" fill="url(#metal)"/><path d="M-12 29 L-11 47 Q-2 52 0 45 L-1 27 Z" fill="#918771" stroke="#d1c4a3"/><path d="M9 40 L12 -12" stroke="#bdb6a3" stroke-width="2"/><path d="M12 -18 L9 -9 L14 -10 Z" fill="#cfc8b8"/></g><g transform="translate(195 18)"><path d="M-10 49 L-6 17 L6 17 L11 49 Z" fill="#695644"/><path d="M-7 16 Q-7 1 0 0 Q8 1 7 16 Z" fill="url(#metal)"/><path d="M-12 29 L-11 47 Q-2 52 0 45 L-1 27 Z" fill="#918771" stroke="#d1c4a3"/><path d="M9 40 L12 -12" stroke="#bdb6a3" stroke-width="2"/><path d="M12 -18 L9 -9 L14 -10 Z" fill="#cfc8b8"/></g><g transform="translate(29 42)"><path d="M-10 49 L-6 17 L6 17 L11 49 Z" fill="#695644"/><path d="M-7 16 Q-7 1 0 0 Q8 1 7 16 Z" fill="url(#metal)"/><path d="M-12 29 L-11 47 Q-2 52 0 45 L-1 27 Z" fill="#918771" stroke="#d1c4a3"/><path d="M9 40 L12 -12" stroke="#bdb6a3" stroke-width="2"/><path d="M12 -18 L9 -9 L14 -10 Z" fill="#cfc8b8"/></g><g transform="translate(64 42)"><path d="M-10 49 L-6 17 L6 17 L11 49 Z" fill="#695644"/><path d="M-7 16 Q-7 1 0 0 Q8 1 7 16 Z" fill="url(#metal)"/><path d="M-12 29 L-11 47 Q-2 52 0 45 L-1 27 Z" fill="#918771" stroke="#d1c4a3"/><path d="M9 40 L12 -12" stroke="#bdb6a3" stroke-width="2"/><path d="M12 -18 L9 -9 L14 -10 Z" fill="#cfc8b8"/></g><g transform="translate(99 42)"><path d="M-10 49 L-6 17 L6 17 L11 49 Z" fill="#695644"/><path d="M-7 16 Q-7 1 0 0 Q8 1 7 16 Z" fill="url(#metal)"/><path d="M-12 29 L-11 47 Q-2 52 0 45 L-1 27 Z" fill="#918771" stroke="#d1c4a3"/><path d="M9 40 L12 -12" stroke="#bdb6a3" stroke-width="2"/><path d="M12 -18 L9 -9 L14 -10 Z" fill="#cfc8b8"/></g><g transform="translate(134 42)"><path d="M-10 49 L-6 17 L6 17 L11 49 Z" fill="#695644"/><path d="M-7 16 Q-7 1 0 0 Q8 1 7 16 Z" fill="url(#metal)"/><path d="M-12 29 L-11 47 Q-2 52 0 45 L-1 27 Z" fill="#918771" stroke="#d1c4a3"/><path d="M9 40 L12 -12" stroke="#bdb6a3" stroke-width="2"/><path d="M12 -18 L9 -9 L14 -10 Z" fill="#cfc8b8"/></g><g transform="translate(169 42)"><path d="M-10 49 L-6 17 L6 17 L11 49 Z" fill="#695644"/><path d="M-7 16 Q-7 1 0 0 Q8 1 7 16 Z" fill="url(#metal)"/><path d="M-12 29 L-11 47 Q-2 52 0 45 L-1 27 Z" fill="#918771" stroke="#d1c4a3"/><path d="M9 40 L12 -12" stroke="#bdb6a3" stroke-width="2"/><path d="M12 -18 L9 -9 L14 -10 Z" fill="#cfc8b8"/></g><g transform="translate(204 42)"><path d="M-10 49 L-6 17 L6 17 L11 49 Z" fill="#695644"/><path d="M-7 16 Q-7 1 0 0 Q8 1 7 16 Z" fill="url(#metal)"/><path d="M-12 29 L-11 47 Q-2 52 0 45 L-1 27 Z" fill="#918771" stroke="#d1c4a3"/><path d="M9 40 L12 -12" stroke="#bdb6a3" stroke-width="2"/><path d="M12 -18 L9 -9 L14 -10 Z" fill="#cfc8b8"/></g></svg><span class="unit-stat">적 체력 <b>13</b> / 13</span>
+   <span class="unit-hp"><i style="width:100%"></i></span>
+   <span class="unit-status">방비 0</span>
+   
+  </button></div><div class="clash-line"><span>군진 충돌선</span></div><section class="allied-lane rear " data-lane="rear"  aria-label="후열 · 방비 0 · 예상 병력 손실 6"><div class="lane-label"><b>후열</b><span>방비 0</span><span class="risk">병력 손실 6</span><small>공격 6 · 흡수 0</small></div><div class="lane-commanders"><div class="commander" data-general="guojia" style="--faction:#698a94"><div class="commander-art "><img src="/assets/debate/portraits/guojia/neutral.webp" alt="곽가 초상" data-battle-portrait loading="eager"/><span class="commander-seal">곽가</span></div><div class="commander-caption"><b>곽가</b><span>능력 활성</span><details><summary>능력</summary><p>후열에서: 계책(허보·이간계·교란) 카드를 쓰면 지휘력 +1, 카드 1장 뽑기(턴당 1회).</p><p>계책 카드가 없으면 빈자리다. 후열 피해에 약하다.</p></details><button class="btn small" data-a="battle-swap" data-i="1" >교대 무료</button></div></div></div><div class="allied-cohort"><svg class="cohort" viewBox="0 0 230 100" aria-hidden="true"><defs><linearGradient id="metal"><stop stop-color="#c4bbb0"/><stop offset="1" stop-color="#393f46"/></linearGradient></defs><g transform="translate(20 18)"><path d="M-10 49 L-6 17 L6 17 L11 49 Z" fill="#485e62"/><path d="M-7 16 Q-7 1 0 0 Q8 1 7 16 Z" fill="url(#metal)"/><path d="M-12 29 L-11 47 Q-2 52 0 45 L-1 27 Z" fill="#918771" stroke="#d1c4a3"/><path d="M9 40 L12 -12" stroke="#bdb6a3" stroke-width="2"/><path d="M12 -18 L9 -9 L14 -10 Z" fill="#cfc8b8"/></g><g transform="translate(55 18)"><path d="M-10 49 L-6 17 L6 17 L11 49 Z" fill="#485e62"/><path d="M-7 16 Q-7 1 0 0 Q8 1 7 16 Z" fill="url(#metal)"/><path d="M-12 29 L-11 47 Q-2 52 0 45 L-1 27 Z" fill="#918771" stroke="#d1c4a3"/><path d="M9 40 L12 -12" stroke="#bdb6a3" stroke-width="2"/><path d="M12 -18 L9 -9 L14 -10 Z" fill="#cfc8b8"/></g><g transform="translate(90 18)"><path d="M-10 49 L-6 17 L6 17 L11 49 Z" fill="#485e62"/><path d="M-7 16 Q-7 1 0 0 Q8 1 7 16 Z" fill="url(#metal)"/><path d="M-12 29 L-11 47 Q-2 52 0 45 L-1 27 Z" fill="#918771" stroke="#d1c4a3"/><path d="M9 40 L12 -12" stroke="#bdb6a3" stroke-width="2"/><path d="M12 -18 L9 -9 L14 -10 Z" fill="#cfc8b8"/></g><g transform="translate(125 18)"><path d="M-10 49 L-6 17 L6 17 L11 49 Z" fill="#485e62"/><path d="M-7 16 Q-7 1 0 0 Q8 1 7 16 Z" fill="url(#metal)"/><path d="M-12 29 L-11 47 Q-2 52 0 45 L-1 27 Z" fill="#918771" stroke="#d1c4a3"/><path d="M9 40 L12 -12" stroke="#bdb6a3" stroke-width="2"/><path d="M12 -18 L9 -9 L14 -10 Z" fill="#cfc8b8"/></g><g transform="translate(160 18)"><path d="M-10 49 L-6 17 L6 17 L11 49 Z" fill="#485e62"/><path d="M-7 16 Q-7 1 0 0 Q8 1 7 16 Z" fill="url(#metal)"/><path d="M-12 29 L-11 47 Q-2 52 0 45 L-1 27 Z" fill="#918771" stroke="#d1c4a3"/><path d="M9 40 L12 -12" stroke="#bdb6a3" stroke-width="2"/><path d="M12 -18 L9 -9 L14 -10 Z" fill="#cfc8b8"/></g><g transform="translate(195 18)"><path d="M-10 49 L-6 17 L6 17 L11 49 Z" fill="#485e62"/><path d="M-7 16 Q-7 1 0 0 Q8 1 7 16 Z" fill="url(#metal)"/><path d="M-12 29 L-11 47 Q-2 52 0 45 L-1 27 Z" fill="#918771" stroke="#d1c4a3"/><path d="M9 40 L12 -12" stroke="#bdb6a3" stroke-width="2"/><path d="M12 -18 L9 -9 L14 -10 Z" fill="#cfc8b8"/></g><g transform="translate(29 42)"><path d="M-10 49 L-6 17 L6 17 L11 49 Z" fill="#485e62"/><path d="M-7 16 Q-7 1 0 0 Q8 1 7 16 Z" fill="url(#metal)"/><path d="M-12 29 L-11 47 Q-2 52 0 45 L-1 27 Z" fill="#918771" stroke="#d1c4a3"/><path d="M9 40 L12 -12" stroke="#bdb6a3" stroke-width="2"/><path d="M12 -18 L9 -9 L14 -10 Z" fill="#cfc8b8"/></g><g transform="translate(64 42)"><path d="M-10 49 L-6 17 L6 17 L11 49 Z" fill="#485e62"/><path d="M-7 16 Q-7 1 0 0 Q8 1 7 16 Z" fill="url(#metal)"/><path d="M-12 29 L-11 47 Q-2 52 0 45 L-1 27 Z" fill="#918771" stroke="#d1c4a3"/><path d="M9 40 L12 -12" stroke="#bdb6a3" stroke-width="2"/><path d="M12 -18 L9 -9 L14 -10 Z" fill="#cfc8b8"/></g><g transform="translate(99 42)"><path d="M-10 49 L-6 17 L6 17 L11 49 Z" fill="#485e62"/><path d="M-7 16 Q-7 1 0 0 Q8 1 7 16 Z" fill="url(#metal)"/><path d="M-12 29 L-11 47 Q-2 52 0 45 L-1 27 Z" fill="#918771" stroke="#d1c4a3"/><path d="M9 40 L12 -12" stroke="#bdb6a3" stroke-width="2"/><path d="M12 -18 L9 -9 L14 -10 Z" fill="#cfc8b8"/></g><g transform="translate(134 42)"><path d="M-10 49 L-6 17 L6 17 L11 49 Z" fill="#485e62"/><path d="M-7 16 Q-7 1 0 0 Q8 1 7 16 Z" fill="url(#metal)"/><path d="M-12 29 L-11 47 Q-2 52 0 45 L-1 27 Z" fill="#918771" stroke="#d1c4a3"/><path d="M9 40 L12 -12" stroke="#bdb6a3" stroke-width="2"/><path d="M12 -18 L9 -9 L14 -10 Z" fill="#cfc8b8"/></g><g transform="translate(169 42)"><path d="M-10 49 L-6 17 L6 17 L11 49 Z" fill="#485e62"/><path d="M-7 16 Q-7 1 0 0 Q8 1 7 16 Z" fill="url(#metal)"/><path d="M-12 29 L-11 47 Q-2 52 0 45 L-1 27 Z" fill="#918771" stroke="#d1c4a3"/><path d="M9 40 L12 -12" stroke="#bdb6a3" stroke-width="2"/><path d="M12 -18 L9 -9 L14 -10 Z" fill="#cfc8b8"/></g><g transform="translate(204 42)"><path d="M-10 49 L-6 17 L6 17 L11 49 Z" fill="#485e62"/><path d="M-7 16 Q-7 1 0 0 Q8 1 7 16 Z" fill="url(#metal)"/><path d="M-12 29 L-11 47 Q-2 52 0 45 L-1 27 Z" fill="#918771" stroke="#d1c4a3"/><path d="M9 40 L12 -12" stroke="#bdb6a3" stroke-width="2"/><path d="M12 -18 L9 -9 L14 -10 Z" fill="#cfc8b8"/></g></svg></div></section><section class="allied-lane front " data-lane="front"  aria-label="전열 · 방비 0 · 예상 병력 손실 12"><div class="lane-label"><b>전열</b><span>방비 0</span><span class="risk">병력 손실 12</span><small>공격 12 · 흡수 0</small></div><div class="lane-commanders"><div class="commander" data-general="dianwei" style="--faction:#698a94"><div class="commander-art "><img src="/assets/battle/dianwei-v1.png" alt="전위 초상" data-battle-portrait loading="eager"/><span class="commander-seal">전위</span></div><div class="commander-caption"><b>전위</b><span>능력 활성</span><details><summary>능력</summary><p>전열에서: 적이 전열을 공격할 때마다 공격자에게 반격 3 + (공격을 막고 남은 전열 방비의 절반).</p><p>전열이 공격받지 않으면 아무 일도 하지 않는다. 방비를 쌓지 않으면 반격이 약하다.</p></details><button class="btn small" data-a="battle-swap" data-i="0" >교대 무료</button></div></div></div><div class="allied-cohort"><svg class="cohort" viewBox="0 0 230 100" aria-hidden="true"><defs><linearGradient id="metal"><stop stop-color="#c4bbb0"/><stop offset="1" stop-color="#393f46"/></linearGradient></defs><g transform="translate(20 18)"><path d="M-10 49 L-6 17 L6 17 L11 49 Z" fill="#485e62"/><path d="M-7 16 Q-7 1 0 0 Q8 1 7 16 Z" fill="url(#metal)"/><path d="M-12 29 L-11 47 Q-2 52 0 45 L-1 27 Z" fill="#918771" stroke="#d1c4a3"/><path d="M9 40 L12 -12" stroke="#bdb6a3" stroke-width="2"/><path d="M12 -18 L9 -9 L14 -10 Z" fill="#cfc8b8"/></g><g transform="translate(55 18)"><path d="M-10 49 L-6 17 L6 17 L11 49 Z" fill="#485e62"/><path d="M-7 16 Q-7 1 0 0 Q8 1 7 16 Z" fill="url(#metal)"/><path d="M-12 29 L-11 47 Q-2 52 0 45 L-1 27 Z" fill="#918771" stroke="#d1c4a3"/><path d="M9 40 L12 -12" stroke="#bdb6a3" stroke-width="2"/><path d="M12 -18 L9 -9 L14 -10 Z" fill="#cfc8b8"/></g><g transform="translate(90 18)"><path d="M-10 49 L-6 17 L6 17 L11 49 Z" fill="#485e62"/><path d="M-7 16 Q-7 1 0 0 Q8 1 7 16 Z" fill="url(#metal)"/><path d="M-12 29 L-11 47 Q-2 52 0 45 L-1 27 Z" fill="#918771" stroke="#d1c4a3"/><path d="M9 40 L12 -12" stroke="#bdb6a3" stroke-width="2"/><path d="M12 -18 L9 -9 L14 -10 Z" fill="#cfc8b8"/></g><g transform="translate(125 18)"><path d="M-10 49 L-6 17 L6 17 L11 49 Z" fill="#485e62"/><path d="M-7 16 Q-7 1 0 0 Q8 1 7 16 Z" fill="url(#metal)"/><path d="M-12 29 L-11 47 Q-2 52 0 45 L-1 27 Z" fill="#918771" stroke="#d1c4a3"/><path d="M9 40 L12 -12" stroke="#bdb6a3" stroke-width="2"/><path d="M12 -18 L9 -9 L14 -10 Z" fill="#cfc8b8"/></g><g transform="translate(160 18)"><path d="M-10 49 L-6 17 L6 17 L11 49 Z" fill="#485e62"/><path d="M-7 16 Q-7 1 0 0 Q8 1 7 16 Z" fill="url(#metal)"/><path d="M-12 29 L-11 47 Q-2 52 0 45 L-1 27 Z" fill="#918771" stroke="#d1c4a3"/><path d="M9 40 L12 -12" stroke="#bdb6a3" stroke-width="2"/><path d="M12 -18 L9 -9 L14 -10 Z" fill="#cfc8b8"/></g><g transform="translate(195 18)"><path d="M-10 49 L-6 17 L6 17 L11 49 Z" fill="#485e62"/><path d="M-7 16 Q-7 1 0 0 Q8 1 7 16 Z" fill="url(#metal)"/><path d="M-12 29 L-11 47 Q-2 52 0 45 L-1 27 Z" fill="#918771" stroke="#d1c4a3"/><path d="M9 40 L12 -12" stroke="#bdb6a3" stroke-width="2"/><path d="M12 -18 L9 -9 L14 -10 Z" fill="#cfc8b8"/></g><g transform="translate(29 42)"><path d="M-10 49 L-6 17 L6 17 L11 49 Z" fill="#485e62"/><path d="M-7 16 Q-7 1 0 0 Q8 1 7 16 Z" fill="url(#metal)"/><path d="M-12 29 L-11 47 Q-2 52 0 45 L-1 27 Z" fill="#918771" stroke="#d1c4a3"/><path d="M9 40 L12 -12" stroke="#bdb6a3" stroke-width="2"/><path d="M12 -18 L9 -9 L14 -10 Z" fill="#cfc8b8"/></g><g transform="translate(64 42)"><path d="M-10 49 L-6 17 L6 17 L11 49 Z" fill="#485e62"/><path d="M-7 16 Q-7 1 0 0 Q8 1 7 16 Z" fill="url(#metal)"/><path d="M-12 29 L-11 47 Q-2 52 0 45 L-1 27 Z" fill="#918771" stroke="#d1c4a3"/><path d="M9 40 L12 -12" stroke="#bdb6a3" stroke-width="2"/><path d="M12 -18 L9 -9 L14 -10 Z" fill="#cfc8b8"/></g><g transform="translate(99 42)"><path d="M-10 49 L-6 17 L6 17 L11 49 Z" fill="#485e62"/><path d="M-7 16 Q-7 1 0 0 Q8 1 7 16 Z" fill="url(#metal)"/><path d="M-12 29 L-11 47 Q-2 52 0 45 L-1 27 Z" fill="#918771" stroke="#d1c4a3"/><path d="M9 40 L12 -12" stroke="#bdb6a3" stroke-width="2"/><path d="M12 -18 L9 -9 L14 -10 Z" fill="#cfc8b8"/></g><g transform="translate(134 42)"><path d="M-10 49 L-6 17 L6 17 L11 49 Z" fill="#485e62"/><path d="M-7 16 Q-7 1 0 0 Q8 1 7 16 Z" fill="url(#metal)"/><path d="M-12 29 L-11 47 Q-2 52 0 45 L-1 27 Z" fill="#918771" stroke="#d1c4a3"/><path d="M9 40 L12 -12" stroke="#bdb6a3" stroke-width="2"/><path d="M12 -18 L9 -9 L14 -10 Z" fill="#cfc8b8"/></g><g transform="translate(169 42)"><path d="M-10 49 L-6 17 L6 17 L11 49 Z" fill="#485e62"/><path d="M-7 16 Q-7 1 0 0 Q8 1 7 16 Z" fill="url(#metal)"/><path d="M-12 29 L-11 47 Q-2 52 0 45 L-1 27 Z" fill="#918771" stroke="#d1c4a3"/><path d="M9 40 L12 -12" stroke="#bdb6a3" stroke-width="2"/><path d="M12 -18 L9 -9 L14 -10 Z" fill="#cfc8b8"/></g><g transform="translate(204 42)"><path d="M-10 49 L-6 17 L6 17 L11 49 Z" fill="#485e62"/><path d="M-7 16 Q-7 1 0 0 Q8 1 7 16 Z" fill="url(#metal)"/><path d="M-12 29 L-11 47 Q-2 52 0 45 L-1 27 Z" fill="#918771" stroke="#d1c4a3"/><path d="M9 40 L12 -12" stroke="#bdb6a3" stroke-width="2"/><path d="M12 -18 L9 -9 L14 -10 Z" fill="#cfc8b8"/></g></svg></div></section>
+ <div class="battle-feedback" aria-live="polite">— 제 1턴 — / 조조 · 유재시거: 장수 2명 이상, 매 턴 지휘력 +1.</div>
+ <div class="battle-preview" id="preview"><div data-battle-preview>전법 선택 → 대상 확인 → 명령 실행</div></div></div>
+ <div class="battle-command-dock"><div class="command-resources"><b>지휘력 4</b><span class="energy-tokens">●●●●</span><span>기세 0</span><small>뽑기 5 · 버림 0 · 소멸 0</small></div><div class="battle-hand"><button class="battle-card mu " data-a="card" data-i="0" aria-pressed="false" aria-label="창격 · 지휘력 1 · 피해 6" ><span class="card-command">1</span><span class="card-family">무 · 공격</span><b>창격</b><span class="card-rule">피해 6</span><small>적 부대 선택</small></button><button class="battle-card bang " data-a="card" data-i="1" aria-pressed="false" aria-label="방진 · 지휘력 1 · 선택한 열에 방비 5" ><span class="card-command">1</span><span class="card-family">방 · 방어</span><b>방진</b><span class="card-rule">선택한 열에 방비 5</span><small>전열 / 후열 선택</small></button><button class="battle-card bang " data-a="card" data-i="2" aria-pressed="false" aria-label="반격 태세 · 지휘력 1 · 전열 방비 4. 이번 적 턴에 전열이 공격받으면 공격자에게 반격 4" ><span class="card-command">1</span><span class="card-family">방 · 방어</span><b>반격 태세</b><span class="card-rule">전열 방비 4. 이번 적 턴에 전열이 공격받으면 공격자에게 반격 4</span><small>공격받을 때 반격</small></button><button class="battle-card chaek " data-a="card" data-i="3" aria-pressed="false" aria-label="허보 · 지휘력 0 · 공격 의도의 대상 열을 전열↔후열로 바꿈" ><span class="card-command">0</span><span class="card-family">책 · 계책</span><b>허보</b><span class="card-rule">공격 의도의 대상 열을 전열↔후열로 바꿈</span><small>곽가 계책 연계</small></button><button class="battle-card chaek " data-a="card" data-i="4" aria-pressed="false" aria-label="군령 · 지휘력 1 · 카드 2장 뽑기. 기세 +1" ><span class="card-command">1</span><span class="card-family">책 · 계책</span><b>군령</b><span class="card-rule">카드 2장 뽑기. 기세 +1</span><small>대상 없이 실행</small></button></div><div class="command-end"><button class="btn primary" data-a="end-turn" >턴 종료 · E</button><small>예상 손실<br/>전열 12 / 후열 6</small><small>종료 후 군단 병력 42</small><small>사용 가능한 방어 전법 있음</small><button class="btn small" data-a="skip-battle" hidden>연출 건너뛰기</button></div></div>
+ <div class="battle-utilities"><details class="battle-records"><summary>전체 전투 기록</summary><label>분류 <select data-battle-log><option value="all">전체</option><option value="player">카드·방비</option><option value="damage">피해</option><option value="general">장수·교리·보물</option><option value="enemy">적 행동</option><option value="info">시스템</option><option value="warn">경고</option></select></label><div class="log"><div data-log-kind="info">전투 개시.</div><div data-log-kind="info">— 제 1턴 —</div><div data-log-kind="general">조조 · 유재시거: 장수 2명 이상, 매 턴 지휘력 +1.</div></div></details><details><summary>화면·연출 설정</summary><label><input type="checkbox" data-battle-setting="reduced" /> 움직임 줄이기</label><label><input type="checkbox" data-battle-setting="particles" checked/> 먼지 효과</label><label><input type="checkbox" data-battle-setting="highContrast" checked/> 고대비</label><label>속도 <select data-battle-setting="speed"><option value="normal" >보통</option><option value="fast" >빠름</option><option value="instant" >즉시</option></select></label><label>글자 <select data-battle-setting="textSize"><option value="100" selected>100%</option><option value="125" >125%</option><option value="150" >150%</option></select></label><span>음향 없음 · 흔들림 없음 · 자동 대사 없음</span></details><span>1–9 전법 · ← → 대상 · Enter 실행 · Esc 취소</span></div>
+ </div></main></body></html>

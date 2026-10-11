@@ -1,3 +1,4 @@
+import {combatEvent, captureCombatFacts} from './combat-events.ts';
 // 전투 규칙 엔진. DOM을 전혀 모른다. 모든 함수는 BattleState를 직접 갱신한다.
 //
 // ■ 카드 사용 처리 순서
@@ -63,8 +64,9 @@ export interface BattleSetup {
 
 // ───────────── 기본 도구 ─────────────
 
-export function log(b: BattleState, text: string, kind: LogEntry['kind'] = 'info'): void {
+export function log(b: BattleState, text: string, kind: LogEntry['kind'] = 'info', generalId?:string): void {
   b.log.push({ turn: b.turn, text, kind });
+  if(kind==='general') combatEvent(b,{kind:'commanderAbilityTriggered',source:generalId?GENERALS[generalId].name:'장수·보물',generalId,reason:text,visualPriority:2});
 }
 
 export function cardDef(c: CardInst): CardDef {
@@ -104,6 +106,7 @@ export function aliveEnemies(b: BattleState): EnemyState[] {
 
 function spend(b: BattleState): boolean {
   b.budget--;
+  if (b.budget === 0) combatEvent(b,{kind:'chainLimited',source:'규칙',reason:'연쇄 처리 상한',visualPriority:3});
   if (b.budget === 0) log(b, '연쇄 처리 상한에 도달해 이번 턴의 남은 연쇄를 중단합니다.', 'warn');
   return b.budget > 0;
 }
@@ -114,9 +117,11 @@ function checkEnd(b: BattleState): void {
     b.hp = 0;
     b.result = 'lose';
     log(b, '병력이 모두 무너졌다. 패배.', 'warn');
+    combatEvent(b,{kind:'battleResolved',source:'군단',target:'army',reason:'패배',visualPriority:3});
   } else if (aliveEnemies(b).length === 0) {
     b.result = 'win';
     log(b, '적군을 모두 물리쳤다. 승리!', 'info');
+    combatEvent(b,{kind:'battleResolved',source:'군단',reason:'승리',visualPriority:3});
   }
 }
 
@@ -152,6 +157,7 @@ function chooseIntent(b: BattleState, e: EnemyState): void {
   const pattern = e.phase === 2 && def.phase2 ? def.phase2.pattern : def.pattern;
   e.intent = pattern[e.patternIdx % pattern.length];
   e.patternIdx++;
+  combatEvent(b,{kind:'intentChanged',source:e.name,target:e.uid,intent:e.intent,reason:'다음 의도 공개'});
 }
 
 export function createBattle(s: BattleSetup): BattleState {
@@ -210,6 +216,8 @@ export function createBattle(s: BattleSetup): BattleState {
     if (s.opening.energyPenalty) log(b, '대결 피로: 첫 턴 지휘력 -1. 다음 턴 해제.', 'warn');
     if (s.opening.damage) for (const e of aliveEnemies(b)) applyDamageToEnemy(b, e, s.opening.damage, '외교 지원', String(s.opening.damage), null);
   }
+  if(generalActive(b,'local_captain'))gainBlock(b,'front',4,'향촌 훈련관');
+  if(generalActive(b,'local_scribe'))drawCards(b,1);
   return b;
 }
 
@@ -246,6 +254,7 @@ export function drawCards(b: BattleState, n: number): void {
       log(b, `손패가 가득 차 ${cardDef(c).name}을(를) 버렸다.`, 'warn');
     } else {
       b.hand.push(c);
+      combatEvent(b,{kind:'cardDrawn',source:cardDef(c).name,amount:1,remaining:b.hand.length,reason:'손패로 뽑기'});
     }
   }
 }
@@ -265,6 +274,7 @@ function startPlayerTurn(b: BattleState): void {
   b.momentum = 0;
   b.energy = b.baseEnergy;
   log(b, `— 제 ${b.turn}턴 —`, 'info');
+  combatEvent(b,{kind:'turnStarted',source:'군단',reason:`제 ${b.turn}턴 · 방비·반격·지휘력 갱신`});
   if (b.lordId === 'caocao' && b.generals.length >= 2) {
     b.energy += 1;
     if (b.turn === 1) log(b, '조조 · 유재시거: 장수 2명 이상, 매 턴 지휘력 +1.', 'general');
@@ -284,7 +294,7 @@ function startPlayerTurn(b: BattleState): void {
 
 export function effectiveCost(b: BattleState, c: CardInst): number {
   const d = cardDef(c);
-  let cost = d.cost;
+  let cost = d.cost + (c.personnelCost ?? 0);
   if (b.terrain === 'mountain' && d.family === 'chaek' && !b.flags.firstChaekDiscountUsed) cost = Math.max(0, cost - 1);
   return cost;
 }
@@ -304,6 +314,7 @@ export function canPlay(b: BattleState, handIdx: number, target?: PlayTarget): C
   if (b.result !== 'ongoing') return { ok: false, reason: '전투가 끝났다' };
   const c = b.hand[handIdx];
   if (!c) return { ok: false, reason: '카드가 없다' };
+  if(c.personnelOwners?.some(id=>!b.generals.some(g=>g.id===id)))return {ok:false,reason:'개인 카드의 소유 인재가 현재 군단에 없습니다.'};
   const d = cardDef(c);
   if (d.unplayable) return { ok: false, reason: '사용할 수 없는 카드' };
   if (effectiveCost(b, c) > b.energy) return { ok: false, reason: '지휘력 부족' };
@@ -339,8 +350,10 @@ export function playCard(b: BattleState, handIdx: number, target: PlayTarget = {
   const cost = effectiveCost(b, c);
   b.hand.splice(handIdx, 1);
   b.energy -= cost;
+  combatEvent(b,{kind:'commandSpent',source:'지휘',amount:cost,remaining:b.energy,reason:'지휘력 지급'});
   if (d.family === 'chaek' && b.terrain === 'mountain') b.flags.firstChaekDiscountUsed = true;
   b.momentum += 1;
+  combatEvent(b,{kind:'cardCommitted',source:d.name,target:target.enemy,lane:target.row,reason:`${d.name} · 기세 ${b.momentum}`,visualPriority:d.rarity==='rare'?2:1});
   log(b, `${d.name} 사용 (지휘력 ${cost}, 기세 ${b.momentum})`, 'player');
   if (d.tags.includes('cavalry') && generalActive(b, 'machao')) {
     b.momentum += 1;
@@ -380,6 +393,8 @@ export function playCard(b: BattleState, handIdx: number, target: PlayTarget = {
   }
   if (d.exhaust) b.exhausted.push(c);
   else b.discard.push(c);
+  combatEvent(b,{kind:d.exhaust?'cardExhausted':'cardDiscarded',source:d.name,reason:d.exhaust?'카드 소멸':'버림패로 이동'});
+  if(c.personnelCard!==undefined){b.stats.personnelPlays??={};b.stats.personnelPlays[c.personnelCard]=(b.stats.personnelPlays[c.personnelCard]??0)+1;}
   b.stats.cardsPlayed++;
   checkEnd(b);
   return { ok: true };
@@ -455,6 +470,7 @@ function resolveEffect(b: BattleState, eff: Effect, ctx: PlayCtx): void {
       if (!e) return;
       if (e.block > 0) log(b, `${e.name}의 방비 ${e.block} 제거.`, 'player');
       e.block = 0;
+      combatEvent(b,{kind:'statusApplied',source:ctx.def.name,target:e.uid,remaining:0,reason:'적 방비 제거'});
       return;
     }
     case 'block': {
@@ -474,6 +490,7 @@ function resolveEffect(b: BattleState, eff: Effect, ctx: PlayCtx): void {
     }
     case 'counter':
       b.counter[eff.row] += eff.n;
+      combatEvent(b,{kind:'counterPrepared',source:ctx.def.name,lane:eff.row,amount:eff.n,remaining:b.counter[eff.row],reason:'이번 적 턴에 공격받으면 반격'});
       log(b, `${ROW_NAME[eff.row]} 반격 +${eff.n} (이번 적 턴)`, 'player');
       return;
     case 'burn': {
@@ -517,6 +534,7 @@ function resolveEffect(b: BattleState, eff: Effect, ctx: PlayCtx): void {
       if (!e || e.intent?.kind !== 'attack' || e.intent.row === 'both') return;
       const to: Row = e.intent.row === 'front' ? 'rear' : 'front';
       e.intent = { ...e.intent, row: to };
+      combatEvent(b,{kind:'intentChanged',source:ctx.def.name,target:e.uid,lane:to,intent:e.intent,reason:`공격 목표 → ${ROW_NAME[to]}`,visualPriority:2});
       applyBuild(b, 'changed', e.uid);
       log(b, `${e.name}의 공격 대상이 ${ROW_NAME[to]}으로 바뀌었다.`, 'player');
       return;
@@ -525,6 +543,7 @@ function resolveEffect(b: BattleState, eff: Effect, ctx: PlayCtx): void {
       const e = targetEnemy(b, ctx);
       if (!e) return;
       e.turncoat = true;
+      combatEvent(b,{kind:'statusApplied',source:ctx.def.name,target:e.uid,reason:'이간계 · 다음 공격은 아군에게'});
       if (e.intent?.kind === 'attack') applyBuild(b, 'changed', e.uid);
       log(b, `${e.name}에게 이간계: 다음 공격이 아군을 향한다.`, 'player');
       return;
@@ -533,6 +552,7 @@ function resolveEffect(b: BattleState, eff: Effect, ctx: PlayCtx): void {
       const e = targetEnemy(b, ctx);
       if (!e) return;
       e.confused = true;
+      combatEvent(b,{kind:'statusApplied',source:ctx.def.name,target:e.uid,reason:'혼란 · 다음 행동 취소'});
       if (e.intent?.kind === 'attack') applyBuild(b, 'changed', e.uid);
       log(b, `${e.name}이(가) 혼란에 빠졌다: 다음 행동 취소.`, 'player');
       return;
@@ -560,6 +580,7 @@ function cardDamage(b: BattleState, e: EnemyState, base: number, ctx: PlayCtx, m
   if (ctx.def.tags.includes('cavalry')) {
     if (b.terrain === 'plains') {
       amount += 3;
+      combatEvent(b,{kind:'terrainApplied',source:'평야',target:e.uid,amount:3,reason:'기병 피해 +3'});
       parts.push('+3 평야');
     }
     if (hasRelic(b, 'horse')) {
@@ -584,11 +605,14 @@ export function applyDamageToEnemy(
   source: CardDef | null,
 ): number {
   if (e.dead) return 0;
+  combatEvent(b,{kind:'attackStarted',source:label,target:e.uid,amount,reason:breakdown});
   const blocked = Math.min(e.block, amount);
   e.block -= blocked;
+  if(blocked)combatEvent(b,{kind:'damageBlocked',source:label,target:e.uid,amount:blocked,remaining:e.block,reason:'적 방비 흡수'});
   const loss = amount - blocked;
   e.hp -= loss;
   b.stats.damageDealt += loss;
+  combatEvent(b,{kind:'damageDealt',source:label,target:e.uid,amount:loss,blocked,remaining:Math.max(0,e.hp),reason:'적 체력 감소',visualPriority:loss>=12?2:1});
   const calc = breakdown && breakdown !== String(amount) ? `${breakdown} = ${amount}` : `${amount}`;
   log(b, `${label} → ${e.name}: ${calc}${blocked ? `, 방비 ${blocked} 흡수` : ''} → 체력 -${loss} (${Math.max(0, e.hp)}/${e.maxHp})`, 'damage');
   if (e.hp <= 0) killEnemy(b, e, source);
@@ -603,10 +627,12 @@ function killEnemy(b: BattleState, e: EnemyState, source: CardDef | null): void 
   e.burn = 0;
   e.intent = null;
   log(b, `${e.name} 격파!`, 'info');
+  combatEvent(b,{kind:'unitDefeated',source:e.name,target:e.uid,reason:'격파',visualPriority:3});
   if (ENEMIES[e.defId].boss) {
     for (const o of aliveEnemies(b)) {
       o.dead = true;
       o.intent = null;
+      combatEvent(b,{kind:'unitDefeated',source:o.name,target:o.uid,reason:'주군을 잃고 도주',visualPriority:2});
       log(b, `${o.name}은(는) 주군을 잃고 도주했다.`, 'info');
     }
     checkEnd(b);
@@ -637,8 +663,10 @@ export function gainBlock(b: BattleState, row: Row, n: number, label: string): v
   if (b.terrain === 'river' && amt > 0) {
     amt += 2;
     note = ' (+2 하천)';
+    combatEvent(b,{kind:'terrainApplied',source:'하천',lane:row,amount:2,reason:'방비 +2'});
   }
   b.block[row] += amt;
+  combatEvent(b,{kind:'defenseGained',source:label,lane:row,amount:amt,remaining:b.block[row],reason:note||'열 방비 증가'});
   log(b, `${label}: ${ROW_NAME[row]} 방비 +${amt}${note} → ${b.block[row]}`, 'player');
 }
 
@@ -655,11 +683,13 @@ export function applyBurn(b: BattleState, e: EnemyState, n: number, label: strin
     notes.push('하천 절반');
   }
   e.burn += amt;
+  combatEvent(b,{kind:'statusApplied',source:label,target:e.uid,amount:amt,remaining:e.burn,reason:`화상 ${notes.join(' · ')}`});
   log(b, `${label}: ${e.name} 화상 +${amt}${notes.length ? ` (${notes.join(', ')})` : ''} → ${e.burn}`, 'player');
 }
 
 function playerLoseHp(b: BattleState, n: number, source: string): void {
   b.hp -= n;
+  combatEvent(b,{kind:'damageDealt',source,target:'army',amount:n,remaining:Math.max(0,b.hp),reason:'군단 병력 손실',visualPriority:n>=12?2:1});
   b.stats.damageTaken[source] = (b.stats.damageTaken[source] ?? 0) + n;
   checkEnd(b);
 }
@@ -687,7 +717,7 @@ function afterCardHooks(b: BattleState, ctx: PlayCtx): void {
         if (d.tags.includes('scheme') && !b.flags.guojiaUsed) {
           b.flags.guojiaUsed = true;
           b.energy += 1;
-          log(b, '곽가: 계책이 맞아떨어졌다. 지휘력 +1, 카드 1장.', 'general');
+          log(b, '곽가: 계책이 맞아떨어졌다. 지휘력 +1, 카드 1장.', 'general','guojia');
           drawCards(b, 1);
         }
         break;
@@ -695,7 +725,7 @@ function afterCardHooks(b: BattleState, ctx: PlayCtx): void {
         if (d.family === 'chaek') {
           const before = b.flags.chengongBonus;
           b.flags.chengongBonus = Math.min(12, before + 4);
-          if (b.flags.chengongBonus > before) log(b, `진궁: 다음 武 카드 피해 +${b.flags.chengongBonus}`, 'general');
+          if (b.flags.chengongBonus > before) log(b, `진궁: 다음 공격 카드 피해 +${b.flags.chengongBonus}`, 'general');
         }
         break;
       case 'lubu':
@@ -712,7 +742,7 @@ function afterCardHooks(b: BattleState, ctx: PlayCtx): void {
   if (b.lordId === 'sunquan' && !b.flags.sunQuanUsed && b.flags.familiesPlayed.length === 3) {
     b.flags.sunQuanUsed = true;
     b.energy += 1;
-    log(b, '손권 · 강동 연계: 武·防·策을 모두 썼다. 지휘력 +1.', 'general');
+    log(b, '손권 · 강동 연계: 공격·방어·계책을 모두 썼다. 지휘력 +1.', 'general');
   }
 }
 
@@ -739,8 +769,10 @@ export function moveGeneral(b: BattleState, idx: number): Check {
   const cost = swapCost(b);
   if (b.energy < cost) return { ok: false, reason: '지휘력 부족' };
   b.energy -= cost;
+  combatEvent(b,{kind:'commandSpent',source:'지휘',amount:cost,remaining:b.energy,reason:'지휘력 지급'});
   if (cost === 0) b.flags.freeSwapUsed = true;
   toggleGeneralRow(b.generals, idx);
+  combatEvent(b,{kind:'formationMoved',source:GENERALS[b.generals[idx].id].name,lane:b.generals[idx].row,amount:cost,reason:'부대·군기 교대 (의도 목표 열은 유지)',visualPriority:2});
   const g = b.generals[idx];
   log(b, `${GENERALS[g.id].name}이(가) ${ROW_NAME[g.row]}으로 이동 (지휘력 ${cost}).`, 'player');
   return { ok: true };
@@ -754,6 +786,7 @@ export function endTurn(b: BattleState): void {
     log(b, `여포의 불만: 기세 ${b.momentum} < 3. 병력 3 손실.`, 'warn');
     playerLoseHp(b, 3, '여포(불만)');
   }
+  for(const card of b.hand)combatEvent(b,{kind:'cardDiscarded',source:cardDef(card).name,reason:'턴 종료 손패 버림'});
   b.discard.push(...b.hand);
   b.hand = [];
   b.shakenRear = false;
@@ -764,6 +797,7 @@ export function endTurn(b: BattleState): void {
 
 function enemyPhase(b: BattleState): void {
   log(b, '— 적의 차례 —', 'enemy');
+  combatEvent(b,{kind:'enemyTurnStarted',source:'적군',reason:'왼쪽 부대부터 행동'});
   const actors = aliveEnemies(b).map((e) => e.uid);
   for (const uid of actors) {
     const e = b.enemies.find((x) => x.uid === uid)!;
@@ -774,6 +808,7 @@ function enemyPhase(b: BattleState): void {
       const chained = generalActive(b, 'pangtong') && alive.every((x) => x.burn > 0);
       const dmg = e.burn * (chained ? 2 : 1);
       e.hp -= dmg;
+      combatEvent(b,{kind:'damageDealt',source:chained?'방통 연환·화상':'화상',target:e.uid,amount:dmg,remaining:Math.max(0,e.hp),reason:'행동 전 지속 피해'});
       b.stats.damageDealt += dmg;
       log(b, `${e.name} 화상 피해 ${e.burn}${chained ? '×2 방통(연환)' : ''} = ${dmg} → 체력 ${Math.max(0, e.hp)}`, 'damage');
       e.burn -= 1;
@@ -783,6 +818,7 @@ function enemyPhase(b: BattleState): void {
     }
     if (e.confused) {
       e.confused = false;
+      combatEvent(b,{kind:'statusApplied',source:e.name,target:e.uid,reason:'혼란으로 행동 취소 · 혼란 해제'});
       log(b, `${e.name}은(는) 혼란으로 행동하지 못했다.`, 'enemy');
       continue;
     }
@@ -793,6 +829,7 @@ function enemyPhase(b: BattleState): void {
     const def = ENEMIES[e.defId];
     if (def.phase2 && e.phase === 1 && e.hp <= e.maxHp * def.phase2.at) {
       e.phase = 2;
+      combatEvent(b,{kind:'phaseChanged',source:e.name,target:e.uid,reason:def.phase2.text,visualPriority:3});
       e.patternIdx = 0;
       e.str += def.phase2.str;
       e.burn = 0;
@@ -842,6 +879,7 @@ function executeIntent(b: BattleState, e: EnemyState): void {
           ]
             .filter(Boolean)
             .join(' + ');
+          combatEvent(b,{kind:'counterTriggered',source:dian?'전위':'반격 태세',generalId:dian?'dianwei':undefined,target:e.uid,lane:r,amount:total,reason:src,visualPriority:2});
           applyDamageToEnemy(b, e, total, `${ROW_NAME[r]} 반격`, src, null);
           if (generalActive(b, 'haozhao') && b.result === 'ongoing') gainBlock(b, 'front', 2, '학소(반격)');
         }
@@ -850,11 +888,12 @@ function executeIntent(b: BattleState, e: EnemyState): void {
     }
     case 'block':
       e.block += it.n;
+      combatEvent(b,{kind:'defenseGained',source:e.name,target:e.uid,amount:it.n,remaining:e.block,reason:'적 방어 의도 실행'});
       log(b, `${e.name} 방비 +${it.n}`, 'enemy');
       return;
     case 'buff': {
       const targets = it.allies ? aliveEnemies(b) : [e];
-      for (const t of targets) t.str += it.str;
+      for (const t of targets) {t.str += it.str;combatEvent(b,{kind:'statusApplied',source:e.name,target:t.uid,amount:it.str,remaining:t.str,reason:'힘 강화'});}
       if (it.block) e.block += it.block;
       log(b, `${e.name}: ${it.allies ? '아군 전원 ' : ''}힘 +${it.str}${it.block ? `, 방비 +${it.block}` : ''}`, 'enemy');
       return;
@@ -863,6 +902,7 @@ function executeIntent(b: BattleState, e: EnemyState): void {
       for (const t of aliveEnemies(b)) {
         t.burn = 0;
         t.block += it.block;
+        combatEvent(b,{kind:'statusApplied',source:e.name,target:t.uid,amount:it.block,remaining:t.block,reason:'화상 정화 · 방비 증가'});
       }
       log(b, `${e.name}의 요술: 아군 화상 제거, 방비 +${it.block}`, 'enemy');
       return;
@@ -870,9 +910,11 @@ function executeIntent(b: BattleState, e: EnemyState): void {
       const others = aliveEnemies(b).filter((x) => x.uid !== e.uid).length;
       if (others >= 2) {
         e.block += it.fallbackBlock;
+        combatEvent(b,{kind:'defenseGained',source:e.name,target:e.uid,amount:it.fallbackBlock,remaining:e.block,reason:'증원 제한 · 방비 대체'});
         log(b, `${e.name}: 증원이 충분해 방비 +${it.fallbackBlock}`, 'enemy');
       } else {
         const n = spawnEnemy(b, it.defId);
+        combatEvent(b,{kind:'statusApplied',source:e.name,target:n.uid,reason:'새 적 부대 증원'});
         log(b, `${e.name}이(가) ${n.name}을(를) 불러냈다.`, 'enemy');
       }
       return;
@@ -881,8 +923,10 @@ function executeIntent(b: BattleState, e: EnemyState): void {
 }
 
 function hitPlayerRow(b: BattleState, e: EnemyState, r: Row, amount: number, terrainBonus: number): void {
+  combatEvent(b,{kind:'attackStarted',source:e.name,target:'army',lane:r,amount,reason:terrainBonus?'후열 공격 · 산길 +2':'공개된 의도 실행'});
   const blocked = Math.min(b.block[r], amount);
   b.block[r] -= blocked;
+  if(blocked)combatEvent(b,{kind:'damageBlocked',source:e.name,target:'army',lane:r,amount:blocked,remaining:b.block[r],reason:'열 방비 흡수'});
   const loss = amount - blocked;
   if (blocked > 0 && loss === 0) applyBuild(b, 'guarded', e.uid);
   const tb = terrainBonus ? ` (산길 +${terrainBonus})` : '';
@@ -933,22 +977,27 @@ export interface IncomingRow {
   net: number;
 }
 
-/** 현재 의도대로 적이 행동하면 각 열이 받을 피해 추정(화상으로 먼저 쓰러질 적 제외). */
-export function incomingPreview(b: BattleState): Record<Row, IncomingRow> {
-  const raw = { front: 0, rear: 0 };
-  for (const e of aliveEnemies(b)) {
-    if (e.burn >= e.hp || e.confused || e.turncoat) continue;
-    const it = e.intent;
-    if (it?.kind !== 'attack') continue;
-    const rows: Row[] = it.row === 'both' ? ['front', 'rear'] : [it.row];
-    for (const r of rows) raw[r] += (it.dmg + e.str + (b.terrain === 'mountain' && r === 'rear' ? 2 : 0)) * it.hits;
-  }
-  const out = {} as Record<Row, IncomingRow>;
-  for (const r of ['front', 'rear'] as Row[]) {
-    const blocked = Math.min(b.block[r], raw[r]);
-    out[r] = { raw: raw[r], blocked, net: raw[r] - blocked };
-  }
-  return out;
+/** 복제 상태의 실제 적 턴으로 방비 흡수와 열별 손실을 계산한다. */
+export function endTurnPreview(b:BattleState):{rows:Record<Row,IncomingRow>;hp:number;otherLoss:number} {
+ const c=structuredClone(b);const before={...c.stats.rowTaken};
+ const {events}=captureCombatFacts(c,()=>endTurn(c));
+ const out={front:{raw:0,blocked:0,net:0},rear:{raw:0,blocked:0,net:0}};
+ for(const event of events){if(!event.lane||event.target!=='army')continue;
+  if(event.kind==='attackStarted')out[event.lane].raw+=event.amount??0;
+  if(event.kind==='damageBlocked')out[event.lane].blocked+=event.amount??0;
+ }
+ for(const row of ['front','rear'] as Row[])out[row].net=c.stats.rowTaken[row]-before[row];
+ return {rows:out,hp:c.hp,otherLoss:Math.max(0,b.hp-c.hp-out.front.net-out.rear.net)};
+}
+export function incomingPreview(b:BattleState):Record<Row,IncomingRow>{return endTurnPreview(b).rows;}
+/** Historical lightweight heuristic retained exclusively for the existing headless policy. */
+export function incomingEstimate(b:BattleState):Record<Row,IncomingRow> {
+ const raw={front:0,rear:0};
+ for(const e of aliveEnemies(b)){if(e.burn>=e.hp||e.confused||e.turncoat)continue;const it=e.intent;if(it?.kind!=='attack')continue;const rows:Row[]=it.row==='both'?['front','rear']:[it.row];for(const row of rows)raw[row]+=(it.dmg+e.str+(b.terrain==='mountain'&&row==='rear'?2:0))*it.hits;}
+ const out={} as Record<Row,IncomingRow>;for(const row of ['front','rear'] as Row[]){const blocked=Math.min(b.block[row],raw[row]);out[row]={raw:raw[row],blocked,net:raw[row]-blocked};}return out;
+}
+export function previewBattleState(b:BattleState,index:number,target:PlayTarget):BattleState|null {
+ const clone=structuredClone(b);return playCard(clone,index,target).ok?clone:null;
 }
 
 export function enemyIntentNote(e: EnemyState): string {
@@ -962,7 +1011,7 @@ export function enemyIntentNote(e: EnemyState): string {
 function applyBuild(b: BattleState, trigger: Trigger, target?: number): number {
   if (!b.build) return 0;
   const out = triggerBuild(b.build, trigger, undefined, b.generals.filter(g => generalActive(b, g.id)).map(g => g.id));
-  for (const text of out.log) log(b, text, 'general');
+  for (const text of out.log) {log(b, text, 'general');combatEvent(b,{kind:'doctrineTriggered',source:'원정 성장',reason:text,visualPriority:2});}
   if (out.block) { gainBlock(b, 'front', out.block, '원정 성장'); gainBlock(b, 'rear', out.block, '원정 성장'); }
   if (out.draw) drawCards(b, out.draw);
   const enemy = b.enemies.find(e => e.uid === target && !e.dead);

@@ -1,0 +1,254 @@
+{
+  "environment": "Node headless; CPU timers, not browser rendering or mobile FPS",
+  "generationMeanMs": 0.16118999999999992,
+  "movePreviewMedianMs": 0.2718999999999596,
+  "movePreviewP95Ms": 0.8390000000000555,
+  "sourceBytes": 5938,
+  "staticJSONBytes": 18071,
+  "gzipStaticBytes": 2145,
+  "markers": 22,
+  "historyNames": 9,
+  "simulations": [
+    {
+      "policy": "food",
+      "runs": 30,
+      "wins": 9,
+      "bossReached": 25,
+      "famine": 0,
+      "selections": {
+        "0": 223,
+        "1": 3
+      },
+      "terrains": {
+        "plains": 114,
+        "river": 87,
+        "fortress": 25
+      },
+      "units": 226,
+      "meanScoutingAtSelection": 3,
+      "depletionStages": {},
+      "obligationsObservedMax": 1,
+      "fulfilledObservations": 47
+    },
+    {
+      "policy": "scout",
+      "runs": 30,
+      "wins": 9,
+      "bossReached": 25,
+      "famine": 0,
+      "selections": {
+        "0": 223,
+        "1": 3
+      },
+      "terrains": {
+        "plains": 114,
+        "river": 87,
+        "fortress": 25
+      },
+      "units": 226,
+      "meanScoutingAtSelection": 3,
+      "depletionStages": {},
+      "obligationsObservedMax": 1,
+      "fulfilledObservations": 47
+    },
+    {
+      "policy": "growth",
+      "runs": 30,
+      "wins": 18,
+      "bossReached": 27,
+      "famine": 0,
+      "selections": {
+        "0": 140,
+        "1": 66,
+        "2": 26
+      },
+      "terrains": {
+        "plains": 121,
+        "fortress": 36,
+        "river": 62,
+        "mountain": 13
+      },
+      "units": 245,
+      "meanScoutingAtSelection": 2.9439655172413794,
+      "depletionStages": {},
+      "obligationsObservedMax": 1,
+      "fulfilledObservations": 66
+    }
+  ],
+  "sample": [
+    [
+      {
+        "stage": 1,
+        "col": 0,
+        "type": "battle",
+        "terrain": "plains",
+        "intel": "위험 확인"
+      },
+      {
+        "stage": 1,
+        "col": 1,
+        "type": "battle",
+        "terrain": "plains",
+        "intel": "위험 확인"
+      },
+      {
+        "stage": 1,
+        "col": 2,
+        "type": "battle",
+        "terrain": "mountain",
+        "intel": "거점 확인"
+      }
+    ],
+    [
+      {
+        "stage": 2,
+        "col": 0,
+        "type": "event",
+        "terrain": "river",
+        "event": "checkpoint",
+        "intel": "미탐색"
+      },
+      {
+        "stage": 2,
+        "col": 1,
+        "type": "recruit",
+        "terrain": "fortress",
+        "intel": "미탐색"
+      },
+      {
+        "stage": 2,
+        "col": 2,
+        "type": "battle",
+        "terrain": "mountain",
+        "intel": "미탐색"
+      }
+    ],
+    [
+      {
+        "stage": 3,
+        "col": 0,
+        "type": "event",
+        "terrain": "river",
+        "event": "wanderer",
+        "intel": "미탐색"
+      },
+      {
+        "stage": 3,
+        "col": 1,
+        "type": "battle",
+        "terrain": "plains",
+        "intel": "미탐색"
+      },
+      {
+        "stage": 3,
+        "col": 2,
+        "type": "supply",
+        "terrain": "mountain",
+        "intel": "미탐색"
+      }
+    ],
+    [
+      {
+        "stage": 4,
+        "col": 0,
+        "type": "elite",
+        "terrain": "plains",
+        "intel": "미탐색"
+      },
+      {
+        "stage": 4,
+        "col": 1,
+        "type": "market",
+        "terrain": "plains",
+        "intel": "미탐색"
+      },
+      {
+        "stage": 4,
+        "col": 2,
+        "type": "battle",
+        "terrain": "mountain",
+        "intel": "미탐색"
+      }
+    ],
+    [
+      {
+        "stage": 5,
+        "col": 0,
+        "type": "recruit",
+        "terrain": "river",
+        "intel": "미탐색"
+      },
+      {
+        "stage": 5,
+        "col": 1,
+        "type": "battle",
+        "terrain": "plains",
+        "intel": "미탐색"
+      },
+      {
+        "stage": 5,
+        "col": 2,
+        "type": "event",
+        "terrain": "mountain",
+        "event": "alliance",
+        "intel": "미탐색"
+      }
+    ],
+    [
+      {
+        "stage": 6,
+        "col": 0,
+        "type": "rest",
+        "terrain": "plains",
+        "intel": "미탐색"
+      },
+      {
+        "stage": 6,
+        "col": 1,
+        "type": "elite",
+        "terrain": "plains",
+        "intel": "미탐색"
+      },
+      {
+        "stage": 6,
+        "col": 2,
+        "type": "battle",
+        "terrain": "river",
+        "intel": "미탐색"
+      }
+    ],
+    [
+      {
+        "stage": 7,
+        "col": 0,
+        "type": "supply",
+        "terrain": "plains",
+        "intel": "미탐색"
+      },
+      {
+        "stage": 7,
+        "col": 1,
+        "type": "market",
+        "terrain": "plains",
+        "intel": "미탐색"
+      },
+      {
+        "stage": 7,
+        "col": 2,
+        "type": "rest",
+        "terrain": "river",
+        "intel": "미탐색"
+      }
+    ],
+    [
+      {
+        "stage": 8,
+        "col": 0,
+        "type": "boss",
+        "terrain": "fortress",
+        "intel": "미탐색"
+      }
+    ]
+  ],
+  "sourceSHAInputBytes": 5938
+}

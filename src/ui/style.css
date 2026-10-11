@@ -628,6 +628,27 @@ h3 {
   gap: 4px;
   flex-wrap: wrap;
 }
+.deck-inventory .card {
+  grid-template-rows: auto auto 1fr auto auto;
+}
+.card .card-quantity {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 6px;
+  padding-top: 8px;
+  border-top: 1px solid #ad9c7d;
+  font-size: 15px;
+  line-height: 1.4;
+  color: #392d20;
+}
+.card .card-quantity b {
+  padding: 2px 8px;
+  border-radius: 5px;
+  background: #3b2b1f;
+  color: #fff4dc;
+}
 .card .tags span {
   font-size: 10.5px;
   border-radius: 99px;

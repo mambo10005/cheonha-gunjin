@@ -2,8 +2,8 @@
 // "설명과 실제 효과가 어긋나는" 문제를 구조적으로 막는다.
 import type { CardDef, Effect, Family, Intent, Row, Tag } from './types.ts';
 
-export const FAMILY_NAME: Record<Family, string> = { mu: '武', bang: '防', chaek: '策' };
-export const FAMILY_LABEL: Record<Family, string> = { mu: '武 공격', bang: '防 방어', chaek: '策 계책' };
+export const FAMILY_NAME: Record<Family, string> = { mu: '공격', bang: '방어', chaek: '계책' };
+export const FAMILY_LABEL: Record<Family, string> = { mu: '공격', bang: '방어', chaek: '계책' };
 export const TAG_NAME: Record<Tag, string> = { cavalry: '기병', fire: '화공', scheme: '계책' };
 export const ROW_NAME: Record<Row, string> = { front: '전열', rear: '후열' };
 

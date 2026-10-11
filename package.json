@@ -1,7 +1,7 @@
 {
   "name": "cheonha-gunjin",
   "private": true,
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "천하군진 — 삼국지 장수 조합형 덱빌딩 로그라이트 프로토타입",
   "type": "module",
   "engines": {
@@ -17,7 +17,18 @@
     "sim:builds": "node --input-type=module -e \"import { runBuildScenario } from './src/sim/build-scenarios.ts'; for (const direction of ['bastion','breakthrough','scheme']) console.log(JSON.stringify(runBuildScenario(direction)));\"",
     "sim:accords": "node --input-type=module -e \"import {runAccordScenario} from './src/sim/accord-scenarios.ts'; for(const p of ['none','sponsorship','alliance']) console.log(JSON.stringify(runAccordScenario(p)));\"",
     "assets:check": "node scripts/check-debate-assets.ts",
-    "visual:fixtures": "node scripts/render-debate-fixtures.ts"
+    "visual:fixtures": "node scripts/render-debate-fixtures.ts",
+    "sim:debates": "node src/sim/debate-deck-benchmark.ts",
+    "assets:battle": "node scripts/check-battle-assets.ts",
+    "visual:battle": "node scripts/render-battle-fixtures.ts && node scripts/check-battle-fixtures.ts",
+    "measure:battle": "node scripts/measure-battle.ts",
+    "sim:cities": "node src/sim/city-benchmark.ts",
+    "sim:campaign": "node src/sim/city-campaign-benchmark.ts",
+    "sim:world": "node src/sim/world-benchmark.ts",
+    "sim:raising": "node src/sim/raising-benchmark.ts",
+    "sim:prologue": "node src/sim/prologue-benchmark.ts",
+    "sim:exploration": "node src/sim/city-exploration-benchmark.ts",
+    "sim:inn": "node src/sim/inn-benchmark.ts"
   },
   "devDependencies": {
     "@types/jsdom": "^30.0.0",

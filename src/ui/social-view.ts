@@ -1,3 +1,5 @@
+import {deckRewardHtml,deckPreparationHtml} from './debate-deck-view.ts';
+import {chooseDeckReward,offerDeckReward,ensureRepresentative} from '../core/debate-deck.ts';
 import { debateScene } from './debate-scene.ts';
 import { CLAUSES, activeAgreements, agreementQuote, describeAgreement, signAgreement, abandonAgreement, resetCouncil, declineCouncil } from '../core/accords.ts';
 import { DOCTRINES, GROWTH, chooseGrowth } from '../core/build.ts';
@@ -13,7 +15,7 @@ import { activityButton as button, esc } from './html.ts';
 
 const resultName = { ongoing: '진행 중', win: '승리', lose: '패배', draw: '무승부', surrender: '기권', success: '성공', partial: '부분 성공', failure: '실패' };
 function representatives(run: RunState): string {
-  return `<label>출전 장수·대표 선택 <select id="social-general">${run.generals.map(g => {
+  return deckPreparationHtml(run)+`<label>출전 장수·대표 선택 <select id="social-general">${run.generals.map(g => {
     const p = GENERALS[g.id].activities!;
     return `<option value="${g.id}">${esc(GENERALS[g.id].name)} — 대결 ${p.duel}, 설전 ${p.debate}</option>`;
   }).join('')}</select></label><div class="representatives">${run.generals.map(g => `<div class="tiny"><b>${esc(GENERALS[g.id].name)}</b>: ${GENERALS[g.id].activities!.traits.map(t => esc(TRAIT_TEXT[t])).join(' · ')}</div>`).join('')}</div>`;
@@ -26,6 +28,7 @@ export function relationsHtml(run: RunState): string {
 }
 export function socialView(run: RunState): string | null {
   const p = run.pending; let body = '';
+  if(p.kind==='debateReward')return '<div class="node-screen">'+deckRewardHtml(run)+'</div>';
   switch (p.kind) {
     case 'growth':
       body = (p.general ? '<p>공동 작전 성장 대상: ' + GENERALS[p.general].name + '</p>' : '') + '<h1>원정 성장 선택</h1><p>교리 최대 2개. 장수당 한 분기, 최대 2단계. 일반 전투에서는 장수 배치 조건과 동요를 따릅니다. 성장은 이번 원정에 유지하며 장수를 내보내면 잃습니다. 일반 전투와 무장 대결 모두 적용합니다.</p>' + representatives(run);
@@ -51,7 +54,7 @@ export function socialView(run: RunState): string | null {
     case 'parley': {
       const terms = parleyTerms(run);
       body = `<h1>${p.mode === 'recruit' ? '재야 인재 영입' : '보급 협상'}</h1>${p.mode === 'recruit' ? `<p>영입 후보: ${esc(GENERALS[p.candidate].name)} — ${esc(GENERALS[p.candidate].ability)}</p>` : ''}
-      <p>${esc(terms.text)}</p>${p.negotiated ? `<p>설전 결과: ${resultName[p.negotiated]}</p>` : `${representatives(run)}<p class="small">설전 도전 군량 1. 성공·부분 성공·실패 후 조건을 확인하고 수락 또는 포기. 실패해도 진행 가능합니다.</p>${button('begin-debate', '설전으로 조건 개선', { reason: run.food < 1 ? '군량 1 필요' : undefined })}`}
+      <p>${esc(terms.text)}</p>${p.negotiated ? `<p>설전 결과: ${resultName[p.negotiated]}</p>` : `${representatives(run)}<p class="small">설전 도전 군량 1. 성공·부분 성공·실패 후 조건을 확인하고 수락 또는 포기. 실패해도 진행 가능합니다.</p>${p.mode==='recruit'&&run.debateBuild.enabled?button('begin-debate-elite','정예 공개 변론 · 반복 약화·매 반론 방해'):''}${button('begin-debate', '설전으로 조건 개선', { reason: run.food < 1 ? '군량 1 필요' : undefined })}`}
       <div class="row">${button('accept-parley', p.negotiated ? '합의 조건 수락' : '기본 조건 수락', { reason: run.food < terms.cost ? `군량 ${terms.cost} 필요` : undefined })}${button('decline-parley', '포기하고 진행')}${p.mode === 'supply' && !p.negotiated ? button('village-diplomacy', '보급 대신 향촌과 외교') : ''}</div>`; break;
     }
     case 'debate': return debateScene(run);
@@ -78,6 +81,10 @@ export function socialView(run: RunState): string | null {
 }
 export function handleSocialAction(run: RunState, kind: string, general: string, choice: string, round: number, tactics?: string[]): Check {
   switch (kind) {
+    case 'deck-workshop':{if(!['rest','supply'].includes(run.pending.kind)||!run.debateBuild.enabled||run.food<2||run.debateBuild.claimed.includes(`deck:${run.floor}:${run.col}`))return {ok:false,reason:'휴식/보급 장소당 1회, 군량 2가 필요합니다.'};if(!run.generals.some(g=>g.id===general))return {ok:false,reason:'군단 대표를 선택하세요.'};ensureRepresentative(run.debateBuild,general);const then=run.pending;run.food-=2;offerDeckReward(run,then,'success');return {ok:true};}
+    case 'begin-debate-elite':return beginDebate(run,general,choice||undefined,true);
+    case 'deck-reward':return chooseDeckReward(run,choice);
+    case 'deck-assistant':{if(!['','caoren','dianwei'].includes(choice)||choice&&!run.generals.some(g=>g.id===choice))return {ok:false,reason:'군단의 조인/전위 중 보좌를 선택하세요.'};run.debateBuild.assistant=choice||null;return {ok:true};}
     case 'growth': return chooseGrowth(run, choice, run.pending.kind === 'growth' ? run.pending.general ?? general : general);
     case 'sign-agreement': return signAgreement(run, choice, general);
     case 'abandon-agreement': return abandonAgreement(run, Number(choice));
