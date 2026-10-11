@@ -74,6 +74,16 @@ export function handleInnAction(r:RunState,command:string,h:InnHooks):Result {
    if(arg==='contract'){
     const c=afford(r,1,3);if(!c.ok)return c;pay(r,h,1,3);quest.conclusion='유료 호위 계약 · 자금 3 · 왕복 1회';quest.evidence.push('contract:3','period:one-trip','risk:escort');quest.result='partial';h.effects({debt:1,promise:'ration'},d.title+' · 단기 호위 계약');ensureLocationScene(x).usedInteractions.push('escort:contract');ensureLocationScene(x).phase='resolution';advanceQuest(quest,h,arg);return ok;
    }
+   if(arg==='contract-shared'||arg==='contract-bond'){
+    // 계약 조건 협상: 보수·기간·사고 책임을 바꾼 다른 계약안. 단기 계약(contract)은 기존 조건 그대로 유지한다.
+    const bond=arg==='contract-bond';
+    if(bond&&!quest.evidence.some(v=>v==='ledger'||v==='contract'))return no('보증 계약은 창고의 출입 장부나 계약서를 먼저 조사해 수량을 맞춰야 제안할 수 있습니다.');
+    const time=bond?2:1,funds=bond?4:1,c=afford(r,time,funds);if(!c.ok)return c;pay(r,h,time,funds);
+    quest.conclusion=bond?'보증 호위 계약 · 자금 4 · 왕복 호위 · 사고 책임 호위 측':'책임 분담 호위 계약 · 자금 1 · 편도 1회 · 사고 책임 우리 측';
+    quest.evidence.push(bond?'contract:4':'contract:1',bond?'period:round-trip':'period:one-trip',bond?'risk:escort':'risk:client');quest.result='partial';
+    if(!bond)h.emit('questStepAdvanced',d.title+' · 호위 인원은 줄이고 사고 책임은 우리가 집니다. 호송 때 피로와 손실 위험이 남습니다.');
+    ensureLocationScene(x).usedInteractions.push('escort:'+arg);ensureLocationScene(x).phase='resolution';advanceQuest(quest,h,arg);return ok;
+   }
    if(arg==='alternate'){
     const hasIntel=r.campaign!.world!.raising!.intel>=1||x.items.some(i=>i.id==='map')||x.companions.includes('lusu');
     if(!quest.evidence.includes('workers')||!quest.evidence.includes('passage')||!hasIntel)return no('짐꾼 증언·통로 조사와 정보 1, 지도 또는 노숙 동행이 필요합니다.');
@@ -81,9 +91,9 @@ export function handleInnAction(r:RunState,command:string,h:InnHooks):Result {
    }
   }
   if(id==='escort'&&quest.step===2&&arg==='transport'){
-   const secured=quest.evidence.some(v=>['verified','contract:3','alternate-route','legacy-approved'].includes(v));if(!secured)return no('통행 허가나 합의가 먼저 필요합니다.');
+   const secured=quest.evidence.some(v=>['verified','contract:3','contract:1','contract:4','alternate-route','legacy-approved'].includes(v));if(!secured)return no('통행 허가나 합의가 먼저 필요합니다.');
    const c=afford(r,1);if(!c.ok)return c;pay(r,h,1);quest.evidence.push('cart-delivered');quest.result=quest.evidence.includes('verified')?'complete':'partial';quest.conclusion+=' · 성문까지 수레와 군량 실제 호송';ensureLocationScene(x).usedInteractions.push('escort:transport');ensureLocationScene(x).phase='report';
-   x.locations.store.secured=true;x.locations.gate.secured=true;h.effects({food:quest.result==='complete'?3:2,training:1},d.title+' · 성문 도착 및 하역');advanceQuest(quest,h,arg);return ok;
+   const clientRisk=quest.evidence.includes('risk:client'),bonded=quest.evidence.includes('contract:4');if(bonded)quest.result='complete';x.locations.store.secured=true;x.locations.gate.secured=true;if(clientRisk){x.fatigue=Math.min(8,x.fatigue+1);quest.conclusion+=quest.evidence.includes('workers')?' · 짐꾼 안내로 손실 없이 하역':' · 좁은 통로에서 곡물 한 자루 손실';}h.effects({food:quest.result==='complete'?3:clientRisk&&!quest.evidence.includes('workers')?1:2,training:1},d.title+' · 성문 도착 및 하역');advanceQuest(quest,h,arg);return ok;
   }
   if(arg==='retry-investigate'&&quest.result!=='failure')return no('실제 설전이 결렬된 뒤에만 추가 조사를 선택할 수 있습니다.');
   const card=x.event?.committedFamilies.some(f=>['intel','network','supply','military'].includes(f)),itemId=arg==='letter'?'letter':arg==='ledger-investigate'?'ledger':null,item=itemId?x.items.find(i=>i.id===itemId):undefined;
@@ -123,7 +133,7 @@ function report(r:RunState,id:string,h:InnHooks):Result {
  const p=r.campaign!.personnel!,o=p.officers[d.giver];if(o){o.task=true;o.information=Math.max(3,o.information);o.trust=Math.min(100,o.trust+15);o.xp=Math.min(99,o.xp+1);o.proof=true;o.events.push(d.title+' · '+q.result+' · 객사 보고');p.revision++;}
  if(d.plan)h.effects({plan:d.plan,intel:id==='recommendation'?1:0,legitimacy:1,promise:id==='recommendation'?'authority':undefined,training:id==='escort'?1:0},d.title+' 보고');
  if(id==='lostletter'){s.privateAccess=true;h.effects({item:'letter'},d.title+' 보고');}if(id==='cache')h.effects({item:'map',intel:1},d.title+' 보고');if(id==='accounts')h.effects({group:'traders',groupChange:1},d.title+' 보고');
- x.locations.inn.secured=true;x.growth.xp=Math.min(12,x.growth.xp+1);if(x.growth.xp>=2&&!x.growth.branch&&!x.growth.offered){x.growth.offered=true;h.emit('protagonistGrowthOffered','의뢰 보고의 경험이 주인공 성장으로 이어졌습니다.');}r.campaign!.world!.raising!.step=Math.min(5,r.campaign!.world!.raising!.step+1);s.view={kind:'conversation',person:d.giver,topic:'reported'};s.dialogue=id==='escort'?(q.conclusion.includes('무장 대결')?'전위는 실력을 보인 선택을 인정합니다. 호위 대표와 통행권을 다퉜고, 수레를 성문까지 옮긴 기록을 남겼습니다.':q.conclusion.includes('유료 호위 계약')?'전위는 안전한 유료 호위 계약을 인정하지만, 한 차례 호위 비용과 군량 약속도 함께 기억합니다.':q.conclusion.includes('우회로')?'전위는 짐꾼과 노숙이 찾은 우회로로 주민 부담을 줄인 점을 높이 평가합니다. 협력 실적과 노출 위험도 기록합니다.':'전위는 창고와 호위 대표가 합의한 책임 범위를 확인합니다.'):q.result==='partial'?'모든 사실을 단정하지 않고 조건을 남긴 보고를 받았습니다. 그 책임도 함께 기억하겠습니다.':'사람과 기록을 함께 확인한 보고를 받았습니다. 이제 협력의 뜻을 논의할 수 있겠습니다.';h.emit('questReported',d.title+' · '+q.result+' · 보고 보상은 한 번만 지급');h.emit('innkeeperRelationChanged','한복이 보고의 신뢰와 객사 평판 변화를 기록했습니다.');return ok;
+ x.locations.inn.secured=true;x.growth.xp=Math.min(12,x.growth.xp+1);if(x.growth.xp>=2&&!x.growth.branch&&!x.growth.offered){x.growth.offered=true;h.emit('protagonistGrowthOffered','의뢰 보고의 경험이 주인공 성장으로 이어졌습니다.');}r.campaign!.world!.raising!.step=Math.min(5,r.campaign!.world!.raising!.step+1);s.view={kind:'conversation',person:d.giver,topic:'reported'};s.dialogue=id==='escort'?(q.conclusion.includes('무장 대결')?'전위는 실력을 보인 선택을 인정합니다. 호위 대표와 통행권을 다퉜고, 수레를 성문까지 옮긴 기록을 남겼습니다.':q.conclusion.includes('보증 호위 계약')?'전위는 장부로 수량을 맞추고 사고 책임까지 호위 측에 지운 보증 계약을 높이 평가합니다. 비용은 컸지만 빚이나 군량 약속은 남지 않았습니다.':q.conclusion.includes('책임 분담 호위 계약')?'전위는 적은 보수로 호위를 구한 점을 인정하면서도, 사고 책임을 우리가 떠안아 직접 수레를 지킨 수고를 기억합니다.':q.conclusion.includes('유료 호위 계약')?'전위는 안전한 유료 호위 계약을 인정하지만, 한 차례 호위 비용과 군량 약속도 함께 기억합니다.':q.conclusion.includes('우회로')?'전위는 짐꾼과 노숙이 찾은 우회로로 주민 부담을 줄인 점을 높이 평가합니다. 협력 실적과 노출 위험도 기록합니다.':'전위는 창고와 호위 대표가 합의한 책임 범위를 확인합니다.'):q.result==='partial'?'모든 사실을 단정하지 않고 조건을 남긴 보고를 받았습니다. 그 책임도 함께 기억하겠습니다.':'사람과 기록을 함께 확인한 보고를 받았습니다. 이제 협력의 뜻을 논의할 수 있겠습니다.';h.emit('questReported',d.title+' · '+q.result+' · 보고 보상은 한 번만 지급');h.emit('innkeeperRelationChanged','한복이 보고의 신뢰와 객사 평판 변화를 기록했습니다.');return ok;
 }
 export function finishInnSocial(r:RunState,h:InnHooks):boolean {
  const x=xof(r),s=x.inn,a=s?.activity,current=x.scene==='debate'?x.debate:x.duel;if(!s||!a||!current||current.result==='ongoing')return false;ensureLocationScene(x).phase='resolution';
