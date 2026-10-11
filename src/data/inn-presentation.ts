@@ -1,3 +1,4 @@
+import {resolveArt} from './art-assets.ts';
 /** Generated portraits use one master pose with lighting/scale states, not invented separate artwork. */
 export const INN_PRESENTATION={
  background:'/assets/inn/interior-v1.webp',
@@ -5,7 +6,7 @@ export const INN_PRESENTATION={
   inn_documents:{src:'/assets/inn/traveler-v1.webp',name:'허림 · 구휼 기록 보증인',line:'기록이 사람을 놓칠 수도 있습니다. 보증의 범위를 함께 확인합시다.'},
   inn_accounts:{src:'/assets/inn/merchant-v1.webp',name:'심운 · 창고 장부 책임자',line:'빠진 수량을 누구의 책임으로 남길지 근거부터 맞춰야 합니다.'},
   inn_escort:{src:'/assets/locations/escort-captain.svg',name:'장굉 · 창작 인물 호위 대표',line:'수레를 지킬 방비와 통행 안전을 실제로 보여 주십시오.'},
-  inn_escort_terms:{src:'/assets/locations/warehouse-manager-v2.svg',name:'왕상 · 창작 인물 창고 책임자',line:'보수와 사고 책임을 분명히 하면 수레 통행을 허가하겠습니다.'},
+  inn_escort_terms:{src:resolveArt('granary-keeper.portrait').src,name:'왕상 · 창작 인물 창고 책임자',line:'보수와 사고 책임을 분명히 하면 수레 통행을 허가하겠습니다.'},
   inn_courtyard:{src:'/assets/battle/dianwei-v1.png',name:'전위 · 호위 대표',line:'부상이 남을 수 있습니다. 준비가 되었을 때 시험에 임하십시오.'}
  },
  people:{

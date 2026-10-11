@@ -80,3 +80,7 @@
 img.location-manager-art{object-fit:cover;object-position:50% 20%;background:#2a2119}
 .location-dialogue-answers{display:grid;gap:8px;margin-top:10px}
 .location-dialogue-answers .btn{white-space:normal;text-align:left}
+/* 개발 모드 전용: 임시(fallback) 에셋이 쓰일 때만 보이는 표시. 배포 화면에는 이 요소가 아예 없다. */
+.art-dev-badge{display:none;position:absolute;left:8px;top:8px;z-index:5;padding:2px 7px;border:1px dashed #f0c060;background:#3a2a10e6;color:#ffd98a;font-size:12px;line-height:1.4;pointer-events:none}
+img[data-art-status="fallback"]+.art-dev-badge{display:block}
+.location-npc-view{position:relative}
