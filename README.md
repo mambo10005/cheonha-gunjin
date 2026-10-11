@@ -1,4 +1,6 @@
-# 천하군진(天下軍陣)
+# 천하군진
+
+**바로 플레이:** https://mambo10005.github.io/cheonha-gunjin/ — `main`에 푸시할 때마다 GitHub Actions(`.github/workflows/pages.yml`)가 빌드해 GitHub Pages에 올린다. 저장은 브라우저 localStorage에 남는다.
 
 삼국지 장수 조합형 덱빌딩 로그라이트 — 브라우저 2D 프로토타입 v0.5
 
