@@ -16,5 +16,6 @@ export const INN_PRESENTATION={
   merchant:{src:'/assets/inn/merchant-v1.webp',position:'50% 15%',area:'hall',x:39,y:66},
   traveler:{src:'/assets/inn/traveler-v1.webp',position:'50% 15%',area:'hall',x:66,y:66}
  },
- areas:{counter:{position:'0% 55%',label:'주인 자리'},hall:{position:'50% 60%',label:'객당'},private:{position:'100% 40%',label:'안쪽 방'},yard:{position:'30% 20%',label:'뒤뜰'}}
+ // 구역마다 같은 객사 원화의 다른 부분을 잘라 만든 장면(주인 자리 계산대·객당 탁자·안쪽 방 휘장·뒤뜰 연무장). 구역 전용 원화가 생기면 src만 바꾼다.
+ areas:{counter:{src:'/assets/inn/area-counter-v1.webp',position:'50% 50%',label:'주인 자리'},hall:{src:'/assets/inn/area-hall-v1.webp',position:'50% 55%',label:'객당'},private:{src:'/assets/inn/area-private-v1.webp',position:'50% 50%',label:'안쪽 방'},yard:{src:'/assets/inn/area-yard-v1.webp',position:'50% 60%',label:'뒤뜰'}}
 } as const;
