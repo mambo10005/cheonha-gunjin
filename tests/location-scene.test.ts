@@ -54,3 +54,20 @@ test('inspecting the cart, passage and guards in the warehouse completes the fir
  const old=fresh();act(old,'enter');act(old,'inn:offer:escort');act(old,'inn:accept:escort');visit(old,'store');const y=explorationOf(old)!,oq=y.inn!.quests.escort;oq.evidence.push('cart','passage','guards');assert.equal(oq.step,0);
  const t2=y.tick;act(old,'scene:zone:office');assert.equal(oq.step,1);assert.equal(y.tick,t2);
 });
+
+import {charactersAt} from '../src/core/city-exploration.ts';
+test('Lu Su proposes a joint check of porter testimony and the loading lane; accepting costs one hour, records both clues and his trust, and opens the alternate route without intel',()=>{
+ const r=fresh();act(r,'enter');act(r,'inn:offer:escort');act(r,'inn:accept:escort');visit(r,'store');const x=explorationOf(r)!,q=x.inn!.quests.escort,key=locationSceneKey('xingyang','store');
+ assert.ok(charactersAt(r).includes('lusu'),'노숙이 창고에 있다');r.campaign!.world!.raising!.intel=0;
+ assert.equal(exploreAction(r,'scene:joint:lusu:accept',x.revision).ok,false,'제안을 듣기 전에는 답할 수 없다');
+ act(r,'scene:character:lusu');act(r,'scene:talk:lusu:route');assert.ok(x.locationScenes![key].usedInteractions.includes('proposal:lusu:pending'));
+ const tick=x.tick,trust=r.campaign!.personnel!.officers.lusu.trust;act(r,'scene:joint:lusu:accept');
+ assert.equal(x.tick,tick+1);assert.ok(['workers','passage','lusu-joint'].every(v=>q.evidence.includes(v)));assert.equal(r.campaign!.personnel!.officers.lusu.trust,Math.min(100,trust+3));
+ assert.ok(x.locationScenes![key].inspected.includes('workers'));assert.equal(exploreAction(r,'scene:joint:lusu:accept',x.revision).ok,false,'한 번만');
+ act(r,'scene:talk:lusu:route');assert.ok(!x.locationScenes![key].usedInteractions.includes('proposal:lusu:pending'),'답한 제안은 다시 나오지 않는다');
+ for(const id of ['cart','guards'])act(r,'scene:inspect:'+id);assert.equal(q.step,1);act(r,'inn:quest:escort:alternate');assert.equal(q.step,2);
+});
+test('declining Lu Su costs nothing and leaves the clues to be inspected directly',()=>{
+ const r=fresh();act(r,'enter');act(r,'inn:offer:escort');act(r,'inn:accept:escort');visit(r,'store');const x=explorationOf(r)!,q=x.inn!.quests.escort;
+ act(r,'scene:character:lusu');act(r,'scene:talk:lusu:route');const tick=x.tick;act(r,'scene:joint:lusu:decline');assert.equal(x.tick,tick);assert.ok(!q.evidence.includes('lusu-joint'));assert.ok(!q.evidence.includes('workers'));
+});

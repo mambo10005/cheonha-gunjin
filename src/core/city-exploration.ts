@@ -92,6 +92,23 @@ export function exploreAction(r:RunState,action:string,revision:number):Result {
    const who=manager?def.managerRole:person==='guard_captain'?'호위 대표':OFFICERS[person]?.name??person;
    const lines:Record<string,string>={opening:`${who}이(가) ${def.title}의 사정을 들려줍니다. 무엇을 확인할지 정하세요.`,warehouse:`창고 책임자는 열쇠와 출입 권한을 확인한 뒤 수레를 내보내겠다고 합니다.`,escort:`전위는 수레를 지키는 조건과 실제 통행로를 먼저 확인하자고 합니다.`,guard:`호위 대표는 수레의 적재 상태와 통로 폭을 확인한 뒤 통행권을 걸고 겨루자고 합니다.`,route:person==='guard_captain'?'호위 대표는 수레 상태를 확인한 사람에게 통행권을 두고 겨루겠다고 합니다.':'노숙은 짐꾼 증언과 하역장 통로를 함께 대조하자고 제안합니다.',records:`장부와 현장 수량이 맞지 않습니다. 출입 기록을 직접 비교해야 합니다.`};
    emit(x,'sceneConversationStarted',lines[topic]??lines.opening,{character:OFFICERS[person]?person:undefined});
+   // 노숙의 공동 대조 제안: 답(수락·사양)을 고를 때까지 장면에 남는다.
+   if(person==='lusu'&&x.location==='store'&&topic==='route'&&!s.usedInteractions.some(v=>v.startsWith('proposal:lusu:')))s.usedInteractions.push('proposal:lusu:pending');
+  }
+  else if(id==='joint'){
+   // 노숙과 짐꾼 증언·하역장 통로를 함께 대조한다(수락) 또는 혼자 확인하겠다고 사양한다.
+   const s=ensureLocationScene(x);if(arg!=='lusu'||!s.usedInteractions.includes('proposal:lusu:pending'))return no('지금 답할 제안이 없습니다.');if(!charactersAt(r).includes('lusu'))return no('노숙이 이 장소에 없습니다.');
+   s.usedInteractions=s.usedInteractions.filter(v=>v!=='proposal:lusu:pending');const quest=x.inn?.quests.escort,o=personnelOf(r)!.officers.lusu;
+   if(extra==='accept'){
+    if(!x.converted){if(x.tick+1>x.budget)return no('함께 대조할 준비 시간이 부족합니다.');advance(r,1);}
+    for(const id of ['workers','passage'])if(!s.inspected.includes(id)){s.inspected.push(id);if(!s.clues.includes(id))s.clues.push(id);}
+    if(quest&&['accepted','active'].includes(quest.status)&&quest.step<=1)for(const ev of ['workers','passage','lusu-joint'])if(!quest.evidence.includes(ev))quest.evidence.push(ev);
+    if(o){o.trust=Math.min(100,o.trust+3);o.events.push('곡물 창고 · 짐꾼 증언과 하역장 통로 공동 대조');personnelOf(r)!.revision++;}
+    s.usedInteractions.push('proposal:lusu:accepted');scenePhase(s,'investigation');
+    emit(x,'sceneInteractionResolved','노숙과 함께 짐꾼 증언과 하역장 통로를 대조했습니다. 막힌 시간과 수레가 지날 수 있는 좁은 길이 확인되었습니다. 노숙 신뢰 +3. 이 기록이 있으면 우회로 확보에 정보나 지도 없이 노숙의 대조 기록을 쓸 수 있습니다.',{character:'lusu'});
+   }else if(extra==='decline'){
+    s.usedInteractions.push('proposal:lusu:declined');emit(x,'sceneInteractionResolved','노숙은 고개를 끄덕이며 물러섭니다. “필요하면 하역장에서 다시 부르시오.” 짐꾼과 통로는 직접 조사할 수 있습니다.',{character:'lusu'});
+   }else return no('수락 또는 사양을 고르세요.');
   }
   else if(id==='inspect'){
    const item=def.inspectables.find(v=>v.id===arg);if(!item)return no('이 장소에 없는 조사 대상입니다.');const sc=ensureLocationScene(x);sc.selectedInspectableId=item.id;

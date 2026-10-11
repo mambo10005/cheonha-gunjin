@@ -73,3 +73,10 @@
 .inn-empty{color:#c9c9b4;font-size:14px}
 @media(max-width:850px){.location-cast{grid-template-columns:minmax(0,1fr)}.location-cast>.location-dialogue{grid-column:1}.location-scene-columns .location-scene-visual{height:clamp(240px,62vw,420px)}.inn-embedded .inn-interior{height:clamp(260px,70vw,420px);min-height:260px}}
 @media(max-width:520px){.inn-person-list{grid-template-columns:repeat(2,minmax(0,1fr))}}
+/* 전용 장면 그림이 있는 장소: 그림이 공용 벡터 배경(하늘·건물 상자)을 덮고, 조사 대상 이름표는 그 위에 남는다. */
+.location-scene-art{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0}
+.location-scene-visual:has(.location-scene-art) .location-scene-sky,.location-scene-visual:has(.location-scene-art) .location-scene-landmark{display:none}
+.location-scene-visual:has(.location-scene-art) .location-scene-object-row,.location-scene-visual:has(.location-scene-art) .location-scene-sign{z-index:2}
+img.location-manager-art{object-fit:cover;object-position:50% 20%;background:#2a2119}
+.location-dialogue-answers{display:grid;gap:8px;margin-top:10px}
+.location-dialogue-answers .btn{white-space:normal;text-align:left}

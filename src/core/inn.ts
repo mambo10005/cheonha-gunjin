@@ -90,8 +90,8 @@ export function handleInnAction(r:RunState,command:string,h:InnHooks):Result {
     ensureLocationScene(x).usedInteractions.push('escort:'+arg);ensureLocationScene(x).phase='resolution';advanceQuest(quest,h,arg);return ok;
    }
    if(arg==='alternate'){
-    const hasIntel=r.campaign!.world!.raising!.intel>=1||x.items.some(i=>i.id==='map')||x.companions.includes('lusu');
-    if(!quest.evidence.includes('workers')||!quest.evidence.includes('passage')||!hasIntel)return no('짐꾼 증언·통로 조사와 정보 1, 지도 또는 노숙 동행이 필요합니다.');
+    const hasIntel=r.campaign!.world!.raising!.intel>=1||x.items.some(i=>i.id==='map')||x.companions.includes('lusu')||quest.evidence.includes('lusu-joint');
+    if(!quest.evidence.includes('workers')||!quest.evidence.includes('passage')||!hasIntel)return no('짐꾼 증언·통로 조사와 정보 1, 지도, 노숙 동행 또는 노숙과의 공동 대조가 필요합니다.');
     const c=afford(r,2);if(!c.ok)return c;pay(r,h,2);quest.conclusion='짐꾼과 노숙이 찾은 좁은 우회로';quest.evidence.push('alternate-route');quest.result='partial';const lusu=r.campaign!.personnel!.officers.lusu;if(lusu){lusu.trust=Math.min(100,lusu.trust+5);lusu.proof=true;lusu.events.push(d.title+' · 짐꾼 증언으로 대체 통로 확보');r.campaign!.personnel!.revision++;h.emit('relationshipChanged','노숙 · 우회로 공동 조사 · 신뢰 +5·협력 실적');}h.effects({exposure:1},d.title+' · 비공개 우회로');ensureLocationScene(x).usedInteractions.push('escort:alternate');ensureLocationScene(x).phase='resolution';advanceQuest(quest,h,arg);return ok;
    }
   }
