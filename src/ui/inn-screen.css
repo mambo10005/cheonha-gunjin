@@ -3,7 +3,9 @@
 .inn-conversation-switch{display:flex;flex-wrap:wrap;gap:8px;padding:12px 20px;background:#17291f}.inn-conversation-switch .btn{display:flex;align-items:center;gap:8px;margin:0!important}.inn-conversation-switch img{width:32px;height:40px;object-fit:cover;object-position:50% 20%}.inn-dialogue-person.pose-guard{filter:brightness(.72) saturate(.7)}.inn-dialogue-person.pose-cooperate{filter:brightness(1.1)}
 
 .exploration-social-portrait{align-self:end;position:relative;text-align:center;min-width:0}.exploration-social-portrait img{width:100%;height:250px;object-fit:cover;object-position:50% 18%;mask-image:linear-gradient(#000 75%,transparent)}.exploration-social-portrait strong{display:block;font-size:18px;color:#e7c784}.exploration-social-portrait p{font-size:15px!important;line-height:1.6!important}@media(max-width:600px){.exploration-social-portrait{display:flex;align-items:center;gap:10px;background:#14231dee;padding:10px}.exploration-social-portrait img{width:65px;height:85px;flex-shrink:0;mask-image:none}.exploration-social-portrait strong{font-size:15px}.exploration-social-portrait p{font-size:13px!important}}
-.inn-contract-terms{display:grid;gap:6px;flex-basis:100%;margin-top:6px;padding:10px 12px;border:1px solid #8a7650;border-radius:6px;background:#1a2620}
+.inn-contract-terms{display:grid;gap:6px;flex:1 1 100%;margin-top:6px;padding:10px 12px;border:1px solid #8a7650;border-radius:6px;background:#1a2620}
 .inn-contract-terms>strong{color:#ead8ad;font-size:15px}
 .inn-contract-terms>small{color:#c9c9b4;font-size:13px;line-height:1.5}
 .inn-contract-terms .btn{text-align:left;white-space:normal}
+.inn-contract-terms .btn:disabled{opacity:1;color:#b9b8a6;border-style:dashed}
+.inn-quest-trackers>article>.inn-contract-terms{flex:1 1 100%}
