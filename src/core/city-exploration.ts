@@ -106,7 +106,7 @@ export function exploreAction(r:RunState,action:string,revision:number):Result {
    else scenePhase(sc,'investigation');
   }
   else return no('없는 장소 상호작용입니다.');
-  x.revision++;return ok;
+  syncInn(r,innHooks(r));x.revision++;return ok;
  }
  if(kind==='officer'&&id==='task'&&['xunyu','dianwei','lusu'].includes(arg))return no('이 인재의 부탁은 객사에서 수락하고 목표 장소에서 조사·해결한 뒤 보고하세요.');
  if(kind==='approach'&&x.event?.id.startsWith('inn_'))return no('의뢰 설전·대결은 현재 의뢰 단계에서 실행하세요.');

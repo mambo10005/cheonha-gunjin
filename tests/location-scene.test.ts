@@ -34,7 +34,7 @@ test('older escort saves keep completed receipts and resume old approvals at phy
 });
 
 test('warehouse alternate passage requires gathered witnesses and intel, then records Lu Su cooperation',()=>{
- const r=fresh();act(r,'enter');act(r,'inn:offer:escort');act(r,'inn:accept:escort');r.campaign!.world!.raising!.intel=1;const initialTrust=r.campaign!.personnel!.officers.lusu.trust;visit(r,'store');for(const id of ['cart','passage','guards','workers'])act(r,'scene:inspect:'+id);act(r,'inn:quest:escort:investigate');const q=explorationOf(r)!.inn!.quests.escort;assert.equal(q.step,1);const exposure=r.campaign!.world!.preparation.exposure;act(r,'inn:quest:escort:alternate');assert.equal(q.step,2);assert.equal(r.campaign!.world!.preparation.exposure,exposure+1);assert.equal(r.campaign!.personnel!.officers.lusu.trust,initialTrust+5);assert.ok(r.campaign!.personnel!.officers.lusu.proof);visit(r,'gate');act(r,'inn:quest:escort:transport');assert.equal(q.step,3);visit(r,'inn');act(r,'inn:report:escort');assert.equal(q.status,'completed');assert.ok(innDialogue(r).includes('우회로'),`${q.conclusion} / ${innDialogue(r)}`);
+ const r=fresh();act(r,'enter');act(r,'inn:offer:escort');act(r,'inn:accept:escort');r.campaign!.world!.raising!.intel=1;const initialTrust=r.campaign!.personnel!.officers.lusu.trust;visit(r,'store');for(const id of ['cart','passage','guards','workers'])act(r,'scene:inspect:'+id);const q=explorationOf(r)!.inn!.quests.escort;assert.equal(q.step,1);const exposure=r.campaign!.world!.preparation.exposure;act(r,'inn:quest:escort:alternate');assert.equal(q.step,2);assert.equal(r.campaign!.world!.preparation.exposure,exposure+1);assert.equal(r.campaign!.personnel!.officers.lusu.trust,initialTrust+5);assert.ok(r.campaign!.personnel!.officers.lusu.proof);visit(r,'gate');act(r,'inn:quest:escort:transport');assert.equal(q.step,3);visit(r,'inn');act(r,'inn:report:escort');assert.equal(q.status,'completed');assert.ok(innDialogue(r).includes('우회로'),`${q.conclusion} / ${innDialogue(r)}`);
 });
 function innDialogue(r:RunState){return explorationOf(r)!.inn!.dialogue;}
 
@@ -45,4 +45,12 @@ test('inn scene zones and inn rooms share one state: zone changes move the inn r
  act(r,'inn:select:innkeeper');assert.equal(x.inn!.area,'counter');assert.equal(x.locationScenes![key].zoneId,'counter');
  act(r,'inn:area:hall');assert.equal(x.locationScenes![key].zoneId,'hall');assert.equal(x.tick,tick);
  const loaded=reload(r),y=explorationOf(loaded)!;assert.equal(y.inn!.area,'hall');assert.equal(y.locationScenes![key].zoneId,'hall');
+});
+
+test('inspecting the cart, passage and guards in the warehouse completes the first escort step by itself, and older saves stuck there recover on the next scene action',()=>{
+ const r=fresh();act(r,'enter');act(r,'inn:offer:escort');act(r,'inn:accept:escort');visit(r,'store');const x=explorationOf(r)!,q=x.inn!.quests.escort;
+ act(r,'scene:inspect:cart');act(r,'scene:inspect:passage');assert.equal(q.step,0);const tick=x.tick;act(r,'scene:inspect:guards');assert.equal(q.step,1);assert.equal(x.tick,tick+1,'only the inspection itself costs time');
+ assert.ok(q.approaches.includes('scene-inspection'));assert.equal(exploreAction(r,'inn:quest:escort:investigate',x.revision).ok,false);
+ const old=fresh();act(old,'enter');act(old,'inn:offer:escort');act(old,'inn:accept:escort');visit(old,'store');const y=explorationOf(old)!,oq=y.inn!.quests.escort;oq.evidence.push('cart','passage','guards');assert.equal(oq.step,0);
+ const t2=y.tick;act(old,'scene:zone:office');assert.equal(oq.step,1);assert.equal(y.tick,t2);
 });

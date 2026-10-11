@@ -44,3 +44,6 @@
 .inn-person-list .inn-person>em{max-height:none;font-size:12px;line-height:1.45}
 @media(max-width:850px){.inn-person-list{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}}
 @media(max-width:520px){.inn-person-list{grid-template-columns:repeat(2,minmax(0,1fr))}.inn-person-list .inn-person>img{height:84px}.inn-embedded .inn-header-embedded{flex-wrap:wrap;gap:8px}}
+.location-quest-next{margin-top:8px;font-size:15px;color:#f0dfb3}
+.location-quest-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.location-quest-actions .inn-contract-terms{flex:1 1 100%}
