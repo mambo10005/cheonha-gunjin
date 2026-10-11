@@ -47,3 +47,29 @@
 .location-quest-next{margin-top:8px;font-size:15px;color:#f0dfb3}
 .location-quest-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
 .location-quest-actions .inn-contract-terms{flex:1 1 100%}
+
+/* 장소 장면 한 칼럼 배치(모든 장소 공통): 구역 → 큰 장면 그림 → 그 자리의 사람과 대화 → 조사 대상 → 할 수 있는 일 */
+.location-scene-columns,.location-layout .location-scene-columns{display:flex;flex-direction:column;grid-template-columns:none}
+.location-scene-main{display:contents}
+.location-scene-columns .location-zones{order:1}
+.location-scene-columns .location-scene-visual{order:2;height:clamp(320px,46vw,560px)}
+.location-scene-columns>.location-cast{order:3}
+.location-scene-columns .location-inspectables{order:4}
+.location-scene-columns .location-event-panel{order:5}
+.location-inn .location-scene-columns .location-event-panel{order:2}
+.location-cast{display:grid;grid-template-columns:minmax(0,1fr) minmax(260px,360px);column-gap:16px;align-items:start;border-left:0;border-top:1px solid #726347}
+.location-cast>h3,.location-cast>p,.location-cast>details{grid-column:1/-1}
+.location-cast>.location-person-list{grid-column:1;grid-template-columns:repeat(auto-fill,minmax(132px,1fr))}
+.location-cast>.location-dialogue{grid-column:2;margin-top:13px}
+.inn-embedded .inn-interior{height:clamp(360px,48vw,600px);min-height:360px}
+.inn-embedded .inn-interior.conversation{height:clamp(420px,50vw,620px);min-height:420px}
+.inn-people-strip{padding:14px 16px;border-top:1px solid #7e704e;background:linear-gradient(155deg,#29372c,#18221f)}
+.inn-people-strip>header{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;margin-bottom:10px}
+.inn-people-strip h3{margin:0;color:#e6cf9b;font-size:18px}
+.inn-elsewhere{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.inn-elsewhere>span{font-size:13px;color:#c3c6ae}
+.inn-elsewhere .btn{min-height:32px;padding:4px 10px;font-size:13px}
+.inn-person-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(132px,170px));gap:8px}
+.inn-empty{color:#c9c9b4;font-size:14px}
+@media(max-width:850px){.location-cast{grid-template-columns:minmax(0,1fr)}.location-cast>.location-dialogue{grid-column:1}.location-scene-columns .location-scene-visual{height:clamp(240px,62vw,420px)}.inn-embedded .inn-interior{height:clamp(260px,70vw,420px);min-height:260px}}
+@media(max-width:520px){.inn-person-list{grid-template-columns:repeat(2,minmax(0,1fr))}}

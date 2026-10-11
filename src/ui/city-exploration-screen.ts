@@ -12,7 +12,7 @@ import {GENERALS} from '../data/generals.ts';
 import {OFFICERS,RELATION_NAMES,PROTAGONISTS} from '../data/personnel.ts';
 import {RAISING_CARDS,FAMILY_NAMES,PLANS} from '../data/raising.ts';
 import {personnelScreen} from './personnel-screen.ts';
-import {innScreen,innQuestTracker,innGuestCards,innQuestActionButtons} from './inn-screen.ts';
+import {innScreen,innQuestTracker,innQuestActionButtons} from './inn-screen.ts';
 import {innOf,createInnState} from '../core/inn.ts';
 import {canPlayRaising,raisingCardCost,previewRaisingCard,raisingAmount} from '../core/raising.ts';
 import {CITY_DEFS,ADMIN_CARDS,ROLES,DISTRICTS,FACILITY_DEFS,POLICY_DEFS} from '../data/cities.ts';
@@ -33,7 +33,8 @@ const cityButton=(id:string,label:string,value='',disabled=false)=>`<button clas
 const worldButton=(id:string,label:string,value='')=>`<button class="btn" data-world="${id}" data-id="${esc(value)}">${esc(label)}</button>`;
 const outcomeNames:Record<string,string>={ongoing:'진행 중',success:'완전 합의',partial:'조건부 합의',failure:'결렬',win:'승리',draw:'무승부',lose:'패배',surrender:'기권'};
 const planNames={assembly:'민회 거병',barracks:'군영 장악',inside:'관청 내응'};
-const art=(id:string)=>CAMPAIGN_ART[id as keyof typeof CAMPAIGN_ART]??CAMPAIGN_ART.chengong;
+// 전용 원화가 없는 인물에게 주인공 얼굴을 빌려 쓰지 않는다. 캠페인 원화 → 객사 초상 → 공용 실루엣 순서.
+const art=(id:string)=>CAMPAIGN_ART[id as keyof typeof CAMPAIGN_ART]??INN_PRESENTATION.people[id as keyof typeof INN_PRESENTATION.people]?.src??'/assets/portraits/fallback.svg';
 const eInnOffer=(r:RunState,id:string)=>explorationOf(r)?.location==='inn'?action('inn:offer:'+({xunyu:'recommendation',dianwei:'escort',lusu:'accounts'} as Record<string,string>)[id],'의뢰 목표와 위험 확인'):'<p>객사에서 부탁을 수락한 뒤 실제 도시 목표를 조사하고 보고하세요.</p>';
 const names=(ids:string[])=>ids.map(id=>GENERALS[id]?.name??OFFICERS[id]?.name??id).join(' · ')||'아직 없음';
 
@@ -101,7 +102,7 @@ export class CityExplorationScreen {
   const def=locationSceneDefinition(e.cityId,l.id)!,inn=innOf(r)??createInnState(r),zone=def.zones.find(z=>z.id===inn.area)??def.zones[0],sc=ensureLocationScene(e),p=r.campaign!.personnel!;
   const zones=def.zones.map(z=>{const locked=z.id==='private'&&!inn.privateAccess;return `<button class="${z.id===zone.id?'selected':''}" data-explore-action="inn:area:${z.id}" aria-pressed="${z.id===zone.id}" ${locked?'disabled':''}><strong>${z.name}</strong><small>${locked?'주인 소개 또는 신뢰가 필요합니다.':z.description}</small></button>`;}).join('');
   const inspectables=def.inspectables.filter(o=>zone.objects.includes(o.id)).map(o=>`<article class="${sc.inspected.includes(o.id)?'inspected':''}"><span>${sc.inspected.includes(o.id)?'확인 완료':'조사 가능'}</span><h4>${o.name}</h4><p>${o.description}</p>${sc.inspected.includes(o.id)?'<small>확인한 단서가 장면 기록에 저장되었습니다.</small>':action('scene:inspect:'+o.id,'조사 · 시간 1')}</article>`).join('');
-  return `<section class="location-scene location-inn" data-location-scene="${e.cityId}:inn"><header class="exploration-scene-heading"><div><span class="exploration-eyebrow">${CITY_DEFS[e.cityId].name} · 정보·교류 장소</span><h2>${l.name} · ${def.managerRole}</h2></div>${action('leave','도시 지도로 돌아가기')}</header><div class="location-scene-columns"><section class="location-scene-main"><nav class="location-zones" aria-label="객사 내부 구역">${zones}</nav><section class="location-event-panel">${innScreen(r,art(p.protagonistId),id=>this.encounter(r,id),()=>this.hand(r,e),{embedded:true})}</section>${inspectables?`<div class="location-inspectables"><header><h3>${zone.name}에서 확인할 대상</h3><span>반복 조사는 시간을 다시 쓰지 않습니다.</span></header><div>${inspectables}</div></div>`:''}</section><aside class="location-cast"><h3>현재 머무는 사람</h3><p>초상을 고르면 객사 안에서 마주 앉아 대화합니다.</p><div class="location-person-list inn-person-list">${innGuestCards(r)}</div></aside></div></section>`;
+  return `<section class="location-scene location-inn" data-location-scene="${e.cityId}:inn"><header class="exploration-scene-heading"><div><span class="exploration-eyebrow">${CITY_DEFS[e.cityId].name} · 정보·교류 장소</span><h2>${l.name} · ${def.managerRole}</h2></div>${action('leave','도시 지도로 돌아가기')}</header><div class="location-scene-columns"><section class="location-scene-main"><nav class="location-zones" aria-label="객사 내부 구역">${zones}</nav><section class="location-event-panel">${innScreen(r,art(p.protagonistId),id=>this.encounter(r,id),()=>this.hand(r,e),{embedded:true})}</section>${inspectables?`<div class="location-inspectables"><header><h3>${zone.name}에서 확인할 대상</h3><span>반복 조사는 시간을 다시 쓰지 않습니다.</span></header><div>${inspectables}</div></div>`:''}</section></div></section>`;
  }
  private locationScene(r:RunState,e:CityExplorationState,l:ExplorationLocation){
   const def=locationSceneDefinition(e.cityId,l.id)!,sc=ensureLocationScene(e),pre=r.campaign!.world!.stage==='preparing',event=eventDefinition(r),state=e.event,people=charactersAt(r,l.id),p=r.campaign!.personnel!,q=r.campaign!.world!.raising!,zone=def.zones.find(z=>z.id===sc.zoneId)??def.zones[0],selected=sc.selectedCharacterId??people[0]??null,managerName=def.archetype==='resource'?'창고 책임자':def.managerRole;

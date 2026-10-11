@@ -38,9 +38,9 @@ test('public DOM: city exploration, physical recruitment, growth, restored same-
   click('.exploration-drawer [data-explore-tab="record"]');assert.equal(d.window.document.querySelector('.exploration-drawer'),null);
   click('[data-explore-tab="items"]');d.window.document.activeElement!.dispatchEvent(new d.window.KeyboardEvent('keydown',{key:'Escape',bubbles:true}));assert.equal(d.window.document.querySelector('.exploration-drawer'),null);assert.deepEqual(state(),beforePanels);
   assert.ok(d.window.document.querySelector('.inn-screen[data-inn-view="overview"]'));
-  assert.ok(d.window.document.querySelectorAll('.inn-person img').length>=3);
-  click('[data-explore-action="inn:select:innkeeper"]');assert.ok(d.window.document.querySelector('.inn-dialogue-person[src="/assets/inn/innkeeper-v1.webp"]'));click('[data-explore-action="inn:topic:greet"]');
-  click('[data-explore-action="inn:select:xunyu"]');assert.ok(d.window.document.querySelector('.inn-dialogue-person[src="/assets/inn/xunyu-v1.webp"]'));assert.equal(d.window.document.querySelector('[data-explore-action="officer:task:xunyu"]'),null);
+  assert.ok(d.window.document.querySelectorAll('.inn-people-strip .inn-person img').length>=1);assert.ok(d.window.document.querySelectorAll('.inn-elsewhere .btn').length>=1);
+  click('[data-explore-action="inn:area:counter"]');click('[data-explore-action="inn:select:innkeeper"]');assert.ok(d.window.document.querySelector('.inn-dialogue-person[src="/assets/inn/innkeeper-v1.webp"]'));click('[data-explore-action="inn:topic:greet"]');
+  click('[data-explore-action="inn:area:hall"]');click('[data-explore-action="inn:select:xunyu"]');assert.ok(d.window.document.querySelector('.inn-dialogue-person[src="/assets/inn/xunyu-v1.webp"]'));assert.equal(d.window.document.querySelector('[data-explore-action="officer:task:xunyu"]'),null);
   click('[data-explore-action="inn:offer:recommendation"]');assert.ok(d.window.document.querySelector('.inn-quest-offer ol'));assert.ok(d.window.document.body.textContent!.includes('보상은 귀환 보고 뒤 지급'));reload();
   click('[data-explore-action="leave"]');
   const original=state(),initial=explorationOf(original)!;assert.equal(d.window.document.querySelector('.city-exploration-marker')?.getAttribute('data-location'),initial.location);
