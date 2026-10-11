@@ -37,3 +37,12 @@ test('warehouse alternate passage requires gathered witnesses and intel, then re
  const r=fresh();act(r,'enter');act(r,'inn:offer:escort');act(r,'inn:accept:escort');r.campaign!.world!.raising!.intel=1;const initialTrust=r.campaign!.personnel!.officers.lusu.trust;visit(r,'store');for(const id of ['cart','passage','guards','workers'])act(r,'scene:inspect:'+id);act(r,'inn:quest:escort:investigate');const q=explorationOf(r)!.inn!.quests.escort;assert.equal(q.step,1);const exposure=r.campaign!.world!.preparation.exposure;act(r,'inn:quest:escort:alternate');assert.equal(q.step,2);assert.equal(r.campaign!.world!.preparation.exposure,exposure+1);assert.equal(r.campaign!.personnel!.officers.lusu.trust,initialTrust+5);assert.ok(r.campaign!.personnel!.officers.lusu.proof);visit(r,'gate');act(r,'inn:quest:escort:transport');assert.equal(q.step,3);visit(r,'inn');act(r,'inn:report:escort');assert.equal(q.status,'completed');assert.ok(innDialogue(r).includes('우회로'),`${q.conclusion} / ${innDialogue(r)}`);
 });
 function innDialogue(r:RunState){return explorationOf(r)!.inn!.dialogue;}
+
+test('inn scene zones and inn rooms share one state: zone changes move the inn room, locked rooms stay locked, picking a person moves the zone',()=>{
+ const r=fresh();act(r,'enter');const x=explorationOf(r)!,key=locationSceneKey('xingyang','inn');
+ act(r,'scene:zone:yard');assert.equal(x.inn!.area,'yard');assert.equal(x.locationScenes![key].zoneId,'yard');
+ const tick=x.tick,locked=exploreAction(r,'scene:zone:private',x.revision);assert.equal(locked.ok,false);assert.equal(x.inn!.area,'yard');assert.equal(x.tick,tick);
+ act(r,'inn:select:innkeeper');assert.equal(x.inn!.area,'counter');assert.equal(x.locationScenes![key].zoneId,'counter');
+ act(r,'inn:area:hall');assert.equal(x.locationScenes![key].zoneId,'hall');assert.equal(x.tick,tick);
+ const loaded=reload(r),y=explorationOf(loaded)!;assert.equal(y.inn!.area,'hall');assert.equal(y.locationScenes![key].zoneId,'hall');
+});

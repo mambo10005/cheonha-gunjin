@@ -28,3 +28,19 @@
 .location-contact-extra[open] summary{margin-bottom:10px}
 @container location-scene (max-width: 820px){.location-scene-columns{grid-template-columns:minmax(0,1fr)}.location-cast{border-left:0;border-top:1px solid #726347}}
 @media(max-width:600px){.location-layout>.exploration-protagonist{grid-template-columns:104px minmax(0,1fr)}.location-layout .exploration-hero-art{height:160px}.location-layout .exploration-hero-copy{padding:20px 8px 8px}.location-layout .exploration-hero-copy h2{font-size:19px}.location-layout .exploration-hero-details{padding:9px 11px;gap:1px 8px}.location-layout .exploration-hero-details h3{font-size:12px}.location-layout .exploration-hero-details p{font-size:12px;line-height:1.4}.location-layout .exploration-hero-stats{gap:8px;padding-bottom:5px}.location-layout .exploration-hero-stats span{font-size:11px}.location-layout .exploration-hero-stats b{font-size:18px}.location-layout .exploration-keycards span{font-size:10px}.location-layout .exploration-hero-details>.btn{min-width:0;min-height:34px;padding:5px 8px;font-size:11px}.location-contact-extra summary{font-size:13px}}
+
+/* 객사 공통 장면: 인물 목록은 오른쪽(좁은 화면에서는 아래) 한 곳에만 두고, 객사 실내는 장면 그림 역할을 한다. */
+.location-inn .location-event-panel{padding:0;border-top:1px solid #7e704e;background:none}
+.location-inn .location-zones+.location-event-panel{border-top:0}
+.inn-embedded .inn-header-embedded{justify-content:space-between;padding:10px 16px}
+.inn-embedded .inn-header-embedded>span{font-size:14px}
+.inn-embedded .inn-interior{height:clamp(240px,34vh,340px);min-height:240px}
+.inn-embedded .inn-interior.conversation{height:clamp(420px,56vh,560px);min-height:420px}
+.inn-person-list .inn-person{position:relative;left:auto;top:auto;transform:none;width:auto;min-width:0;margin:0;padding:8px 8px 10px;text-align:center;background:#1b2923;border-color:#596b57;box-shadow:none}
+.inn-person-list .inn-person:hover,.inn-person-list .inn-person:focus-visible{transform:none;border-color:#e5cb86}
+.inn-person-list .inn-person.selected{border-color:#e5cb86;background:#37432f;box-shadow:0 0 0 2px #ddc27b44}
+.inn-person-list .inn-person>img{height:96px;object-fit:cover;object-position:50% 16%}
+.inn-person-list .inn-person>strong{font-size:18px}
+.inn-person-list .inn-person>em{max-height:none;font-size:12px;line-height:1.45}
+@media(max-width:850px){.inn-person-list{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}}
+@media(max-width:520px){.inn-person-list{grid-template-columns:repeat(2,minmax(0,1fr))}.inn-person-list .inn-person>img{height:84px}.inn-embedded .inn-header-embedded{flex-wrap:wrap;gap:8px}}
