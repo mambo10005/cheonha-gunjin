@@ -2,6 +2,7 @@ import {connectIntentArrows} from './battle-arrows.ts';
 import {WorldScreen} from './world-screen.ts';
 import {newWorldCampaign,bindCampaign,reconcileWorld,retreatWorld,marchWorld} from '../core/world.ts';
 import {loadCampaign,importLegacyCampaign} from '../core/campaign-save.ts';
+import {explorationOf,exploreAction} from '../core/city-exploration.ts';
 import {CityScreen} from './city-screen.ts';
 import {newCityCampaign,campaignBattleOutcome} from '../core/city.ts';
 import {CITY_DEFS} from '../data/cities.ts';
@@ -171,6 +172,20 @@ function cardHtml(d: CardDef, opts: { action?: string; idx?: number; cost?: numb
     <span class="tags">${tags}</span>
     ${opts.quantity !== undefined ? `<span class="card-quantity">보유 <b>${opts.quantity}장</b></span>` : ''}
   </${tag}>`;
+}
+
+/** 도시 탐색 중 공동 호위 전투 머리말. 원정 진군·포기 대신 의뢰 맥락과 전투 병력만 보여 준다(포기는 원정 전체를 끝내므로 숨긴다). */
+function escortHud(run: RunState, b: BattleState): string {
+  const lord = run.campaign?.world ? run.campaign.world.factionName : LORDS[run.lordId].name;
+  return `<div class="campaign-route-label">공동 호위 · 수레가 지나갈 길 · 성문 앞 매복. 전위가 전열에서 수레를 지킵니다. 패배해도 의뢰는 계속되지만 병력 1과 수레 대부분을 잃습니다.</div><div class="hud panel">
+    <span class="lord">${esc(lord)}</span>
+    <span class="stat"><span class="muted small">호위 병력</span><b>${b.hp}</b><span class="muted">/ ${b.maxHp}</span></span>
+    <span class="hpbar"><i style="width:${Math.max(0, (b.hp / b.maxHp) * 100)}%"></i></span>
+    <span class="stat"><span class="muted small">군량</span><b>${b.food}</b></span>
+    <span class="grow"></span>
+    <button class="btn small" data-a="modal" data-m="deck">덱 ${run.deck.length}</button>
+    <button class="btn small ghost" data-a="modal" data-m="help">규칙</button>
+  </div>`;
 }
 
 function hud(run: RunState, b: BattleState | null): string {
@@ -479,14 +494,16 @@ function render(): void {
   else if (ui.view === 'lords') html = lordsView();
   else if (ui.run) {
     const run = ui.run;
-    const world=worldScreen.view(run);
-    const city=world===null?cityScreen.view(run):null;
+    // 도시 탐색 중 공동 호위 전투는 도시·전도 화면 대신 기존 군진 전투 화면으로 그린다.
+    const escortFight=run.screen==='battle'&&!!run.battle&&explorationOf(run)?.inn?.activity?.kind==='battle';
+    const world=escortFight?null:worldScreen.view(run);
+    const city=world===null&&!escortFight?cityScreen.view(run):null;
     if(world!==null)html=world;
     else if(city!==null)html=(run.campaign?.world?'<button class="btn world-back" data-world="map">전도로 돌아가기</button>':'')+city;
     else if (run.screen === 'victory' || run.screen === 'defeat') html = endView(run);
     else {
-      html = hud(run, run.battle);
-      if(run.campaign)html=`<div class="campaign-route-label">${run.campaign.world?esc(run.campaign.world.factionName)+" · "+run.campaign.world.turn+"턴":"구 도시 캠페인"} · 정벌 목표 ${CITY_DEFS[run.campaign.target].name} · 점령 ${run.campaign.captured.length}/3 · 성외 활동 후 성문에서 접근·정벌 방식을 결정합니다.</div>`+html;
+      html = escortFight ? escortHud(run, run.battle!) : hud(run, run.battle);
+      if(run.campaign&&!escortFight)html=`<div class="campaign-route-label">${run.campaign.world?esc(run.campaign.world.factionName)+" · "+run.campaign.world.turn+"턴":"구 도시 캠페인"} · 정벌 목표 ${CITY_DEFS[run.campaign.target].name} · 점령 ${run.campaign.captured.length}/3 · 성외 활동 후 성문에서 접근·정벌 방식을 결정합니다.</div>`+html;
       if (run.screen === 'map') html += mapView(run);
       else if (run.screen === 'battle' && run.battle) html += battleView(run, run.battle);
       else html += nodeView(run);
@@ -664,6 +681,7 @@ app.addEventListener('click', (ev) => {
       ui.modal = null;
       break;
     case 'abandon':
+      if (ui.run && explorationOf(ui.run)?.inn?.activity?.kind === 'battle') { ui.modal = null; toast('공동 호위 전투 중에는 원정을 포기할 수 없습니다. 전투를 끝내면 도시로 돌아갑니다.'); return; }
       if (ui.run) {
         ui.run.screen = 'defeat';
         ui.run.defeatReason = ['원정을 스스로 포기했다.'];
@@ -715,7 +733,7 @@ app.addEventListener('click', (ev) => {
       return;
     case 'finish-battle':
       ui.selected = null;
-      runAct((r) => finishBattle(r));
+      runAct((r) => { const x = explorationOf(r); return x?.inn?.activity?.kind === 'battle' ? exploreAction(r, 'finish-escort-battle', x.revision) : finishBattle(r); });
       return;
     case 'reward-card':
       runAct((r) => (r.pending.kind === 'reward' ? pickRewardCard(r, r.pending.cards[i]) : undefined));

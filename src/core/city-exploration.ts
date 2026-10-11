@@ -9,7 +9,7 @@ import {prologueAction} from './prologue.ts';
 import {createDebate,resolveDebateAction} from './debate.ts';
 import {createDuel,resolveDuelAction} from './duel.ts';
 import {prepareNegotiation} from './negotiation.ts';
-import {ensureInn,innPatrons,innEntered,handleInnAction,finishInnSocial,syncInn,type InnHooks} from './inn.ts';
+import {ensureInn,innPatrons,innEntered,handleInnAction,finishInnSocial,finishInnBattle,syncInn,type InnHooks} from './inn.ts';
 import {ensureLocationScene,scenePhase} from './location-scene.ts';
 import {locationSceneDefinition} from '../data/location-scenes.ts';
 import {startDeckDebate,ensureRepresentative} from './debate-deck.ts';
@@ -75,6 +75,8 @@ function social(r:RunState,a:ExplorationApproach){const x=explorationOf(r)!,q=ra
 function innHooks(r:RunState):InnHooks {const x=explorationOf(r)!;return {advance:n=>advance(r,n),emit:(type,text)=>emit(x,type,text),effects:(e,source)=>effects(r,e,source),card:uid=>exploreAction(r,'card:'+uid,x.revision),social:(id,kind)=>{x.event=stateEvent(r,id);social(r,EXPLORATION_EVENTS[id].stages[0].approaches.find(a=>a.kind===kind)!);}};}
 export function exploreAction(r:RunState,action:string,revision:number):Result {
  const x=explorationOf(r),q=raisingOf(r),p=personnelOf(r),w=r.campaign?.world;if(!x||!q||!p||!w||x.revision!==revision)return no('현재 도시 입력 차례를 확인하세요.');if(x.event)x.event=x.events[x.event.id];const [kind,id,arg,extra]=action.split(':');if(!x.converted&&!['map','node'].includes(q.phase)&&!['camera','select','skip','resume'].includes(kind)&&!(kind==='officer'&&['elect','refine','doctrine','equip','growth','joint'].includes(id)))return no('최종 거병 계획과 관문을 먼저 진행하세요.');
+ if(x.inn?.activity?.kind==='battle'){/* 공동 호위 전투 중에는 전투 종료만 받는다 */if(kind!=='finish-escort-battle')return no('성문 앞 공동 호위 전투를 먼저 끝내세요.');const result=finishInnBattle(r,innHooks(r));if(result.ok){deliverPending(x);x.revision++;}return result;}
+ if(kind==='finish-escort-battle')return no('진행 중인 공동 호위 전투가 없습니다.');
  if(kind==='inn'){const sub=action.slice(4),[innKind,innId]=sub.split(':'),result=handleInnAction(r,sub,innHooks(r));if(result.ok){if(x.location==='inn'){const sc=ensureLocationScene(x);if(innKind==='area'){sc.zoneId=innId;sc.phase='zoneSelected';}if(innKind==='select'){sc.selectedCharacterId=innId==='innkeeper'?'manager':innId;sc.phase='conversation';if(x.inn)sc.zoneId=x.inn.area;}}deliverPending(x);x.revision++;}return result;}
  if(kind==='scene'){
   if(x.scene!=='location')return no('현재 장소 장면에서만 구역·인물·사물을 선택할 수 있습니다.');

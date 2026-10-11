@@ -3,6 +3,8 @@ import type {RunState} from './types.ts';
 import type {Result} from './run.ts';
 import type {InnState,InnQuestState,InnArea} from './inn-types.ts';
 import {ensureLocationScene} from './location-scene.ts';
+import {createBattle} from './combat.ts';
+import type {BattleState} from './types.ts';
 import type {ExplorationEffect,ExplorationSemanticType} from './city-exploration-types.ts';
 const ok:Result={ok:true},no=(reason:string):Result=>({ok:false,reason});
 const xof=(r:RunState)=>r.campaign!.cities[r.campaign!.active??r.campaign!.world!.startCity]!.exploration!;
@@ -90,6 +92,14 @@ export function handleInnAction(r:RunState,command:string,h:InnHooks):Result {
     const c=afford(r,2);if(!c.ok)return c;pay(r,h,2);quest.conclusion='짐꾼과 노숙이 찾은 좁은 우회로';quest.evidence.push('alternate-route');quest.result='partial';const lusu=r.campaign!.personnel!.officers.lusu;if(lusu){lusu.trust=Math.min(100,lusu.trust+5);lusu.proof=true;lusu.events.push(d.title+' · 짐꾼 증언으로 대체 통로 확보');r.campaign!.personnel!.revision++;h.emit('relationshipChanged','노숙 · 우회로 공동 조사 · 신뢰 +5·협력 실적');}h.effects({exposure:1},d.title+' · 비공개 우회로');ensureLocationScene(x).usedInteractions.push('escort:alternate');ensureLocationScene(x).phase='resolution';advanceQuest(quest,h,arg);return ok;
    }
   }
+  if(id==='escort'&&quest.step===2&&arg==='joint-escort'){
+   // 공동 호위: 전위가 전열에 서고 주인공이 후열에서 지휘하는 실제 카드 전투. 승패 모두 호송 단계를 끝내며 결과만 달라진다.
+   const secured=quest.evidence.some(v=>['verified','contract:3','contract:1','contract:4','alternate-route','legacy-approved'].includes(v));if(!secured)return no('통행 허가나 합의가 먼저 필요합니다.');
+   if(r.battle)return no('이미 진행 중인 전투가 있습니다.');
+   const c=afford(r,1);if(!c.ok)return c;pay(r,h,1);r.battle=createEscortBattle(r,quest);r.screen='battle';
+   s.activity={event:'escort_ambush',quest:id,resume:null,kind:'battle'};quest.evidence.push('ambush');ensureLocationScene(x).phase='resolution';
+   h.emit('questStepAdvanced',d.title+' · 성문 앞 좁은 길에서 산적이 수레를 노립니다. 전위가 전열에 섭니다.');return ok;
+  }
   if(id==='escort'&&quest.step===2&&arg==='transport'){
    const secured=quest.evidence.some(v=>['verified','contract:3','contract:1','contract:4','alternate-route','legacy-approved'].includes(v));if(!secured)return no('통행 허가나 합의가 먼저 필요합니다.');
    const c=afford(r,1);if(!c.ok)return c;pay(r,h,1);quest.evidence.push('cart-delivered');quest.result=quest.evidence.includes('verified')?'complete':'partial';quest.conclusion+=' · 성문까지 수레와 군량 실제 호송';ensureLocationScene(x).usedInteractions.push('escort:transport');ensureLocationScene(x).phase='report';
@@ -133,7 +143,39 @@ function report(r:RunState,id:string,h:InnHooks):Result {
  const p=r.campaign!.personnel!,o=p.officers[d.giver];if(o){o.task=true;o.information=Math.max(3,o.information);o.trust=Math.min(100,o.trust+15);o.xp=Math.min(99,o.xp+1);o.proof=true;o.events.push(d.title+' · '+q.result+' · 객사 보고');p.revision++;}
  if(d.plan)h.effects({plan:d.plan,intel:id==='recommendation'?1:0,legitimacy:1,promise:id==='recommendation'?'authority':undefined,training:id==='escort'?1:0},d.title+' 보고');
  if(id==='lostletter'){s.privateAccess=true;h.effects({item:'letter'},d.title+' 보고');}if(id==='cache')h.effects({item:'map',intel:1},d.title+' 보고');if(id==='accounts')h.effects({group:'traders',groupChange:1},d.title+' 보고');
- x.locations.inn.secured=true;x.growth.xp=Math.min(12,x.growth.xp+1);if(x.growth.xp>=2&&!x.growth.branch&&!x.growth.offered){x.growth.offered=true;h.emit('protagonistGrowthOffered','의뢰 보고의 경험이 주인공 성장으로 이어졌습니다.');}r.campaign!.world!.raising!.step=Math.min(5,r.campaign!.world!.raising!.step+1);s.view={kind:'conversation',person:d.giver,topic:'reported'};s.dialogue=id==='escort'?(q.conclusion.includes('무장 대결')?'전위는 실력을 보인 선택을 인정합니다. 호위 대표와 통행권을 다퉜고, 수레를 성문까지 옮긴 기록을 남겼습니다.':q.conclusion.includes('보증 호위 계약')?'전위는 장부로 수량을 맞추고 사고 책임까지 호위 측에 지운 보증 계약을 높이 평가합니다. 비용은 컸지만 빚이나 군량 약속은 남지 않았습니다.':q.conclusion.includes('책임 분담 호위 계약')?'전위는 적은 보수로 호위를 구한 점을 인정하면서도, 사고 책임을 우리가 떠안아 직접 수레를 지킨 수고를 기억합니다.':q.conclusion.includes('유료 호위 계약')?'전위는 안전한 유료 호위 계약을 인정하지만, 한 차례 호위 비용과 군량 약속도 함께 기억합니다.':q.conclusion.includes('우회로')?'전위는 짐꾼과 노숙이 찾은 우회로로 주민 부담을 줄인 점을 높이 평가합니다. 협력 실적과 노출 위험도 기록합니다.':'전위는 창고와 호위 대표가 합의한 책임 범위를 확인합니다.'):q.result==='partial'?'모든 사실을 단정하지 않고 조건을 남긴 보고를 받았습니다. 그 책임도 함께 기억하겠습니다.':'사람과 기록을 함께 확인한 보고를 받았습니다. 이제 협력의 뜻을 논의할 수 있겠습니다.';h.emit('questReported',d.title+' · '+q.result+' · 보고 보상은 한 번만 지급');h.emit('innkeeperRelationChanged','한복이 보고의 신뢰와 객사 평판 변화를 기록했습니다.');return ok;
+ x.locations.inn.secured=true;x.growth.xp=Math.min(12,x.growth.xp+1);if(x.growth.xp>=2&&!x.growth.branch&&!x.growth.offered){x.growth.offered=true;h.emit('protagonistGrowthOffered','의뢰 보고의 경험이 주인공 성장으로 이어졌습니다.');}r.campaign!.world!.raising!.step=Math.min(5,r.campaign!.world!.raising!.step+1);s.view={kind:'conversation',person:d.giver,topic:'reported'};s.dialogue=id==='escort'?(q.conclusion.includes('무장 대결')?'전위는 실력을 보인 선택을 인정합니다. 호위 대표와 통행권을 다퉜고, 수레를 성문까지 옮긴 기록을 남겼습니다.':q.conclusion.includes('매복을 물리치고')?'전위는 성문 앞 매복에서 함께 전열을 지킨 일을 무엇보다 높이 평가합니다. 이런 호위라면 다시 맡기겠다고 합니다.':q.conclusion.includes('매복에 밀려')?'전위는 매복에 밀려 수레 일부를 잃은 사실을 숨기지 않고 보고한 점을 인정합니다. 다음에는 더 단단히 대비하자고 합니다.':q.conclusion.includes('보증 호위 계약')?'전위는 장부로 수량을 맞추고 사고 책임까지 호위 측에 지운 보증 계약을 높이 평가합니다. 비용은 컸지만 빚이나 군량 약속은 남지 않았습니다.':q.conclusion.includes('책임 분담 호위 계약')?'전위는 적은 보수로 호위를 구한 점을 인정하면서도, 사고 책임을 우리가 떠안아 직접 수레를 지킨 수고를 기억합니다.':q.conclusion.includes('유료 호위 계약')?'전위는 안전한 유료 호위 계약을 인정하지만, 한 차례 호위 비용과 군량 약속도 함께 기억합니다.':q.conclusion.includes('우회로')?'전위는 짐꾼과 노숙이 찾은 우회로로 주민 부담을 줄인 점을 높이 평가합니다. 협력 실적과 노출 위험도 기록합니다.':'전위는 창고와 호위 대표가 합의한 책임 범위를 확인합니다.'):q.result==='partial'?'모든 사실을 단정하지 않고 조건을 남긴 보고를 받았습니다. 그 책임도 함께 기억하겠습니다.':'사람과 기록을 함께 확인한 보고를 받았습니다. 이제 협력의 뜻을 논의할 수 있겠습니다.';h.emit('questReported',d.title+' · '+q.result+' · 보고 보상은 한 번만 지급');h.emit('innkeeperRelationChanged','한복이 보고의 신뢰와 객사 평판 변화를 기록했습니다.');return ok;
+}
+/** 공동 호위 전투의 병력·지휘·시작 효과. 해결 방식이 전투 출발 조건으로 이어진다. */
+export function escortBattleSetup(r:RunState,q:InnQuestState){
+ const prep=r.campaign!.world!.preparation,hp=10+Math.max(0,prep.troops)*3;
+ const block=q.evidence.includes('contract:4')?6:q.evidence.includes('contract:3')?3:0,damage=q.evidence.includes('verified')?3:0;
+ // 표본(자동 정책 300회): 기본 산적 셋 승률 약 67%, 단기 계약 방비 3이면 약 85%, 보증 계약 방비 6이면 약 93%. 우회로는 습격대가 흩어져 궁병이 섞인다.
+ const enemies=q.evidence.includes('alternate-route')?['bandit','archer','bandit']:['bandit','bandit','bandit'];
+ return {hp,block,damage,enemies};
+}
+function createEscortBattle(r:RunState,q:InnQuestState):BattleState{
+ const x=xof(r),setup=escortBattleSetup(r,q),seed=((x.tick+1)*7919+(x.revision+1)*104729+q.acceptedAt*31)%2147483646+1;
+ const generals=[{id:'dianwei',row:'front' as const},...r.generals.filter(g=>g.id!=='dianwei').slice(0,1).map(g=>({id:g.id,row:'rear' as const}))];
+ return createBattle({build:r.build,rng:seed,hp:setup.hp,maxHp:setup.hp,food:Math.max(0,r.campaign!.world!.preparation.food),deck:r.deck,generals,relics:r.relics,lordId:r.lordId,terrain:'plains',encounterId:'e_bandit',enemies:setup.enemies,difficulty:0,allyBlessing:false,opening:{block:setup.block,damage:setup.damage,energyPenalty:0}});
+}
+/** 공동 호위 전투를 끝내고 의뢰·준비 자원에 결과를 반영한다. 같은 전투 보상은 한 번만 적용된다. */
+export function finishInnBattle(r:RunState,h:InnHooks):Result {
+ const x=xof(r),s=x.inn,a=s?.activity,b=r.battle;if(!s||!a||a.kind!=='battle')return no('진행 중인 공동 호위 전투가 없습니다.');
+ const quest=s.quests.escort,d=INN_QUESTS.escort,prep=r.campaign!.world!.preparation;
+ if(b&&b.result==='ongoing')return no('전투가 아직 끝나지 않았습니다.');
+ const won=b?.result==='win';prep.food=Math.max(0,b?b.food:prep.food);
+ r.battle=null;r.screen='map';s.activity=null;quest.evidence=quest.evidence.filter(v=>v!=='ambush');x.locations.store.secured=true;x.locations.gate.secured=true;
+ const o=r.campaign!.personnel!.officers.dianwei;
+ if(won){
+  quest.evidence.push('joint-escort','cart-delivered');quest.result=quest.result==='failure'?'partial':quest.result==='complete'||quest.evidence.includes('verified')||quest.evidence.includes('contract:4')?'complete':'partial';
+  quest.conclusion+=' · 전위와 함께 매복을 물리치고 수레 호송';if(o){o.trust=Math.min(100,o.trust+5);o.events.push(d.title+' · 공동 호위 전투 승리');r.campaign!.personnel!.revision++;h.emit('relationshipChanged','전위 · 함께 수레를 지킴 · 신뢰 +5');}
+  h.effects({food:3,training:1},d.title+' · 공동 호위 승리 · 성문 도착 및 하역');
+ }else{
+  quest.evidence.push('ambush-lost','cart-delivered');quest.result='partial';quest.conclusion+=' · 매복에 밀려 수레 일부만 성문에 도착';
+  prep.troops=Math.max(0,prep.troops-1);x.fatigue=Math.min(8,x.fatigue+2);
+  h.effects({food:1,exposure:1},d.title+' · 공동 호위 패배 · 남은 수레만 하역');h.emit('questStepAdvanced','패배해도 의뢰는 끝나지 않습니다. 병력 1을 잃었고 남은 수레만 성문에 도착했습니다.');
+ }
+ ensureLocationScene(x).usedInteractions.push('escort:joint-escort');ensureLocationScene(x).phase='report';advanceQuest(quest,h,won?'joint-escort-win':'joint-escort-loss');return ok;
 }
 export function finishInnSocial(r:RunState,h:InnHooks):boolean {
  const x=xof(r),s=x.inn,a=s?.activity,current=x.scene==='debate'?x.debate:x.duel;if(!s||!a||!current||current.result==='ongoing')return false;ensureLocationScene(x).phase='resolution';

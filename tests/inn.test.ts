@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {newWorldCampaign} from '../src/core/world.ts';
 import {startCityExploration} from '../src/core/city-exploration-start.ts';
 import {explorationOf,exploreAction,applyExplorationFounding} from '../src/core/city-exploration.ts';
-import {innOf,innPatrons} from '../src/core/inn.ts';
+import {innOf,innPatrons,escortBattleSetup} from '../src/core/inn.ts';
 import {INN_QUESTS} from '../src/data/inn.ts';
 import {validCityExploration} from '../src/core/city-exploration-validation.ts';
 import {saveCampaign,loadCampaign} from '../src/core/campaign-save.ts';
@@ -52,4 +52,33 @@ test('escort contract terms: the bonded round trip needs the ledger checked firs
  assert.equal(w.diplomacy.obligation,obligation,'bonded contract adds no debt');assert.deepEqual(w.raising!.pledges,pledges,'bonded contract adds no ration promise');
  r=innReload(r);innVisit(r,'gate');const food=r.campaign!.world!.preparation.food;innAct(r,'inn:quest:escort:transport');assert.equal(r.campaign!.world!.preparation.food,food+3);assert.equal(innOf(r)!.quests.escort.result,'complete');
  innVisit(r,'inn');innAct(r,'inn:quest:escort:report');assert.ok(innOf(r)!.dialogue.includes('보증 계약'));
+});
+
+import {botTurn} from '../src/sim/autoplay.ts';
+import {endTurn} from '../src/core/combat.ts';
+const escortAtGate=(term:string)=>{const r=escortAtNegotiation();if(term==='contract-bond')innAct(r,'scene:inspect:ledger');innAct(r,'inn:quest:escort:'+term);innVisit(r,'gate');assert.equal(innOf(r)!.quests.escort.step,2);return r;};
+test('joint escort is a real card battle with 전위 in the front row; the city waits, the battle survives reload, and a win delivers the cart',()=>{
+ let r=escortAtGate('contract-bond');const x=explorationOf(r)!,tick=x.tick;
+ innAct(r,'inn:quest:escort:joint-escort');assert.ok(r.battle);assert.equal(r.screen,'battle');assert.equal(explorationOf(r)!.tick,tick+1);
+ const b=r.battle!;assert.deepEqual(b.generals.find(g=>g.id==='dianwei')?.row,'front');assert.equal(b.enemies.length,3);assert.equal(b.block.front,6,'보증 계약 호위 인원이 전열 방비 6으로 시작');assert.equal(b.maxHp,10+r.campaign!.world!.preparation.troops*3);
+ const blocked=exploreAction(r,'leave',explorationOf(r)!.revision);assert.equal(blocked.ok,false);assert.equal(exploreAction(r,'finish-escort-battle',explorationOf(r)!.revision).ok,false,'cannot finish an ongoing battle');
+ r=innReload(r);assert.ok(r.battle);assert.equal(innOf(r)!.activity?.kind,'battle');
+ for(let i=0;i<40&&r.battle!.result==='ongoing';i++)botTurn(r.battle!);assert.equal(r.battle!.result,'win');
+ const food=r.campaign!.world!.preparation.food+0,trust=r.campaign!.personnel!.officers.dianwei?.trust;const battleFood=r.battle!.food;
+ innAct(r,'finish-escort-battle');const q=innOf(r)!.quests.escort;assert.equal(r.battle,null);assert.equal(r.screen,'map');assert.equal(innOf(r)!.activity,null);assert.equal(q.step,3);assert.ok(q.evidence.includes('joint-escort'));assert.ok(!q.evidence.includes('ambush'));
+ assert.equal(r.campaign!.world!.preparation.food,battleFood+3);assert.ok(food>=0);if(trust!==undefined)assert.equal(r.campaign!.personnel!.officers.dianwei.trust,Math.min(100,trust+5));
+ assert.equal(exploreAction(r,'finish-escort-battle',explorationOf(r)!.revision).ok,false,'reward applies once');
+ innVisit(r,'inn');innAct(r,'inn:quest:escort:report');assert.ok(innOf(r)!.dialogue.includes('매복'));
+});
+test('joint escort defeat still advances the request but costs troops, fatigue and most of the cargo',()=>{
+ const r=escortAtGate('contract-shared');innAct(r,'inn:quest:escort:joint-escort');const b=r.battle!;assert.equal(b.block.front,0,'책임 분담 계약은 호위 인원 지원이 없다');
+ const troops=r.campaign!.world!.preparation.troops,fatigue=explorationOf(r)!.fatigue;
+ for(let i=0;i<60&&b.result==='ongoing';i++)endTurn(b);assert.equal(b.result,'lose');const food=b.food;
+ innAct(r,'finish-escort-battle');const q=innOf(r)!.quests.escort;assert.equal(q.step,3);assert.equal(q.result,'partial');assert.ok(q.evidence.includes('ambush-lost'));
+ assert.equal(r.campaign!.world!.preparation.troops,Math.max(0,troops-1));assert.equal(explorationOf(r)!.fatigue,Math.min(8,fatigue+2));assert.equal(r.campaign!.world!.preparation.food,food+1);
+});
+test('joint escort setup follows how the road was secured: alternate route meets a scattered raiding party, verified agreements strike first',()=>{
+ const q={evidence:['alternate-route']} as unknown as Parameters<typeof escortBattleSetup>[1],r=innFresh();
+ assert.deepEqual(escortBattleSetup(r,q).enemies,['bandit','archer','bandit']);assert.deepEqual(escortBattleSetup(r,{evidence:['contract:1']} as never).enemies,['bandit','bandit','bandit']);
+ assert.equal(escortBattleSetup(r,{evidence:['verified']} as never).damage,3);assert.equal(escortBattleSetup(r,{evidence:['contract:4']} as never).block,6);
 });

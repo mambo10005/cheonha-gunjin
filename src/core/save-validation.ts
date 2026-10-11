@@ -81,6 +81,11 @@ function pending(x: unknown, depth = 0): boolean {
     default: return false;
   }
 }
+/** 도시 탐색 중 공동 호위 전투는 원정 지도 칸이 없는 상태(floor -1)에서 진행된다. 객사 의뢰 기록이 그 전투를 가리킬 때만 허용한다. */
+function explorationEscortBattle(d: Obj): boolean {
+  const c = d.campaign as Obj | undefined; if (!obj(c) || !obj(c.cities)) return false;
+  return Object.values(c.cities as Obj).some(city => obj(city) && obj(city.exploration) && obj((city.exploration as Obj).inn) && obj(((city.exploration as Obj).inn as Obj).activity) && (((city.exploration as Obj).inn as Obj).activity as Obj).kind === 'battle');
+}
 function battle(b: unknown): boolean {
   if (b === null) return true;
   if (obj(b) && b.build !== undefined && !runtime(b.build)) return false;
@@ -111,7 +116,7 @@ export function validateAndMigrateRun(data: unknown, version: number): RunState 
     if (!Array.isArray(d.mapTrail) || d.mapTrail.length > 8 || !d.mapTrail.every((p,i,trail) => obj(p) && integer(p.floor,0,d.floor as number) && integer(p.col,0,2) && !!(d.map as Obj[][])[p.floor as number]?.[p.col as number] && (i===0 || obj(trail[i-1]) && p.floor === (trail[i-1].floor as number)+1 && ((d.map as Obj[][])[trail[i-1].floor as number][trail[i-1].col as number].next as number[]).includes(p.col as number)))) return null;
     const last=d.mapTrail.at(-1); if (last && (!obj(last) || last.floor!==d.floor || last.col!==d.col)) return null;
   }
-  if (!enumOf(d.screen, ['map', 'node', 'battle', 'victory', 'defeat']) || (d.screen === 'battle') !== (d.battle !== null) || d.screen === 'battle' && d.floor < 0 || d.screen !== 'node' && (d.pending as Obj).kind !== 'none' && version !== 1) return null;
+  if (!enumOf(d.screen, ['map', 'node', 'battle', 'victory', 'defeat']) || (d.screen === 'battle') !== (d.battle !== null) || d.screen === 'battle' && d.floor < 0 && !explorationEscortBattle(d) || d.screen !== 'node' && (d.pending as Obj).kind !== 'none' && version !== 1) return null;
   if ((d.pending as Obj).kind === 'duel' || (d.pending as Obj).kind === 'debate') {
     const state = (d.pending as Obj).state as Obj;
     if (!(d.generals as Obj[]).some(g => g.id === state.generalId) || d.screen !== 'node') return null;
