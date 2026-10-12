@@ -4,7 +4,7 @@
  */
 export type CardFamily='cause'|'intel'|'network'|'military'|'supply'|'scheme';
 export type CardAction='investigate'|'persuade'|'prepare'|'mobilize'|'trade'|'resolve';
-export type Mark='clue'|'ledger'|'support'|'inside'|'alert'|'supply'|'momentum'|'promise'|'burden'|'opinion';
+export type Mark='clue'|'ledger'|'support'|'inside'|'alert'|'supply'|'momentum'|'promise'|'burden'|'opinion'|'guard';
 export type MarkBag=Partial<Record<Mark,number>>;
 export type ActivityKind='explore'|'debate'|'duel'|'battle'|'admin';
 export interface CardGain {force?:number;marks?:MarkBag;draw?:number;power?:number}
@@ -35,6 +35,14 @@ export interface EngineState {
  principles:Record<string,'base'|'alt'>;growth:Record<string,'add'|'upgrade'|'replace'|'principle'>;
  legacy:{id:string;kind:'policy'|'obligation'|'gate';text:string}[];
  reward:EngineReward|null;rewardsTaken:string[];rests:number[];
+ pact:null|{talent:string;open:boolean;cards:string[];stratagems:string[];swaps:{removed:string;added:string}[];stratagem:string|null};
+ telemetry:EngineTelemetry;
  stats:{chains:Record<string,number>;consumed:Record<string,number>;produced:Record<string,number>;distinctOwners:string[];burdenUses:number;forceDealt:number;cardsRemoved:number;cardsUpgraded:number;skips:number};
  log:string[];
+}
+/** 사람 플레이 전 로컬 계측. 외부 전송 없이 저장 기록과 디버그 리포트에만 남는다. */
+export interface EngineTelemetry {
+ plays:Record<string,number>;events:Record<string,number>;stratagems:Record<string,number>;firstPlays:string[];
+ rewards:{taken:string[];declined:number};swaps:string[];sequences:{kind:'debate'|'duel'|'battle';context:string;actions:string[];result:string}[];
+ withdrawals:number;cancels:number;afterFailure:string[];results:string[];
 }

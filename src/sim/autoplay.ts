@@ -63,7 +63,7 @@ function candidates(b: BattleState): { idx: number; target: PlayTarget }[] {
   return out.filter((c) => canPlay(b, c.idx, c.target).ok);
 }
 
-export function botTurn(b: BattleState): void {
+export function botTurn(b: BattleState, played?: string[]): void {
   for (let guard = 0; guard < 30 && b.result === 'ongoing'; guard++) {
     const base = evalState(b);
     let best: { idx: number; target: PlayTarget; score: number } | null = null;
@@ -74,6 +74,7 @@ export function botTurn(b: BattleState): void {
       if (!best || score > best.score) best = { ...c, score };
     }
     if (!best || best.score <= 0.1) break;
+    played?.push(b.hand[best.idx].id + (best.target.enemy !== undefined ? `→적${best.target.enemy}` : best.target.row ? `→${best.target.row}` : ''));
     playCard(b, best.idx, best.target);
   }
   if (b.result === 'ongoing') endTurn(b);

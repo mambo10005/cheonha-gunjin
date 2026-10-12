@@ -1,0 +1,137 @@
+{
+ "start": {
+  "hp": 16,
+  "energy": 4,
+  "block": {
+   "front": 0,
+   "rear": 0
+  },
+  "hand": [
+   "unrest",
+   "spear",
+   "spear",
+   "spear",
+   "spear"
+  ],
+  "draw": [
+   "requisition",
+   "formation",
+   "formation",
+   "order",
+   "formation",
+   "unrest",
+   "readied",
+   "feint"
+  ],
+  "enemies": [
+   {
+    "id": "bandit",
+    "hp": 15,
+    "intent": {
+     "kind": "attack",
+     "row": "rear",
+     "dmg": 5,
+     "hits": 1
+    }
+   },
+   {
+    "id": "bandit",
+    "hp": 15,
+    "intent": {
+     "kind": "attack",
+     "row": "rear",
+     "dmg": 5,
+     "hits": 1
+    }
+   },
+   {
+    "id": "bandit",
+    "hp": 15,
+    "intent": {
+     "kind": "attack",
+     "row": "rear",
+     "dmg": 5,
+     "hits": 1
+    }
+   }
+  ]
+ },
+ "exactGreedy": {
+  "result": "lose",
+  "hp": 0,
+  "turns": [
+   {
+    "turn": 1,
+    "hpStart": 16,
+    "hand": [
+     "unrest",
+     "spear",
+     "spear",
+     "spear",
+     "spear"
+    ],
+    "plays": [
+     "spear→적1",
+     "spear→적1",
+     "spear→적1",
+     "spear→적2"
+    ],
+    "blockAfter": {
+     "front": 0,
+     "rear": 0
+    },
+    "incoming": 15,
+    "taken": 10,
+    "enemyHp": [
+     0,
+     9,
+     15
+    ],
+    "deadCards": 1
+   },
+   {
+    "turn": 2,
+    "hpStart": 6,
+    "hand": [
+     "feint",
+     "readied",
+     "unrest",
+     "formation",
+     "order"
+    ],
+    "plays": [
+     "readied",
+     "formation→front"
+    ],
+    "blockAfter": {
+     "front": 0,
+     "rear": 0
+    },
+    "incoming": 16,
+    "taken": 6,
+    "enemyHp": [
+     0,
+     2,
+     15
+    ],
+    "deadCards": 1
+   }
+  ],
+  "dealt": 40
+ },
+ "sameSeed": {
+  "deep": "win",
+  "focus": "lose",
+  "blockFirst": "lose"
+ },
+ "winRates": {
+  "greedy": 0.08333333333333333,
+  "deep": 0.55,
+  "focus": 0.05,
+  "blockFirst": 0.08333333333333333,
+  "greedyNoUnrest": 0.4166666666666667,
+  "greedyContractBlock3": 0.4166666666666667,
+  "greedyHpPlus6": 0.6166666666666667,
+  "greedyPlusFormation": 0.21666666666666667
+ }
+}

@@ -1,0 +1,136 @@
+{
+ "start": {
+  "hp": 22,
+  "energy": 4,
+  "block": {
+   "front": 0,
+   "rear": 0
+  },
+  "hand": [
+   "formation",
+   "readied",
+   "order",
+   "feint",
+   "spear"
+  ],
+  "draw": [
+   "formation",
+   "spear",
+   "spear",
+   "unrest",
+   "spear",
+   "unrest",
+   "formation",
+   "formation"
+  ],
+  "enemies": [
+   {
+    "id": "bandit",
+    "hp": 15,
+    "intent": {
+     "kind": "attack",
+     "row": "rear",
+     "dmg": 5,
+     "hits": 1
+    }
+   },
+   {
+    "id": "bandit",
+    "hp": 15,
+    "intent": {
+     "kind": "attack",
+     "row": "rear",
+     "dmg": 5,
+     "hits": 1
+    }
+   },
+   {
+    "id": "bandit",
+    "hp": 15,
+    "intent": {
+     "kind": "attack",
+     "row": "rear",
+     "dmg": 5,
+     "hits": 1
+    }
+   }
+  ]
+ },
+ "exactGreedy": {
+  "result": "lose",
+  "hp": 0,
+  "turns": [
+   {
+    "turn": 1,
+    "hpStart": 22,
+    "hand": [
+     "formation",
+     "readied",
+     "order",
+     "feint",
+     "spear"
+    ],
+    "plays": [
+     "formation→rear",
+     "spear→적1"
+    ],
+    "blockAfter": {
+     "front": 0,
+     "rear": 0
+    },
+    "incoming": 15,
+    "taken": 10,
+    "enemyHp": [
+     9,
+     15,
+     15
+    ],
+    "deadCards": 0
+   },
+   {
+    "turn": 2,
+    "hpStart": 12,
+    "hand": [
+     "formation",
+     "formation",
+     "unrest",
+     "spear",
+     "unrest"
+    ],
+    "plays": [
+     "formation→front",
+     "formation→front",
+     "spear→적1"
+    ],
+    "blockAfter": {
+     "front": 0,
+     "rear": 0
+    },
+    "incoming": 24,
+    "taken": 12,
+    "enemyHp": [
+     0,
+     12,
+     15
+    ],
+    "deadCards": 2
+   }
+  ],
+  "dealt": 28
+ },
+ "sameSeed": {
+  "deep": "win",
+  "focus": "lose",
+  "blockFirst": "lose"
+ },
+ "winRates": {
+  "greedy": 0.9,
+  "deep": 1,
+  "focus": 0.9,
+  "blockFirst": 0.26666666666666666,
+  "greedyNoUnrest": 1,
+  "greedyContractBlock3": 0.9666666666666667,
+  "greedyHpPlus6": 0.9833333333333333,
+  "greedyPlusFormation": 0.9
+ }
+}

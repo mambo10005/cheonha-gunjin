@@ -25,8 +25,10 @@ export class Player {
  get q(){return raisingOf(this.r)!;}
  get p(){return personnelOf(this.r)!;}
  get e(){return engineOf(this.r)!;}
- act(a:string){const res=exploreAction(this.r,a,this.x.revision);if(!res.ok)throw new Error(`${a}: ${res.reason}`);syncExploration(this.r);this.trail.push(a);return this;}
- try(a:string){const res=exploreAction(this.r,a,this.x.revision);if(res.ok){syncExploration(this.r);this.trail.push(a);}return res;}
+ act(a:string){const res=exploreAction(this.r,a,this.x.revision);if(!res.ok)throw new Error(`${a}: ${res.reason}`);syncExploration(this.r);this.trail.push(a);this.noteCard(a);return this;}
+ cardLog:string[]=[];
+ noteCard(a:string){if(a.startsWith('card:')){const e=engineOf(this.r);this.cardLog.push(`[${this.x.location}·${this.x.tick}시] ${e?.log.at(-1)??a}`);}}
+ try(a:string){const res=exploreAction(this.r,a,this.x.revision);if(res.ok){syncExploration(this.r);this.trail.push(a);this.noteCard(a);}return res;}
  officer(a:string){const res=prologueAction(this.r,a,this.p.revision);if(!res.ok)throw new Error(`officer ${a}: ${res.reason}`);this.trail.push('officer:'+a);return this;}
  visit(to:string){if(this.x.scene!=='map')this.act('leave');if(this.x.location!==to){const d=CITY_EXPLORATION_DEFS[this.x.cityId],queue=[[this.x.location]],seen=new Set<string>();let route:string[]=[];while(queue.length){const path=queue.shift()!,at=path.at(-1)!;if(at===to){route=path;break;}if(seen.has(at))continue;seen.add(at);for(const edge of d.links){const n=edge.a===at?edge.b:edge.b===at?edge.a:null;if(n&&!seen.has(n))queue.push([...path,n]);}}if(!route.length)throw new Error('no route '+to);for(const id of route.slice(1))this.act('move:'+id);}this.act('enter');return this;}
  /** 손패에서 카드 id로 사용. 없으면 false. */

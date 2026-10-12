@@ -19,7 +19,7 @@ import type {RunState} from './types.ts';
 import type {Result} from './run.ts';
 import type {RaisingState,RaisingOrigin,RaisingResource,RaisingOperation,RaisingEffect,RaisingCard} from './raising-types.ts';
 import type {TacticId} from '../data/tactics.ts';
-import {engineOf,engineAfterPlay,currentPuzzleId,applyGateDebateRules,applyGateDuelRules,insideSkipsDuel,loadoutComplete,engineFoundingResult,applyEngineFounding} from './card-engine.ts';
+import {engineOf,engineAfterPlay,currentPuzzleId,applyGateDebateRules,applyGateDuelRules,insideSkipsDuel,engineFoundingResult,applyEngineFounding,engineGateOutcome,recordSequence} from './card-engine.ts';
 export const RAISING_SEED=121001;
 const grades={great:'대성공',success:'성공',conditional:'조건부 성공',incomplete:'불완전 거병',escaped:'실패 후 도피',lost:'기반 상실'};
 const outcomes:Record<string,string>={success:'완전 협력',partial:'조건부 협력',failure:'결렬',win:'승리',draw:'무승부',lose:'패배',surrender:'기권'};
@@ -106,7 +106,7 @@ export function raisingParticipants(r:RunState){const q=raisingOf(r)!,p=personne
 export function raisingPlanQuote(r:RunState,plan:string){const q=raisingOf(r)!,p=r.campaign!.world!.preparation,def=PLANS[plan as keyof typeof PLANS];if(!def)return null;const readiness=plan==='assembly'?q.legitimacy+p.support:plan==='barracks'?q.training+Math.floor(p.troops/4):q.intel+q.influence;return {readiness,shortage:Math.max(0,8-readiness),exposurePenalty:Math.floor(p.exposure/8),troops:[p.troops,p.troops+4],order:plan==='barracks'?[25,40]:[35,55],debts:raisingAmount(r,'debt'),pledges:[...q.pledges],opponent:def.opponent,mode:def.mode};}
 export function selectRaisingPlan(r:RunState,plan:string,representative:string,revision:number):Result {
  const q=raisingOf(r);if(!q||!['map','plan'].includes(q.phase)||q.step<3||q.revision!==revision||!Object.hasOwn(PLANS,plan)||!raisingParticipants(r).includes(representative))return no('최소 세 준비 장소 뒤 현재 참가 인물과 계획을 고르세요.');
- if(explorationOf(r)&&!explorationOf(r)!.unlockedPlans.includes(plan as 'assembly'|'barracks'|'inside'))return no('도시 사건에서 이 거병 계획을 먼저 발견하세요.');if(personnelOf(r)&&!personnelOf(r)!.representative)return no('먼저 대표·보좌 편성을 확정하세요.');if(explorationOf(r)&&engineOf(r)&&plan!=='assembly'&&!loadoutComplete(engineOf(r)!.loadout))return no('군영 장악·성문 내응은 대결 전 전술 3장(선제·대응·승부수)을 먼저 편성하세요.');q.plan=plan as RaisingState['plan'];q.gate={debate:null,duel:null,debateGrade:null,duelGrade:null,representative,support:personnelOf(r)?.assistant&&OFFICERS[personnelOf(r)!.assistant!]?.family==='military'?1:0,discount:q.discount,tacticRefund:false};q.revision++;if(plan==='barracks')beginRaisingDuel(r);else beginRaisingDebate(r);return ok;
+ if(explorationOf(r)&&!explorationOf(r)!.unlockedPlans.includes(plan as 'assembly'|'barracks'|'inside'))return no('도시 사건에서 이 거병 계획을 먼저 발견하세요.');if(personnelOf(r)&&!personnelOf(r)!.representative)return no('먼저 대표·보좌 편성을 확정하세요.');q.plan=plan as RaisingState['plan'];q.gate={debate:null,duel:null,debateGrade:null,duelGrade:null,representative,support:personnelOf(r)?.assistant&&OFFICERS[personnelOf(r)!.assistant!]?.family==='military'?1:0,discount:q.discount,tacticRefund:false};q.revision++;if(plan==='barracks')beginRaisingDuel(r);else beginRaisingDebate(r);return ok;
 }
 function beginRaisingDebate(r:RunState){const q=raisingOf(r)!,p=r.campaign!.world!.preparation,g=q.gate!,quote=raisingPlanQuote(r,q.plan!)!;
  const s=createDebate(Math.floor(nextFloat(q)*2147483646)+1,q.representative,q.plan==='inside'?'scholar':'elder',{kind:'supply'});prepareNegotiation(s,p.food,q.intel,q.influence);
@@ -121,7 +121,7 @@ export function actRaisingGate(r:RunState,action:string,revision:number):Result 
  const q=raisingOf(r);if(!q||!q.gate||q.revision!==revision)return no('관문 입력이 이미 처리되었습니다.');const g=q.gate;let check:Result;
  if(q.phase==='debate'&&g.debate){check=resolveDebateAction(g.debate,action,g.debate.deck?.revision??g.debate.round);if(check.ok)r.campaign!.world!.preparation.food=g.debate.negotiation!.food;}
  else if(q.phase==='duel'&&g.duel){const before=g.duel.momentum;check=resolveDuelAction(g.duel,action,g.duel.round);if(check.ok&&!g.tacticRefund&&g.duel.momentum<before){for(const id of q.schemes){const rule=SCHEMES[id].rule;if(rule.timing!=='duel')continue;for(const op of rule.operations)if(op.kind==='refundMomentum'){g.duel.momentum=Math.min(5,g.duel.momentum+op.amount);g.tacticRefund=true;record(q,rule.source+': 첫 기세 소비 회복.');}}}}
- else return no('진행 중인 설전·대결이 없습니다.');if(check.ok)q.revision++;return check;
+ else return no('진행 중인 설전·대결이 없습니다.');if(check.ok){q.revision++;const cur=q.phase==='debate'?g.debate:g.duel;recordSequence(r,q.phase==='debate'?'debate':'duel','gate:'+q.plan,action,cur&&cur.result!=='ongoing'?cur.result:undefined);}return check;
 }
 export function finishRaisingGate(r:RunState,revision:number):Result {
  const q=raisingOf(r);if(!q||!q.gate||q.revision!==revision)return no('이미 확인한 관문 결과입니다.');const g=q.gate;
@@ -132,7 +132,7 @@ export function finishRaisingGate(r:RunState,revision:number):Result {
  const good=g.debateGrade==='success'||g.duelGrade==='win',partial=g.debateGrade==='partial'||g.duelGrade==='draw';const failed=q.plan==='assembly'?g.debateGrade==='failure':q.plan==='barracks'?['lose','surrender'].includes(g.duelGrade!):['lose','surrender'].includes(g.duelGrade!)||!good&&!partial;
  q.grade=failed?(q.pledges.length&&raisingAmount(r,'support')>=3?'incomplete':'escaped'):q.plan==='inside'&&(g.debateGrade!=='success'||g.duelGrade==='draw')?'conditional':good?(raisingPlanQuote(r,q.plan!)!.shortage===0&&raisingAmount(r,'exposure')<12?'great':'success'):'conditional';
  if(q.grade==='conditional'||q.grade==='incomplete'){setAmount(r,'debt',raisingAmount(r,'debt')+2);if(!q.pledges.includes('authority'))q.pledges.push('authority');}
- q.phase=q.grade==='escaped'?'escape':'result';q.result=[`${PLANS[q.plan!].name}: ${grades[q.grade]}`,`설전 ${outcomes[g.debateGrade??'']??'없음'} · 대결 ${outcomes[g.duelGrade??'']??'없음'}`,`자금 ${raisingAmount(r,'funds')}·군량 ${raisingAmount(r,'food')}·병력 ${raisingAmount(r,'troops')} 모두 잔여 장부`, `노출 ${raisingAmount(r,'exposure')}·채무 ${raisingAmount(r,'debt')}·약속 ${q.pledges.map(id=>promises[id]).join('·')||'없음'}`];q.result.push(...engineFoundingResult(r).map(t=>'예정 '+t));q.revision++;return ok;
+ engineGateOutcome(r,q.plan!,g.debateGrade,g.duel);q.phase=q.grade==='escaped'?'escape':'result';q.result=[`${PLANS[q.plan!].name}: ${grades[q.grade]}`,`설전 ${outcomes[g.debateGrade??'']??'없음'} · 대결 ${outcomes[g.duelGrade??'']??'없음'}`,`자금 ${raisingAmount(r,'funds')}·군량 ${raisingAmount(r,'food')}·병력 ${raisingAmount(r,'troops')} 모두 잔여 장부`, `노출 ${raisingAmount(r,'exposure')}·채무 ${raisingAmount(r,'debt')}·약속 ${q.pledges.map(id=>promises[id]).join('·')||'없음'}`];q.result.push(...engineFoundingResult(r).map(t=>'예정 '+t));q.revision++;return ok;
 }
 const DUEL_BASE=(s:{opponentId:string})=>DUEL_OPPONENTS[s.opponentId].hp;
 export function recoverRaising(r:RunState,revision:number):Result {

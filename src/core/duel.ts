@@ -77,7 +77,7 @@ export function resolveDuelAction(s: DuelState, action: string, round: number): 
     if (a === 'strike' || a === 'finisher') emit('attack');
     const shield = s.enemyShield ?? 0;
     if (shield && a !== 'probe') { const absorbed = Math.min(shield, dealt); dealt -= absorbed; s.enemyShield = shield - absorbed; }
-    if (s.opponentId === 'sentinel' && enemy === 'guard') { s.enemyShield = Math.min(8, (s.enemyShield ?? 0) + 4); s.log.push('관문 수비: 방비 +4, 견제로 제거 가능.'); }
+    if (s.opponentId === 'sentinel' && enemy === 'guard' && !s.noSupport) { s.enemyShield = Math.min(8, (s.enemyShield ?? 0) + 4); s.log.push('관문 수비: 방비 +4, 견제로 제거 가능.'); }
     if (s.opponentId === 'rider' && (a === 'strike' || a === 'finisher') && dealt > 0 && priorMode !== 'probe') { taken += 2; s.log.push('유격 반격: 견제로 유도하지 않은 공격에 피해 2.'); }
     taken = Math.max(0, taken);
     const absorbed = Math.min(taken, s.protection ?? 0); taken -= absorbed; s.protection = Math.max(0, (s.protection ?? 0) - absorbed);
@@ -94,9 +94,10 @@ export function resolveDuelAction(s: DuelState, action: string, round: number): 
       if (gambit === 'oath') { s.hp = Math.min(s.maxHp, s.hp + 5); s.momentum = Math.min(5, momentumBefore + 2); dealt = 4; s.log.push('맹약의 증언: 체력 5 회복·기세 +2.'); }
     }
     if (l.opening === 'read' && !used('read') && taken > 0) { taken = Math.max(0, taken - 3); use('read'); }
-    if (l.response === 'counter' && !used('counter') && a === 'guard' && taken === 0 && enemy !== 'guard') { dealt += 5; use('counter'); s.log.push('반격 태세: 반격 피해 5.'); }
+    if (l.response === 'counter' && !used('counter') && a === 'guard' && taken === 0 && enemy !== 'guard') { const extra = 5 + (s.counterBonus ?? 0); dealt += extra; use('counter'); s.log.push(`반격 태세: 반격 피해 ${extra}.`); }
     if (l.response === 'second' && !used('second') && taken >= s.hp) { taken = Math.max(0, s.hp - 1); use('second'); s.log.push('보좌 개입: 쓰러질 피해를 체력 1로 버팀.'); }
   }
+  if (s.initiative && s.round === 0) { taken = 0; s.log.push('기습: 상대의 첫 행동이 무효가 되었습니다.'); }
   s.hp = Math.max(0, s.hp - taken); s.enemyHp = Math.max(0, s.enemyHp - dealt);
   if (s.loadout?.response === 'ration' && !s.loadout.used.includes('ration') && s.hp > 0 && s.hp * 2 <= s.maxHp) { s.hp = Math.min(s.maxHp, s.hp + 6); s.loadout.used.push('ration'); s.log.push('보급 회복: 체력 6 회복.'); }
   s.round++; s.lastAction = a;

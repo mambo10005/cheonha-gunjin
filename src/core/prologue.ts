@@ -1,5 +1,5 @@
 import {OFFICERS,PROTAGONISTS,JOINT_CARDS,PERSONAL_CARDS} from '../data/personnel.ts';
-import {RAISING_CARDS,ORIGINS} from '../data/raising.ts';
+import {RAISING_CARDS,ORIGINS,REPRESENTATIVES} from '../data/raising.ts';
 import {GENERALS} from '../data/generals.ts';
 import {shuffle} from './rng.ts';
 import {configureStart} from './world.ts';
@@ -23,7 +23,8 @@ export function startPrologue(r:RunState,city:CityId,protagonist:string,origin:R
  r.campaign!.personnel=p;q.allies=[];q.assistant='';q.schemes=[];q.influence=0;q.log=['도시 탐색: 아직 거병 대표·보좌·교리를 정하지 않았습니다.'];q.cards=[];q.draw=[];q.discard=[];q.nextUid=1;
  w.preparation.funds=4;w.preparation.food=city==='xingyang'?12:10;w.preparation.troops=origin==='militia'?6:2;w.preparation.exposure=0;w.diplomacy.obligation=0;
  const cityCard=city==='xingyang'?'cache':city==='chenggao'?'gate':'wagon';
- const basics=['manifesto','coin','clues','food',ORIGINS[origin].cards[0],cityCard,ORIGINS[origin].burden];
+ // 공통 3장(조사·거래·설득) + 주인공 1 + 출신 1 + 도시 1 + 부담 1. 첫 주요 인재와의 협력에서 공통 카드를 인재 전용 카드로 교체한다.
+ const basics=['manifesto','coin','clues',REPRESENTATIVES[protagonist].cards[0],ORIGINS[origin].cards[0],cityCard,ORIGINS[origin].burden];
  for(const [i,id] of basics.entries()){const l=add(p,{id,sourceType:i===5?'city':'protagonist',sourceId:i===5?city:protagonist,ownerType:i===5?'city':'personal',owners:i===5?[]:[protagonist],activities:['raising'],expires:null});p.loadouts.raising.push(l.uid);}
  for(const o of Object.values(OFFICERS))p.officers[o.id]={id:o.id,information:0,relationship:'unknown',trust:protagonist==='chengong'?30:25,loyalty:50,xp:0,fatigue:0,task:false,proof:false,cooperation:null,growth:null,duty:'available',until:0,events:[]};
  // Every run has all eight people distributed across eighteen seeded places. Names stay sealed until contact.
@@ -49,8 +50,8 @@ export function prologueAction(r:RunState,action:string,revision:number,cityComm
   if(kind==='recruit'){if(!o.task||!o.proof||o.trust<45||!['a','b'].includes(arg)||w.preparation.funds<1)return no('등용: 부탁 수행 + 실제 지원 사용 또는 관계 선택 + 신뢰 45 + 자금 1. 고유 카드 한 장을 선택하세요.');w.preparation.funds--;o.relationship='recruited';o.information=4;o.loyalty=60;p.stats.recruits++;grant(r,d.roles[0],id);grant(r,d.unique[arg==='a'?0:1],id);if(!r.campaign!.roster.includes(id)){r.campaign!.roster.push(id);w.reserveOfficers.push(id);}const candidate=w.candidates.find(c=>c.id===id);if(candidate)candidate.recruited=true;o.events.push('등용: 개인 카드 두 장을 보관함에 해금, 덱 편성은 별도');}
  }else if(kind==='equip'){
   const activity=arg as PersonnelActivity,l=p.library.find(c=>c.uid===Number(id));if(!safe||!l||!Object.hasOwn(p.loadouts,activity)||!l.activities.includes(activity)||l.spent)return no('활동 사이에 해금 카드를 편성하세요.');
-  const deck=p.loadouts[activity],index=deck.indexOf(l.uid);if(index>=0){if(activity==='raising'&&deck.length<=6)return no('거병 덱은 최소 6장입니다.');deck.splice(index,1);p.stats.excluded++;}
-  else{if(activity==='raising'&&personnelAvailability(r,l,activity))return no(personnelAvailability(r,l,activity)!);if(activity==='raising'&&q.engine){const reason=deckAddReason(r,l);if(reason)return no(reason);}else if(deck.length>=(activity==='raising'?14:6))return no('거병 14장·기타 활동 개인 슬롯 6장입니다.');if(l.owners.some(owner=>owner!==p.protagonistId&&deck.filter(uid=>p.library.find(c=>c.uid===uid)?.owners.includes(owner)).length>=2))return no('인재별 활동 카드 한도는 2장입니다.');deck.push(l.uid);p.stats.equips[l.id]=(p.stats.equips[l.id]??0)+1;p.stats.officerEquips??={};for(const owner of l.owners)p.stats.officerEquips[owner]=(p.stats.officerEquips[owner]??0)+1;}
+  const deck=p.loadouts[activity],index=deck.indexOf(l.uid);if(index>=0){if(activity==='raising'&&deck.length<=6)return no('거병 덱은 최소 6장입니다.');deck.splice(index,1);p.stats.excluded++;if(activity==='raising')q.engine?.telemetry?.swaps.push('제외 '+l.id);}
+  else{if(activity==='raising'&&personnelAvailability(r,l,activity))return no(personnelAvailability(r,l,activity)!);if(activity==='raising'&&q.engine){const reason=deckAddReason(r,l);if(reason)return no(reason);}else if(deck.length>=(activity==='raising'?14:6))return no('거병 14장·기타 활동 개인 슬롯 6장입니다.');if(l.owners.some(owner=>owner!==p.protagonistId&&deck.filter(uid=>p.library.find(c=>c.uid===uid)?.owners.includes(owner)).length>=2))return no('인재별 활동 카드 한도는 2장입니다.');deck.push(l.uid);p.stats.equips[l.id]=(p.stats.equips[l.id]??0)+1;if(activity==='raising')q.engine?.telemetry?.swaps.push('편성 '+l.id);p.stats.officerEquips??={};for(const owner of l.owners)p.stats.officerEquips[owner]=(p.stats.officerEquips[owner]??0)+1;}
  }else if(kind==='party'){
   if(!safe||!stage||!o||!isRecruited(o))return no('탐색 사이에 등용 인재를 편성하세요.');if(p.party.includes(id)){const removed=p.loadouts.raising.filter(uid=>p.library.find(c=>c.uid===uid)?.owners.includes(id));if(p.loadouts.raising.length-removed.length<6)return no('최소 거병 덱 6장을 유지하세요.');p.party=p.party.filter(v=>v!==id);p.loadouts.raising=p.loadouts.raising.filter(uid=>!removed.includes(uid));}else{if(p.party.length>=3)return no('동행 인재는 최대 3명입니다.');p.party.push(id);}
  }else if(kind==='growth'&&TALENTS[id]&&q.engine&&['add','upgrade','replace','principle'].includes(arg)){

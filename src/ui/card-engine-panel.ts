@@ -10,7 +10,7 @@ import {RAISING_CARDS} from '../data/raising.ts';
 import {OFFICERS} from '../data/personnel.ts';
 import {EXPLORATION_ITEMS} from '../data/city-exploration.ts';
 import {CARDS} from '../data/cards.ts';
-import {engineOf,currentPuzzle,puzzleResolutions,alertLimit,duelTacticOptions,DUEL_TACTICS,debateArguments,escortBattleConversions,gateRuleText,deckComposition,deckCategory,DECK_CAPS,DECK_CATEGORY_NAMES,DECK_LIMIT,activeTalents,loadoutComplete} from '../core/card-engine.ts';
+import {COMMON_CARDS,engineOf,currentPuzzle,puzzleResolutions,alertLimit,duelTacticOptions,DUEL_TACTICS,debateArguments,escortBattleConversions,gateRuleText,deckComposition,deckCategory,DECK_CAPS,DECK_CATEGORY_NAMES,DECK_LIMIT,activeTalents,loadoutComplete} from '../core/card-engine.ts';
 import {explorationOf} from '../core/city-exploration.ts';
 import {personnelOf,isRecruited,personnelAvailability} from '../core/personnel-rules.ts';
 import {esc} from './html.ts';
@@ -28,8 +28,15 @@ export function cardTag(c:RaisingCard){const g=CARD_GRAMMAR[c.id];return g?`${FA
 /** 미리보기(복제 상태)와 현재 상태의 표식·장애 차이. 실제 사용과 같은 함수 경로를 쓴다. */
 export function enginePreviewText(before:RunState,after:RunState){const a=engineOf(before),b=engineOf(after);if(!a?.scene||!b?.scene)return '';const diff=MARKS.filter(m=>(a.scene!.marks[m]??0)!==(b.scene!.marks[m]??0)).map(m=>`${MARK_NAMES[m]} ${a.scene!.marks[m]??0}→${b.scene!.marks[m]??0}`);const pa=currentPuzzle(before),pb=engineOf(after)!.puzzles[pa?.def.id??''];const obs=pa&&pb?pa.state.obstacles.filter(o=>pb.obstacles.find(v=>v.id===o.id)!.hp!==o.hp).map(o=>`${pa.def.obstacles.find(d=>d.id===o.id)!.name} ${o.hp}→${pb.obstacles.find(v=>v.id===o.id)!.hp}`):[];const failed=pa&&pb&&pb.status==='failed'?['⚠ 경계 한도 도달: 사건 실패']:[];return [...obs,...diff,...failed].join(' · ');}
 
+/** 첫 주요 인재와의 협력: 공통 카드 교체(최대 2)와 조기 책략(3개 중 1). */
+export function pactPanel(r:RunState):string {const e=engineOf(r),p=personnelOf(r);if(!e?.pact?.open||!p)return '';const pact=e.pact,commons=p.loadouts.raising.map(uid=>p.library.find(l=>l.uid===uid)!).filter(l=>l&&COMMON_CARDS.includes(l.id)&&l.sourceType==='protagonist');
+ return `<section class="engine-pact"><header><span class="exploration-eyebrow">첫 협력 · ${OFFICERS[pact.talent].name}</span><h3>공통 카드를 ${OFFICERS[pact.talent].name}의 방식으로 바꾸기 (${pact.swaps.length}/2)</h3><p>카드를 더하지 않고 바꿉니다. 빠진 공통 카드는 보관함에 남아 나중에 다시 편성할 수 있습니다. 바꾼 카드는 다음 장소 첫 손패에 들어옵니다.</p></header>
+ <div class="engine-pact-cards">${pact.cards.map(id=>{const done=pact.swaps.some(s=>s.added===id);return `<article class="${done?'chosen':''}"><h4>${esc(RAISING_CARDS[id].name)}</h4><p class="card-grammar">${esc(grammarText(CARD_GRAMMAR[id]))}</p>${done?'<small>교체 완료</small>':commons.map(l=>btn(`engine:pact-swap:${id}:${l.uid}`,`「${RAISING_CARDS[l.id].name}」 대신`,pact.swaps.length>=2)).join('')}</article>`;}).join('')}</div>
+ <h4>거병 책략 · 첫 사건 전에 1개 (${pact.stratagem?'선택 완료':'미선택'})</h4><div class="engine-pact-stratagems">${pact.stratagems.map(id=>`<article class="${pact.stratagem===id?'chosen':''}"><b>${STRATAGEMS[id].name}</b><p>${esc(STRATAGEMS[id].text)}</p>${btn('engine:pact-stratagem:'+id,pact.stratagem===id?'장착됨':'이 책략 장착',!!pact.stratagem)}</article>`).join('')}</div>
+ ${btn('engine:pact-close',pact.swaps.length||pact.stratagem?'협력 확정':'지금은 바꾸지 않기(다음 인재 의뢰로 미룸)')}</section>`;}
 export function puzzlePanel(r:RunState):string {
- const pz=currentPuzzle(r),e=engineOf(r),x=explorationOf(r);if(!e||!x)return '';
+ const pz=currentPuzzle(r),e=engineOf(r),x=explorationOf(r);if(!e||!x)return '';return pactPanel(r)+puzzleBody(r,pz,e,x);}
+function puzzleBody(r:RunState,pz:ReturnType<typeof currentPuzzle>,e:NonNullable<ReturnType<typeof engineOf>>,x:NonNullable<ReturnType<typeof explorationOf>>):string {
  const failed=Object.values(e.puzzles).find(p=>p.status==='failed'&&PUZZLES[p.id].location===x.location);
  if(!pz)return (failed?`<section class="engine-puzzle failed"><h3>${PUZZLES[failed.id].title} · 실패</h3><p>${esc(PUZZLES[failed.id].failure.text)}</p></section>`:'')+rewardPanel(r);
  const {def,state}=pz,limit=alertLimit(r,def),marks=e.scene?.marks??{};
@@ -78,6 +85,7 @@ export function engineDrawer(r:RunState):string {
  <section><h3>설전 지속 논거</h3>${argumentsList(r)}</section>
  <section><h3>거병 관문의 빌드 시험</h3>${x.unlockedPlans.map(id=>`<p><b>${({assembly:'민회와 격문',barracks:'군영 장악',inside:'성문 내응'})[id]}</b> · ${esc(gateRuleText(id))}</p>`).join('')||'<p>아직 발견한 거병 계획이 없습니다.</p>'}</section>
  <section><h3>휴식 정제 (하루 1회 · 시간 2)</h3><div class="engine-rest">${btn('rest:fatigue','피로 회복')}${active.filter(l=>!l.upgrade).slice(0,3).map(l=>btn(`rest:upgrade:${l.uid}:quiet`,`정밀 강화 · ${RAISING_CARDS[l.id].name}`)).join('')}${active.filter(l=>!l.owners.some(o=>o!==p.protagonistId)).slice(0,3).map(l=>btn(`rest:remove:${l.uid}`,`제거 · ${RAISING_CARDS[l.id].name}`)).join('')}${x.companions.map(id=>btn(`rest:talk:${id}`,`${OFFICERS[id].name}와 대화`)).join('')}</div></section>
+ <section><h3>플레이 계측(로컬)</h3><p>카드 사용·미사용, 표식, 책략 발동, 보상 선택, 덱 교체, 사건별 카드 수, 설전·대결 순서, 철회·결과를 이 브라우저에만 저장합니다. 외부로 보내지 않습니다.</p><button class="btn" data-engine-report>디버그 리포트 저장(로컬)</button></section>
  <section><h3>거병 후로 이어질 결과</h3>${e.legacy.map(l=>`<p>${({policy:'정책',obligation:'의무',gate:'관문'} as const)[l.kind]} · ${esc(l.text)}</p>`).join('')||'<p>아직 없습니다.</p>'}</section>
  </div>`;
 }

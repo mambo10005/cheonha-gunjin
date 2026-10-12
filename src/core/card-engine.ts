@@ -18,21 +18,23 @@ import type {RunState} from './types.ts';
 import type {Result} from './run.ts';
 import type {RaisingCard,RaisingState} from './raising-types.ts';
 import type {LibraryCard} from './personnel-types.ts';
-import type {CardGain,CardGrammar,ChainLink,EngineState,Mark,MarkBag,PuzzleState,DuelLoadout,EngineArgument} from './card-engine-types.ts';
+import type {EngineTelemetry,CardGain,CardGrammar,ChainLink,EngineState,Mark,MarkBag,PuzzleState,DuelLoadout,EngineArgument} from './card-engine-types.ts';
 import type {DuelState,DebateState} from './social-types.ts';
 import type {ExplorationApproach,ExplorationItemId} from './city-exploration-types.ts';
 
 const ok:Result={ok:true},no=(reason:string):Result=>({ok:false,reason});
 export const DECK_LIMIT=12;
-export const DECK_CAPS={protagonist:4,origin:2,talent:4,region:1,burden:1} as const;
+export const DECK_CAPS={protagonist:4,origin:2,talent:4,region:1,burden:2} as const;
 export type DeckCategory=keyof typeof DECK_CAPS;
 export const DECK_CATEGORY_NAMES:Record<DeckCategory,string>={protagonist:'주인공',origin:'출신·도시',talent:'인재(대표·동행)',region:'지역·물품',burden:'부담·약속'};
 const raisingOf=(r:RunState)=>r.campaign?.world?.raising;
-export const engineOf=(r:RunState):EngineState|undefined=>raisingOf(r)?.engine;
+export const newTelemetry=():EngineTelemetry=>({plays:{},events:{},stratagems:{},firstPlays:[],rewards:{taken:[],declined:0},swaps:[],sequences:[],withdrawals:0,cancels:0,afterFailure:[],results:[]});
+/** 1차 카드 엔진 저장(협력·계측 필드 없음)은 읽을 때 빈 기본값을 채운다. */
+export const engineOf=(r:RunState):EngineState|undefined=>{const e=raisingOf(r)?.engine;if(e){e.telemetry??=newTelemetry();if(e.pact===undefined)e.pact=null;}return e;};
 
 export function ensureEngine(r:RunState):EngineState|undefined {
  const q=raisingOf(r);if(!q||!personnelOf(r))return undefined;
- q.engine??={version:1,stratagems:[],stratagemSwaps:0,scene:null,puzzles:{},arguments:[],loadout:{opening:null,response:null,gambit:null},battleCards:[],principles:{},growth:{},legacy:[],reward:null,rewardsTaken:[],rests:[],
+ q.engine??={version:1,stratagems:[],stratagemSwaps:0,scene:null,puzzles:{},arguments:[],loadout:{opening:null,response:null,gambit:null},battleCards:[],principles:{},growth:{},legacy:[],reward:null,rewardsTaken:[],rests:[],pact:null,telemetry:newTelemetry(),
   stats:{chains:{},consumed:{},produced:{},distinctOwners:[],burdenUses:0,forceDealt:0,cardsRemoved:0,cardsUpgraded:0,skips:0},log:[]};
  return q.engine;
 }
@@ -40,7 +42,7 @@ function log(e:EngineState,text:string){e.log.push(text);e.log=e.log.slice(-60);
 const add=(bag:MarkBag,m:Mark,n:number)=>{bag[m]=Math.max(0,Math.min(m==='alert'?ALERT_CAP:MARK_CAP,(bag[m]??0)+n));if(!bag[m])delete bag[m];};
 
 /* ───────────── 참여와 소유 ───────────── */
-export function cardOwner(r:RunState,c:RaisingCard):string|null {const l=personnelOf(r)?.library.find(l=>l.uid===c.personnelCard);if(!l||!l.owners.length)return null;return l.owners.join('+');}
+export function cardOwner(r:RunState,c:RaisingCard):string|null {const p=personnelOf(r),l=p?.library.find(l=>l.uid===c.personnelCard);if(!l||!l.owners.length)return null;if(l.sourceType==='officer'&&l.owners.length===1&&l.owners[0]===p!.protagonistId)return l.sourceId;return l.owners.join('+');}
 /** 원칙이 작동하는 인재: 정식 등용 + 현재 동행(참여). */
 export function activeTalents(r:RunState):string[] {const p=personnelOf(r);if(!p)return [];return p.party.filter(id=>TALENTS[id]&&p.officers[id]&&isRecruited(p.officers[id])&&p.officers[id].duty==='available');}
 const principleOf=(e:EngineState,id:string)=>e.principles[id]??'base';
@@ -48,7 +50,8 @@ const principleOf=(e:EngineState,id:string)=>e.principles[id]??'base';
 /* ───────────── 활동 덱(12장)과 보관함 ───────────── */
 export function deckCategory(r:RunState,l:LibraryCard):DeckCategory {
  const p=personnelOf(r)!,d=RAISING_CARDS[l.id];
- if(d?.burden||d?.family==='promise'||l.ownerType==='promise')return 'burden';
+ if(d?.burden||l.ownerType==='promise'||d?.family==='promise'&&l.sourceType!=='protagonist')return 'burden';
+ if(l.sourceType==='officer'&&l.owners.length===1&&l.owners[0]===p.protagonistId)return 'protagonist';
  if(l.sourceType==='city'||l.sourceType==='protagonist'&&ORIGINS[p.background].cards.includes(l.id))return 'origin';
  if(l.owners.some(o=>o!==p.protagonistId))return 'talent';
  if(l.sourceType==='protagonist')return 'protagonist';
@@ -96,13 +99,16 @@ function spend(e:EngineState,o:PlayOutcome,m:Mark,n:number){const bag=e.scene!.m
  */
 export function engineAfterPlay(r:RunState,c:RaisingCard,exhausted:boolean){
  const e=engineOf(r),q=raisingOf(r)!;if(!e)return;if(!e.scene)syncEngineScene(r);const s=e.scene!;const g=grammarFor(c),owner=cardOwner(r,c)??'faction',prev=s.chain.at(-1),talents=activeTalents(r);
- const o:PlayOutcome={force:g.force,produced:{...g.produces},consumed:{},draw:0,power:0,notes:[]};
+ const o:PlayOutcome={force:g.force,produced:{...g.produces},consumed:{},draw:0,power:0,notes:[]};let burnCard=false;
  if(c.upgrade){const b=g.upgradeBranches[c.upgrade];apply(o,b.gain,`${b.name} 강화`);}
  // 1) 카드 고유 소비
  if(g.consumes&&spend(e,o,g.consumes.mark,g.consumes.amount)){apply(o,g.consumes.gain,g.consumes.text);}
  // 2) 후속 조건
- const f=g.followup;if(f&&prev&&(!f.after.action||prev.action===f.after.action)&&(!f.after.family||prev.family===f.after.family)&&(!f.after.mark||prev.produced.includes(f.after.mark))&&(!f.after.differentOwner||prev.owner!==owner))apply(o,f.gain,f.text);
+ const f=g.followup;let followed=false;if(f&&prev&&(!f.after.action||prev.action===f.after.action)&&(!f.after.family||prev.family===f.after.family)&&(!f.after.mark||prev.produced.includes(f.after.mark))&&(!f.after.differentOwner||prev.owner!==owner)){apply(o,f.gain,f.text);followed=true;}
  const differentOwner=!!prev&&prev.owner!==owner;
+ // 2.5) 퍼즐 장애 대상과 열쇠 표식(이전에 쌓인 것만 소비). 원칙·책략이 이 소비를 본다.
+ const pid=currentPuzzleId(r);let target:{id:string;hp:number}|undefined,keyNote='';
+ if(pid&&(o.force>0||g.force>0)){const p=e.puzzles[pid],def=PUZZLES[pid];const open=p.obstacles.filter(x=>x.hp>0&&def.obstacles.find(d=>d.id===x.id)!.accepts.includes(g.action));target=open.find(x=>x.id===p.focus)??open[0];if(target){const d=def.obstacles.find(d=>d.id===target!.id)!;if(spend(e,o,d.key,1)){o.force++;keyNote=`${d.name}: ${MARK_NAMES[d.key]} 1 소비 → 장애 +1`;}}}
  // 3) 인재 원칙 (동행한 정식 등용 인재만)
  for(const id of talents){const mode=principleOf(e,id);
   if(id==='xunyu'&&mode==='base'&&differentOwner&&useOnce(e,'p:xunyu',3))apply(o,{marks:{opinion:1}},'순욱 · 공론의 인선');
@@ -116,22 +122,25 @@ export function engineAfterPlay(r:RunState,c:RaisingCard,exhausted:boolean){
   if(id==='chengpu'&&mode==='base'&&(s.marks.supply??0)>=3&&(o.produced.alert??0)>0){o.produced.alert=0;o.notes.push('정보 · 보급 3 이상: 경계 차단');}
  }
  // 4) 거병 책략
+ const fire=(id:string,gain:CardGain,note:string)=>{apply(o,gain,'책략 · '+note);e.telemetry.stratagems[id]=(e.telemetry.stratagems[id]??0)+1;};
  for(const id of e.stratagems){
-  if(id==='relay_trust'&&prev?.family==='intel'&&g.family==='network'&&useOnce(e,'s:'+id,2))apply(o,{force:1,marks:{inside:1}},'책략 · 밀서와 인맥');
-  if(id==='banner_march'&&g.family==='military'&&(s.marks.support??0)>=1&&useOnce(e,'s:'+id,2)){spend(e,o,'support',1);apply(o,{marks:{momentum:2}},'책략 · 민심의 진군');}
-  if(id==='heavy_burden'&&g.burden&&(s.marks.burden??0)>=1&&useOnce(e,'s:'+id,2)){spend(e,o,'burden',1);apply(o,{marks:{supply:1,promise:1}},'책략 · 짐을 진 맹세');}
-  if(id==='many_hands'&&differentOwner&&useOnce(e,'s:'+id,2))apply(o,{force:1},'책략 · 여러 손의 일');
-  if(id==='oath_policy'&&g.family==='cause'&&(s.marks.promise??0)>=2&&e.legacy.filter(l=>l.id.startsWith('oath:')).length<2){spend(e,o,'promise',2);apply(o,{marks:{support:1}},'책략 · 약속의 제도화');const n=e.legacy.filter(l=>l.id.startsWith('oath:')).length;e.legacy.push({id:'oath:'+n,kind:'policy',text:'약속의 제도화 · 거병 후 공동 운영 정책'});}
-  if(id==='burn_bridge'&&exhausted&&useOnce(e,'s:'+id,2))apply(o,{draw:1},'책략 · 소진의 결단');
-  if(id==='open_flag'&&g.action==='resolve'&&useOnce(e,'s:'+id,2))apply(o,{force:2,marks:{alert:1}},'책략 · 공개 기치');
-  if(id==='ledger_net'&&g.action==='investigate'&&(s.marks.ledger??0)>=1&&useOnce(e,'s:'+id,2)){spend(e,o,'ledger',1);apply(o,{marks:{clue:2,inside:1}},'책략 · 장부의 그물');}
+  if(id==='relay_trust'&&prev?.family==='intel'&&['network','scheme'].includes(g.family)&&useOnce(e,'s:'+id,2))fire(id,{force:1,marks:{inside:1}},'밀서와 인맥');
+  if(id==='banner_march'&&g.family==='military'&&(s.marks.support??0)>=1&&useOnce(e,'s:'+id,2)){spend(e,o,'support',1);fire(id,{marks:{momentum:2}},'민심의 진군');}
+  if(id==='heavy_burden'&&(g.produces.burden??0)>0&&useOnce(e,'s:'+id,2)){o.produced.burden=Math.max(0,(o.produced.burden??0)-1);fire(id,{marks:{supply:1,promise:1}},'짐을 진 맹세(부담 1 → 보급·약속, 이 카드는 소멸)');if(g.burden)burnCard=true;}
+  if(id==='many_hands'&&g.action==='persuade'&&(Object.keys(o.consumed).length>0||followed)&&useOnce(e,'s:'+id,2)){fire(id,{force:1},'공론의 조항');const n=e.arguments.filter(a=>a.id.startsWith('clause:')).length;if(n<3)addArgument(e,{id:'clause:'+n,source:'puzzle',label:`조항 초안 ${n+1} · ${RAISING_CARDS[c.id].name}`,text:'설전 덱에 「조항 정리」 1장(부담 −1·신뢰 +1)'});}
+  if(id==='oath_policy'&&(o.consumed.promise??0)>0&&useOnce(e,'s:'+id,3)){fire(id,{marks:{support:1}},'약속의 제도화');const n=e.legacy.filter(l=>l.id.startsWith('oath:')).length;if(n<2)e.legacy.push({id:'oath:'+n,kind:'policy',text:'약속의 제도화 · 거병 후 공동 운영 정책'});}
+  if(id==='burn_bridge'&&(exhausted||g.burden)&&useOnce(e,'s:'+id,2))fire(id,{draw:1},'소진의 결단');
+  if(id==='open_flag'&&(o.consumed.guard??0)>0&&useOnce(e,'s:'+id,2))fire(id,{force:1,marks:{momentum:1}},'반격의 진형');
+  if(id==='ledger_net'&&['investigate','trade'].includes(g.action)&&useOnce(e,'s:'+id,2)){if((o.consumed.ledger??0)>0)fire(id,{marks:{clue:1,inside:1}},'장부의 그물');else if((s.marks.ledger??0)>=1){spend(e,o,'ledger',1);fire(id,{marks:{clue:1,inside:1}},'장부의 그물');}else s.uses['s:'+id]--;}
  }
  for(const id of talents)if(id==='chengpu'&&principleOf(e,id)==='alt'&&(o.consumed.supply??0)>=2&&useOnce(e,'p:chengpu',2))apply(o,{draw:1},'정보 · 노장의 셈');
  if(g.burden)e.stats.burdenUses++;
+ if(burnCard&&q.discard.includes(c.uid)){q.discard=q.discard.filter(v=>v!==c.uid);q.exhaust.push(c.uid);}
+ e.telemetry.plays[c.id]=(e.telemetry.plays[c.id]??0)+1;{const ev=currentPuzzleId(r)??explorationOf(r)?.event?.id??'none';e.telemetry.events[ev]=(e.telemetry.events[ev]??0)+1;}if(e.telemetry.firstPlays.length<12)e.telemetry.firstPlays.push(c.id);
  // 5) 퍼즐 장애: 열쇠 표식은 이전에 쌓인 것만 소비(생산 전에 판정)
- const pid=currentPuzzleId(r);let hit='';
- if(pid&&o.force>0){const p=e.puzzles[pid],def=PUZZLES[pid];const open=p.obstacles.filter(x=>x.hp>0&&def.obstacles.find(d=>d.id===x.id)!.accepts.includes(g.action));const target=open.find(x=>x.id===p.focus)??open[0];
-  if(target){const d=def.obstacles.find(d=>d.id===target.id)!;let force=o.force;if(spend(e,o,d.key,1)){force++;o.notes.push(`${d.name}: ${MARK_NAMES[d.key]} 1 소비 → 장애 +1`);}const dealt=Math.min(target.hp,force);target.hp-=dealt;e.stats.forceDealt+=dealt;hit=`${d.name} −${dealt}${target.hp?'':' (해소)'}`;p.plays++;}
+ let hit='';
+ if(pid&&o.force>0){const p=e.puzzles[pid],def=PUZZLES[pid];
+  if(target){const d=def.obstacles.find(d=>d.id===target!.id)!;if(keyNote)o.notes.push(keyNote);const dealt=Math.min(target.hp,o.force);target.hp-=dealt;e.stats.forceDealt+=dealt;hit=`${d.name} −${dealt}${target.hp?'':' (해소)'}`;p.plays++;}
   else o.notes.push('이 행동으로 줄일 장애가 없습니다(표식만 남음)');}
  // 6) 생산
  for(const [m,n] of Object.entries(o.produced)){if(!n)continue;add(s.marks,m as Mark,n);if(n>0)e.stats.produced[m]=(e.stats.produced[m]??0)+n;}
@@ -155,6 +164,8 @@ function checkPuzzleFailure(r:RunState,pid:string){
  if(pid==='recommendation'){const quest=x.inn!.quests.recommendation;if(!quest.evidence.includes('blocked'))quest.evidence.push('blocked');w.diplomacy.obligation=Math.min(200,w.diplomacy.obligation+1);}
  if(pid==='barracks'){const a=EXPLORATION_EVENTS.barracks.stages[0].approaches.find(a=>a.id==='duel')!;explorationInternals.resolveApproach(r,a,false);}
 }
+/** 협력 직후 첫 방문: 새로 받은 전용 카드가 손패에 먼저 들어온다(방문 1회). */
+export function engineOpeningHand(r:RunState){const e=engineOf(r),q=raisingOf(r)!,p=personnelOf(r)!;if(!e?.pact||e.pact.open||e.telemetry.firstPlays.length>=5)return;for(const sw of e.pact.swaps){const l=p.library.find(l=>l.id===sw.added&&l.sourceType==='officer'),c=l&&q.cards.find(c=>c.personnelCard===l.uid);if(!c||q.hand.includes(c.uid)||q.hand.length>=4||!q.draw.includes(c.uid)&&!q.discard.includes(c.uid))continue;q.draw=q.draw.filter(v=>v!==c.uid);q.discard=q.discard.filter(v=>v!==c.uid);q.hand.push(c.uid);}}
 /** 손패 정리: 준비 시간 1로 손패를 모두 버리고 4장을 새로 뽑는다(장소 방문당 1회, 준비력은 그대로). */
 export function mulligan(r:RunState):Result {const e=engineOf(r),x=explorationOf(r)!,q=raisingOf(r)!;if(!e?.scene||!currentPuzzleId(r))return no('사건 퍼즐에서만 손패를 정리할 수 있습니다.');if(e.scene.uses.mulligan)return no('손패 정리는 방문당 한 번입니다.');if(x.tick+1>x.budget)return no('준비 시간이 부족합니다.');e.scene.uses.mulligan=1;explorationInternals.advance(r,1);q.discard.push(...q.hand.splice(0));drawCards(q,4);q.revision++;log(e,'손패 정리 · 준비 시간 1');return ok;}
 /** 퍼즐 대상 장애 지정. */
@@ -190,6 +201,7 @@ export function resolvePuzzle(r:RunState,id:string):Result {
  for(const [m,n] of Object.entries(res.consume??{}))add(e.scene!.marks,m as Mark,-n!);
  // 설전 논거: 퍼즐에서 해소한 장애와 책임자 관계가 지속 논거로 남는다
  for(const o of pz.def.obstacles)if(!remaining.includes(o.id))addArgument(e,{id:`clue:${pz.def.id}:${o.id}`,source:o.id==='keeper_alert'||o.id==='clerk_guard'?'manager':'clue',label:`${pz.def.title} · ${o.name} 해소`,text:o.id==='keeper_alert'||o.id==='clerk_guard'?'신뢰 +1 (책임자의 증언)':o.key==='ledger'?'이익 요구 −1':o.key==='clue'?'안전 요구 −1':'명예 요구 −1'});
+ if(st.log.length)e.telemetry.afterFailure.push(`${pz.def.id}:${res.id}`);
  let result:Result=ok;
  if(pz.def.id==='escort')result=resolveEscort(r,res,remaining);
  else if(pz.def.id==='recommendation')result=resolveRecommendation(r,res);
@@ -228,7 +240,7 @@ function resolveBarracks(r:RunState,res:ResolutionDef):Result {
 }
 
 /* ───────────── 보상·정제 ───────────── */
-const REWARD_POOLS:Record<string,string[]>={escort:['weapons','defection','tunnel','fund','medicine'],recommendation:['redress','order','contact','register','help'],barracks:['drill','captain','patrol','weapons','medicine']};
+const REWARD_POOLS:Record<string,string[]>={escort:['weapons','defection','tunnel','fund','medicine','loan'],recommendation:['redress','order','contact','register','help'],barracks:['drill','captain','patrol','weapons','medicine']};
 function makeReward(r:RunState,event:string,res:ResolutionDef){const e=engineOf(r)!,q=raisingOf(r)!;const pool=REWARD_POOLS[event].filter(id=>RAISING_CARDS[id]);const cards=shuffle(q,[...pool]).slice(0,3);const stratagems=shuffle(q,Object.keys(STRATAGEMS).filter(id=>!e.stratagems.includes(id))).slice(0,2);const officer=event==='escort'?'dianwei':event==='recommendation'?'xunyu':(personnelOf(r)!.party[0]??null);return {token:event+':'+res.id,event,cards,stratagems,item:event==='barracks'?'medicine':'ration',officer};}
 export function chooseEngineReward(r:RunState,kind:string,a?:string,b?:string):Result {
  const e=engineOf(r),p=personnelOf(r)!,x=explorationOf(r)!,w=r.campaign!.world!;if(!e?.reward)return no('받을 사건 보상이 없습니다.');const rw=e.reward;
@@ -239,8 +251,10 @@ export function chooseEngineReward(r:RunState,kind:string,a?:string,b?:string):R
  else if(kind==='relation'){const id=a??rw.officer;const o=id&&p.officers[id];if(!o||o.information<2)return no('만난 인재를 고르세요.');o.trust=Math.min(100,o.trust+10);o.events.push('사건 보상 · 관계 신뢰 +10');p.revision++;}
  else if(kind==='stratagem'){if(!a||!rw.stratagems.includes(a))return no('제안된 책략 중에서 고르세요.');const res=equipStratagem(r,a,b,true);if(!res.ok)return res;}
  else if(kind==='item'){if(!rw.item)return no('제안된 아이템이 없습니다.');explorationInternals.giveItem(x,rw.item as ExplorationItemId,'사건 보상');}
+ else if(kind==='burden-favor'){if(e.stats.burdenUses<2)return no('부담 카드를 두 번 이상 써야 열리는 보상입니다.');const l=p.library.find(c=>c.uid===Number(a)&&RAISING_CARDS[c.id]?.burden);if(!l)return no('바꿀 부담 카드를 고르세요.');l.id='fund';const c=raisingOf(r)!.cards.find(c=>c.personnelCard===l.uid);if(c)c.id='fund';p.revision++;log(e,'부담을 신용으로 · 부담 카드가 공동 기금으로 바뀜');}
  else if(kind==='resource'){if(a==='food')w.preparation.food=Math.min(200,w.preparation.food+2);else w.preparation.funds=Math.min(200,w.preparation.funds+2);}
  else return no('없는 보상 선택입니다.');
+ if(kind==='skip')e.telemetry.rewards.declined++;else e.telemetry.rewards.taken.push(kind+(a?':'+a:''));
  e.rewardsTaken.push(rw.event);e.reward=null;log(e,`사건 보상 · ${({card:'카드 1장',skip:'받지 않기',upgrade:'카드 강화',remove:'카드 제거',relation:'인재 관계',stratagem:'책략',item:'아이템',resource:'자원'} as Record<string,string>)[kind]}`);return ok;
 }
 export function upgradeLibraryCard(r:RunState,uid:number,branch?:string):Result {const p=personnelOf(r)!,e=engineOf(r)!,l=p.library.find(c=>c.uid===uid);if(!l||l.upgrade||l.spent||!['bold','quiet'].includes(branch??''))return no('강화하지 않은 카드와 강화 분기(강행·정밀)를 고르세요.');l.upgrade=branch as 'bold'|'quiet';const c=raisingOf(r)!.cards.find(c=>c.personnelCard===uid);if(c)c.upgrade=l.upgrade;e.stats.cardsUpgraded++;p.revision++;return ok;}
@@ -305,6 +319,7 @@ export function applyDebateArguments(r:RunState,s:DebateState){
  const n=s.negotiation;if(!n)return [];const args=debateArguments(r);
  for(const a of args){const m=a.text.match(/^(이익|명예|안전|권한) 요구 −(\d)/);if(m){const axis=({이익:'profit',명예:'honor',안전:'safety',권한:'authority'} as const)[m[1] as '이익'];if(n.needs[axis]!==undefined)n.needs[axis]=Math.max(1,n.needs[axis]!-Number(m[2]));}
   else if(a.text.startsWith('신뢰'))s.trust=Math.min(10,s.trust+1);else if(a.text.startsWith('부담 한도'))n.burdenLimit+=1;}
+ const clauses=args.filter(a=>a.id.startsWith('clause:')).length;if(s.deck&&clauses){for(let i=0;i<Math.min(2,clauses);i++){const uid=s.deck.nextUid++;s.deck.cards.push({uid,id:'redress',temporary:true});s.deck.draw.unshift(uid);}s.log.push(`조항 초안 ${clauses}건 → 「조항 정리」 ${Math.min(2,clauses)}장`);}
  if(args.length)s.log.push('지속 논거 '+args.length+'개: '+args.map(a=>a.label).join(', '));return args;
 }
 
@@ -312,6 +327,7 @@ export function applyDebateArguments(r:RunState,s:DebateState){
 export function escortBattleConversions(r:RunState):{card:string;label:string;source:string}[] {
  const x=explorationOf(r),quest=x?.inn?.quests.escort,p=personnelOf(r);if(!quest||!p)return [];const ev=quest.evidence,out:{card:string;label:string;source:string}[]=[];
  if(ev.some(v=>v.startsWith('contract:')))out.push({card:'formation',label:'호위 계약',source:'계약으로 붙은 호위 인원 → 방진'});
+ if(ev.includes('puzzle:duel')&&ev.includes('verified'))out.push({card:'formation',label:'호위 대표의 인정',source:'통행권 대결 승리 → 호위 대표가 대열에 합류(방진)'});
  if(ev.includes('workers')||ev.includes('lusu-joint')||(engineOf(r)?.puzzles.escort?.inspected.includes('workers')))out.push({card:'feint',label:'짐꾼 증언',source:'짐꾼이 아는 매복 지점 → 양동'});
  if(ev.includes('stock'))out.push({card:'requisition',label:'비축 군량',source:'보급 2 이상으로 해결 → 징발'});
  if(ev.includes('alternate-route'))out.push({card:'ambush',label:'우회로',source:'좁은 우회로 → 매복'});
@@ -322,19 +338,58 @@ export function escortBattleConversions(r:RunState):{card:string;label:string;so
 }
 
 /* ───────────── 거병 관문 규칙 ───────────── */
-export function gateRuleText(plan:string){return ({assembly:'민회와 격문: 기본 명예 요구 +2. 이번 탐색에서 카드를 실제로 쓴 서로 다른 인재마다 명예 −1(최대 3), 「명분→지지」 연쇄마다 안전 −1(최대 2). 지속 논거 적용.',barracks:'군영 장악: 상대 체력 +4. 병영 퍼즐 미해결 장애마다 +2, 병영을 대결·진형으로 풀었으면 −3. 생산한 기세 3마다 시작 기세 +1(최대 3), 보급 4 이상 생산 시 방비 +4. 전술 3장 필수.',inside:'성문 내응: 설전 뒤 결과가 후속 대결로 전환됩니다. 성공 → 상대 체력 절반·수읽기, 부분 → 상대 체력 −3, 결렬 → +4. 우회로·수비대 포섭·내부 협력 4 이상이면 설전 성공 시 대결 없이 성문이 열립니다.'} as Record<string,string>)[plan]??'';}
-export function gateBuildSummary(r:RunState){const e=engineOf(r);if(!e)return null;const p=personnelOf(r)!;const talents=e.stats.distinctOwners.filter(o=>o!=='faction'&&o!==p.protagonistId&&!o.includes('+')).length;return {talents,causeChains:e.stats.chains['명분→지지']??0,momentum:e.stats.produced.momentum??0,supply:e.stats.produced.supply??0,inside:e.stats.produced.inside??0,barracks:e.puzzles.barracks,legacy:e.legacy.map(l=>l.id)};}
+export function gateRuleText(plan:string){return ({assembly:'민회와 격문: 기본 명예 요구 +2. 카드를 실제로 쓴 서로 다른 인재마다 명예 −1(최대 3), 「명분→지지」 연쇄마다 안전 −1(최대 2). 쌓은 공론 3마다 시작 집중 +1(최대 2). 조항 초안 논거마다 설전 덱에 「조항 정리」 1장. 결과와 조항 수로 최종 조항(정책·의무)이 정해집니다.',barracks:'군영 장악: 상대 체력 +4. 병영 퍼즐 미해결 장애마다 +2, 대결·진형으로 풀었으면 −3. 생산한 방비만큼 시작 방비(최대 6), 기세 3마다 시작 기세 +1(최대 3), 방비를 소비한 반격 2회마다 반격 태세 피해 +3. 전술 3장을 편성하지 않으면 전술 없이 시작합니다. 남은 체력 비율로 압승·신승을 가립니다.',inside:'성문 내응: 설전 결과가 후속 대결로 단계 전환됩니다. 설전 성공 체력 60%·부분 −3·결렬 +4. 내부 협력 2 이상 → 호위 지원(방비 강화) 제거, 단서 4 이상 → 첫 합 기습(상대 첫 행동 무효), 내부 협력 4 이상 또는 정보→인맥·계책 연쇄 2회 → 시작 기세 +2, 우회로 → 상대 체력 −4·행동 순서 공개. 설전 성공 + 우회로·포섭 + 내부 협력 4 이상이 모두 갖춰져야 대결 없이 성문이 열립니다.'} as Record<string,string>)[plan]??'';}
+export function gateBuildSummary(r:RunState){const e=engineOf(r);if(!e)return null;const p=personnelOf(r)!;const talents=e.stats.distinctOwners.filter(o=>o!=='faction'&&o!==p.protagonistId&&!o.includes('+')).length;return {talents,causeChains:e.stats.chains['명분→지지']??0,momentum:e.stats.produced.momentum??0,supply:e.stats.produced.supply??0,inside:e.stats.produced.inside??0,clue:e.stats.produced.clue??0,opinion:e.stats.produced.opinion??0,guard:e.stats.produced.guard??0,counters:e.stats.consumed.guard??0,infoChains:(e.stats.chains['정보→인맥']??0)+(e.stats.chains['정보→계책']??0),clauses:e.arguments.filter(a=>a.id.startsWith('clause:')).length,barracks:e.puzzles.barracks,legacy:e.legacy.map(l=>l.id)};}
 export function applyGateDebateRules(r:RunState,s:DebateState,plan:string){const e=engineOf(r),n=s.negotiation;if(!e||!n)return;const b=gateBuildSummary(r)!;
- if(plan==='assembly'){n.needs.honor=Math.min(12,(n.needs.honor??3)+2-Math.min(3,b.talents));if(n.needs.safety!==undefined)n.needs.safety=Math.max(1,n.needs.safety-Math.min(2,b.causeChains));s.log.push(`민회 규칙: 참여 인재 ${b.talents}명·명분→지지 연쇄 ${b.causeChains}회`);}
+ if(plan==='assembly'){n.needs.honor=Math.min(12,(n.needs.honor??3)+2-Math.min(3,b.talents));if(n.needs.safety!==undefined)n.needs.safety=Math.max(1,n.needs.safety-Math.min(2,b.causeChains));const focus=Math.min(2,Math.floor(b.opinion/3));s.resolve=Math.min(6,s.resolve+focus);s.log.push(`민회 규칙: 참여 인재 ${b.talents}명·명분→지지 ${b.causeChains}회·공론 ${b.opinion} → 집중 +${focus}·조항 초안 ${b.clauses}`);}
  if(plan==='inside'){if(b.legacy.includes('barracks:inside'))s.trust=Math.min(10,s.trust+1);if(b.inside>=3)s.trust=Math.min(10,s.trust+1);s.log.push(`성문 내응 규칙: 내부 협력 생산 ${b.inside}`);}
  applyDebateArguments(r,s);
 }
+/** 성문 내응: 설전 결과와 정보·인맥·내부 협력 표식을 후속 대결 조건으로 단계 변환한 목록. */
+export function insideConversions(r:RunState,debateGrade:string|null){const b=gateBuildSummary(r);if(!b)return [];const out:{id:string;text:string}[]=[];
+ out.push(debateGrade==='success'?{id:'debate-success',text:'설전 성공 → 상대 체력 60%'}:debateGrade==='partial'?{id:'debate-partial',text:'설전 부분 합의 → 상대 체력 −3'}:{id:'debate-failure',text:'설전 결렬 → 상대 체력 +4'});
+ if(b.inside>=2)out.push({id:'no-support',text:`내부 협력 ${b.inside} → 호위 지원 제거(방비 강화 규칙 해제·시작 방비 0)`});
+ if(b.clue>=4)out.push({id:'initiative',text:`단서 ${b.clue} → 첫 합 기습(상대 첫 행동 무효)`});
+ if(b.inside>=4||b.infoChains>=2)out.push({id:'momentum',text:`내부 협력 ${b.inside}·정보 연쇄 ${b.infoChains} → 시작 기세 +2`});
+ if(b.legacy.includes('escort:alternate'))out.push({id:'alternate',text:'비밀 우회로 → 상대 체력 −4·행동 순서 공개'});
+ return out;}
 export function applyGateDuelRules(r:RunState,s:DuelState,plan:string,debateGrade:string|null){const e=engineOf(r);if(!e)return;const b=gateBuildSummary(r)!;
- if(plan==='barracks'){const pz=b.barracks,uncleared=pz?pz.obstacles.filter(o=>o.hp>0).length:3,won=pz&&['duel','drill'].includes(pz.resolution??'');s.enemyMaxHp=s.enemyHp=Math.max(8,s.enemyHp+4+uncleared*2-(won?3:0));s.momentum=Math.min(5,s.momentum+Math.min(3,Math.floor(b.momentum/3)));if(b.supply>=4)s.protection=(s.protection??0)+4;if(b.legacy.includes('escort:duel'))s.momentum=Math.min(5,s.momentum+1);s.log.push(`군영 규칙: 미해결 장애 ${uncleared}·기세 생산 ${b.momentum}·보급 생산 ${b.supply}`);}
- if(plan==='inside'){const base=s.enemyHp;s.enemyMaxHp=s.enemyHp=debateGrade==='success'?Math.max(6,Math.ceil(base/2)):debateGrade==='partial'?Math.max(6,base-3):base+4;if(debateGrade==='success'){s.loadout??={opening:null,response:null,gambit:null,used:[]};s.loadout.revealed=true;}if(b.legacy.includes('escort:alternate'))s.enemyMaxHp=s.enemyHp=Math.max(6,s.enemyHp-4);s.log.push(`성문 내응 규칙: 설전 ${debateGrade??'없음'} → 상대 체력 ${s.enemyHp}`);}
+ if(plan==='barracks'){const pz=b.barracks,uncleared=pz?pz.obstacles.filter(o=>o.hp>0).length:3,won=pz&&['duel','drill'].includes(pz.resolution??'');s.enemyMaxHp=s.enemyHp=Math.max(8,s.enemyHp+4+uncleared*2-(won?3:0));s.momentum=Math.min(5,s.momentum+Math.min(3,Math.floor(b.momentum/3)));s.protection=(s.protection??0)+Math.min(6,b.guard);s.counterBonus=Math.min(2,Math.floor(b.counters/2))*3;if(b.legacy.includes('escort:duel'))s.momentum=Math.min(5,s.momentum+1);s.log.push(`군영 규칙: 미해결 장애 ${uncleared}·방비 생산 ${b.guard}·기세 생산 ${b.momentum}·반격 ${b.counters}회 → 시작 방비 ${s.protection}·기세 ${s.momentum}·반격 추가 피해 ${s.counterBonus}`);}
+ if(plan==='inside'){const conv=insideConversions(r,debateGrade),has=(id:string)=>conv.some(c=>c.id===id);const base=s.enemyHp;let hp=has('debate-success')?Math.max(6,Math.ceil(base*.6)):has('debate-partial')?Math.max(6,base-3):base+4;if(has('alternate'))hp=Math.max(6,hp-4);s.enemyMaxHp=s.enemyHp=hp;
+  if(has('no-support')){s.noSupport=true;s.enemyShield=0;}if(has('initiative'))s.initiative=true;if(has('momentum'))s.momentum=Math.min(5,s.momentum+2);if(has('alternate')||has('debate-success')){s.loadout??={opening:null,response:null,gambit:null,used:[]};s.loadout.revealed=true;}
+  s.log.push('성문 내응 전환: '+conv.map(c=>c.text).join(' / '));}
  applyDuelLoadout(r,s);
 }
-export function insideSkipsDuel(r:RunState,debateGrade:string|null){const b=gateBuildSummary(r);if(!b||debateGrade!=='success')return false;return b.legacy.includes('escort:alternate')||b.legacy.includes('barracks:inside')||b.inside>=4;}
+export function insideSkipsDuel(r:RunState,debateGrade:string|null){const b=gateBuildSummary(r);if(!b||debateGrade!=='success')return false;return (b.legacy.includes('escort:alternate')||b.legacy.includes('barracks:inside'))&&b.inside>=4;}
+/** 관문 결과 → 최종 조항·승리 등급을 거병 후 기록으로 남긴다. */
+export function engineGateOutcome(r:RunState,plan:string,debateGrade:string|null,duel:DuelState|null){const e=engineOf(r);if(!e)return;const b=gateBuildSummary(r)!;const push=(id:string,kind:'policy'|'obligation'|'gate',text:string)=>{if(!e.legacy.some(l=>l.id===id))e.legacy.push({id,kind,text});};
+ if(plan==='assembly'&&debateGrade){if(debateGrade==='success'&&b.clauses>=1)push('gate:assembly-clause','policy',`민회 최종 조항 · 조항 초안 ${b.clauses}건으로 공동 운영 조항 확정`);else if(debateGrade==='success')push('gate:assembly-plain','gate','민회 합의 · 조항 없이 구두 합의');else if(debateGrade==='partial')push('gate:assembly-conditional','obligation','민회 조건부 조항 · 권한 공유 의무');}
+ if(duel&&duel.result!=='ongoing'){const ratio=duel.hp/duel.maxHp,grade=duel.result==='win'?(ratio>=.6?'압승':'신승'):duel.result==='draw'?'무승부':'패배';push(`gate:${plan}-duel`,grade==='압승'?'policy':grade==='패배'?'obligation':'gate',`${plan==='barracks'?'군영 장악':'성문 내응'} 대결 ${grade} · 남은 체력 ${duel.hp}/${duel.maxHp}`);e.telemetry.results.push(`${plan}:duel:${grade}`);}
+ if(debateGrade)e.telemetry.results.push(`${plan}:debate:${debateGrade}`);}
+
+/* ───────────── 첫 협력 인재: 공통 카드 교체·조기 책략 ───────────── */
+export const PACT_CARDS:Record<string,string[]>={xunyu:['x_document','x_orthodox','x_guard_args','x_refine'],dianwei:['d_guard','d_momentum','d_counter','d_direct'],lusu:['l_trade','l_ledger','l_convert','l_mediate']};
+export const PACT_STRATAGEMS:Record<string,string[]>={xunyu:['many_hands','oath_policy','heavy_burden'],dianwei:['open_flag','banner_march','heavy_burden'],lusu:['ledger_net','relay_trust','heavy_burden']};
+export const COMMON_CARDS=['manifesto','coin','clues','food'];
+const PACT_QUEST:Record<string,string>={recommendation:'xunyu',escort:'dianwei',accounts:'lusu'};
+/** 첫 주요 인재의 의뢰를 수락하면 한 번 열린다. */
+export function openPact(r:RunState,quest:string){const e=engineOf(r);const talent=PACT_QUEST[quest];if(!e||e.pact||!talent)return;e.pact={talent,open:true,cards:[...PACT_CARDS[talent]],stratagems:PACT_STRATAGEMS[talent].filter(id=>!e.stratagems.includes(id)),swaps:[],stratagem:null};log(e,`${OFFICERS[talent].name}와 첫 협력 · 공통 카드 최대 2장을 전용 카드로 바꾸고 책략 1개를 고르세요.`);}
+export function pactSwap(r:RunState,card:string,oldUid:number):Result {
+ const e=engineOf(r),p=personnelOf(r)!,q=raisingOf(r)!,pact=e?.pact;if(!pact?.open)return no('열린 협력 제안이 없습니다.');if(pact.swaps.length>=2)return no('교체는 2장까지입니다.');if(!pact.cards.includes(card)||pact.swaps.some(s=>s.added===card))return no('이 인재의 전용 카드 중 아직 넣지 않은 카드를 고르세요.');
+ const old=p.library.find(l=>l.uid===oldUid);if(!old||!p.loadouts.raising.includes(old.uid)||!COMMON_CARDS.includes(old.id)||old.sourceType!=='protagonist')return no('활동 덱의 공통 카드(격문·사재·조사·곡물)만 교체할 수 있습니다.');
+ p.loadouts.raising=p.loadouts.raising.filter(v=>v!==old.uid);const oc=q.cards.find(c=>c.personnelCard===old.uid);if(oc){q.cards=q.cards.filter(c=>c.uid!==oc.uid);for(const pile of ['draw','hand','discard','exhaust'] as const)q[pile]=q[pile].filter(v=>v!==oc.uid);}
+ const l={uid:p.nextUid++,id:card,sourceType:'officer' as const,sourceId:pact.talent,ownerType:'personal' as const,owners:[p.protagonistId],activities:['raising' as const,'debate' as const,'combat' as const],expires:null,spent:false};p.library.push(l);p.loadouts.raising.push(l.uid);
+ const c={uid:q.nextUid++,id:card,personnelCard:l.uid};q.cards.push(c);(q.hand.length<8?q.hand:q.discard).push(c.uid);
+ pact.swaps.push({removed:old.id,added:card});e!.telemetry.swaps.push(`협력 교체 ${old.id}→${card}`);p.revision++;q.revision++;log(e!,`협력 교체 · ${RAISING_CARDS[old.id].name} → ${RAISING_CARDS[card].name}`);return ok;
+}
+export function pactStratagem(r:RunState,id:string):Result {const e=engineOf(r),pact=e?.pact;if(!pact?.open||pact.stratagem)return no('책략 선택이 열려 있지 않습니다.');if(!pact.stratagems.includes(id))return no('제안된 책략 3개 중에서 고르세요.');const res=equipStratagem(r,id,e!.stratagems[0],true);if(!res.ok)return res;pact.stratagem=id;return ok;}
+export function pactClose(r:RunState):Result {const e=engineOf(r);if(!e?.pact?.open)return no('열린 협력 제안이 없습니다.');if(!e.pact.swaps.length&&!e.pact.stratagem){log(e,`${OFFICERS[e.pact.talent].name}와의 협력 전환을 미룸 · 다음 주요 인재 의뢰에서 다시 제안`);e.pact=null;return ok;}e.pact.open=false;log(e,'첫 협력 확정');return ok;}
+
+/* ───────────── 계측: 로컬 디버그 리포트 ───────────── */
+export function recordSequence(r:RunState,kind:'debate'|'duel'|'battle',context:string,action:string|null,result?:string){const e=engineOf(r);if(!e)return;const t=e.telemetry;let cur=t.sequences.at(-1);if(!cur||cur.result||cur.kind!==kind||cur.context!==context){cur={kind,context,actions:[],result:''};t.sequences.push(cur);t.sequences=t.sequences.slice(-20);}if(action){cur.actions.push(action);cur.actions=cur.actions.slice(-60);}if(result)cur.result=result;}
+export function buildDebugReport(r:RunState){const e=engineOf(r),p=personnelOf(r),x=explorationOf(r);if(!e||!p)return null;const t=e.telemetry;const deck=p.loadouts.raising.map(uid=>p.library.find(l=>l.uid===uid)!).filter(Boolean).map(l=>l.id);
+ return {kind:'cheonha-gunjin-debug-report',version:1,note:'로컬 디버그 리포트 · 외부 전송 없음 · 개인 정보 없음',seed:r.campaign?.seed,tick:x?.tick,deck,storage:p.library.filter(l=>!p.loadouts.raising.includes(l.uid)).map(l=>l.id),cardPlays:t.plays,unusedInDeck:deck.filter(id=>!t.plays[id]),firstPlays:t.firstPlays,marksProduced:e.stats.produced,marksConsumed:e.stats.consumed,chains:e.stats.chains,stratagems:e.stratagems,stratagemTriggers:t.stratagems,rewards:t.rewards,deckSwaps:t.swaps,cardsPerEvent:t.events,sequences:t.sequences,withdrawals:t.withdrawals,cancels:t.cancels,afterFailure:t.afterFailure,results:t.results,puzzles:Object.values(e.puzzles).map(z=>({id:z.id,status:z.status,resolution:z.resolution,left:z.obstacles.filter(o=>o.hp>0).map(o=>o.id)})),legacy:e.legacy};}
+
 
 /* ───────────── 휴식 정제 ───────────── */
 export function engineRest(r:RunState,mode:string,a?:string,b?:string):Result {
@@ -350,11 +405,11 @@ export function engineRest(r:RunState,mode:string,a?:string,b?:string):Result {
 export function engineFoundingResult(r:RunState):string[] {const e=engineOf(r);if(!e)return [];return e.legacy.map(l=>`${({policy:'정책',obligation:'의무',gate:'관문'} as const)[l.kind]} · ${l.text}`);}
 export function engineSummary(r:RunState){const e=engineOf(r),p=personnelOf(r);if(!e||!p)return null;return {stratagems:e.stratagems.map(id=>STRATAGEMS[id].name),principles:activeTalents(r).map(id=>`${TALENTS[id].name}: ${principleOf(e,id)==='base'?TALENTS[id].principle.name:TALENTS[id].alt.name}`),deck:p.loadouts.raising.map(uid=>p.library.find(c=>c.uid===uid)!).filter(Boolean).map(l=>RAISING_CARDS[l.id].name+(l.upgrade?`+${l.upgrade==='bold'?'강행':'정밀'}`:'')),chains:e.stats.chains,produced:e.stats.produced,consumed:e.stats.consumed,legacy:e.legacy,arguments:e.arguments.map(a=>a.label),loadout:e.loadout,puzzles:Object.values(e.puzzles).map(p=>({id:p.id,status:p.status,resolution:p.resolution,left:p.obstacles.filter(o=>o.hp>0).map(o=>o.id)}))};}
 /** 거병 성공 시 사건 퍼즐·책략의 결과를 도시 정책·약속으로 옮긴다. 정책은 도시 상한(2)까지만. */
-const LEGACY_POLICY:Record<string,string>={'escort:debate':'granary','escort:contract-bond':'relay','recommendation:truth':'settlement','barracks:drill':'training','oath:0':'settlement','oath:1':'granary'};
-const LEGACY_PROMISE:Record<string,'ration'|'authority'|'shared'>={'escort:contract':'ration','recommendation:conditional':'ration','recommendation:expose':'authority','barracks:supply':'ration','escort:contract-shared':'shared'};
+const LEGACY_POLICY:Record<string,string>={'gate:assembly-clause':'settlement','gate:barracks-duel':'training','gate:inside-duel':'relay','escort:debate':'granary','escort:contract-bond':'relay','recommendation:truth':'settlement','barracks:drill':'training','oath:0':'settlement','oath:1':'granary'};
+const LEGACY_PROMISE:Record<string,'ration'|'authority'|'shared'>={'gate:assembly-conditional':'authority','escort:contract':'ration','recommendation:conditional':'ration','recommendation:expose':'authority','barracks:supply':'ration','escort:contract-shared':'shared'};
 export function applyEngineFounding(r:RunState,city:{policies:{id:string;remaining:number}[];promises:{id:string;due:number;status:string}[]},policyExists:(id:string)=>boolean):string[] {
  const e=engineOf(r);if(!e)return [];const lines:string[]=[];
- for(const l of e.legacy){const pol=LEGACY_POLICY[l.id],pr=LEGACY_PROMISE[l.id];
+ for(const l of e.legacy){const pol=l.kind==='policy'?LEGACY_POLICY[l.id]:undefined,pr=LEGACY_PROMISE[l.id];
   if(pol&&policyExists(pol)){if(city.policies.length<2&&!city.policies.some(p=>p.id===pol)){city.policies.push({id:pol,remaining:3});lines.push(`정책 시행 · ${l.text}`);}else lines.push(`정책 후보(상한 초과로 보류) · ${l.text}`);}
   else if(pr){if(!city.promises.some(p=>p.id===pr))city.promises.push({id:pr,due:3,status:'active'});lines.push(`의무 · ${l.text}`);}
   else lines.push(`기록 · ${l.text}`);}

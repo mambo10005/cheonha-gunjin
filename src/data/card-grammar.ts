@@ -4,7 +4,7 @@ import type {CardAction,CardFamily,CardGain,CardGrammar,DuelTacticSlot,Mark,Mark
 
 export const FAMILY6_NAMES:Record<CardFamily,string>={cause:'명분',intel:'정보',network:'인맥',military:'군사',supply:'물자',scheme:'계책'};
 export const ACTION_NAMES:Record<CardAction,string>={investigate:'조사',persuade:'설득',prepare:'준비',mobilize:'동원',trade:'거래',resolve:'결단'};
-export const MARK_NAMES:Record<Mark,string>={clue:'단서',ledger:'장부',support:'지지',inside:'내부 협력',alert:'경계',supply:'보급',momentum:'기세',promise:'약속',burden:'부담',opinion:'공론'};
+export const MARK_NAMES:Record<Mark,string>={clue:'단서',ledger:'장부',support:'지지',inside:'내부 협력',alert:'경계',supply:'보급',momentum:'기세',promise:'약속',burden:'부담',opinion:'공론',guard:'방비'};
 export const MARKS=Object.keys(MARK_NAMES) as Mark[];
 export const MARK_CAP=6,ALERT_CAP=8;
 export const markText=(b:MarkBag|undefined)=>Object.entries(b??{}).filter(([,n])=>n).map(([m,n])=>`${MARK_NAMES[m as Mark]} ${n!>0?'+':''}${n}`).join('·');
@@ -84,6 +84,19 @@ const SPECS:Record<string,Spec>={
  person_chengpu_a:S('supply','mobilize',{},{c:['supply',2,{force:1,marks:{momentum:2}}]}),
  person_chengpu_b:S('supply','prepare',{supply:1},{c:['burden',1,{marks:{supply:2}}]}),
  support_chengpu:S('supply','prepare',{supply:1}),
+ // 첫 협력 인재 전용: 순욱(문서·정론·논거 보호·부담 정제) / 전위(방비·기세·반격·직접 해결) / 노숙(거래·장부·비용 전환·중재)
+ x_document:S('cause','investigate',{ledger:2},{u:[{action:'persuade'},{marks:{opinion:1}}]}),
+ x_orthodox:S('cause','persuade',{opinion:1},{c:['ledger',1,{force:1,marks:{opinion:1}}]}),
+ x_guard_args:S('network','prepare',{opinion:1,alert:-1}),
+ x_refine:S('cause','resolve',{},{c:['burden',1,{force:1,marks:{opinion:2}}]}),
+ d_guard:S('military','prepare',{guard:2,alert:-1}),
+ d_momentum:S('military','mobilize',{momentum:2},{u:[{action:'prepare'},{marks:{momentum:1}}]}),
+ d_counter:S('military','resolve',{momentum:1},{c:['guard',1,{force:2}]}),
+ d_direct:S('military','resolve',{alert:1},{force:2,c:['momentum',2,{force:2}]}),
+ l_trade:S('scheme','trade',{ledger:1,promise:1}),
+ l_ledger:S('intel','investigate',{ledger:1,clue:1},{c:['ledger',1,{marks:{clue:2,inside:1}}]}),
+ l_convert:S('scheme','trade',{},{c:['alert',1,{force:1,marks:{inside:1}}]}),
+ l_mediate:S('network','persuade',{support:1},{c:['inside',1,{force:2}]}),
  // 합동 4
  joint_feint:S('scheme','resolve',{momentum:1},{c:['clue',1,{force:2,marks:{momentum:1}}]}),
  joint_records:S('cause','investigate',{ledger:2,opinion:1}),

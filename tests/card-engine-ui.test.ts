@@ -29,3 +29,19 @@ test('engine drawer shows the 12-card active deck, storage, stratagem slots, tac
   assert.ok(doc.querySelector('.engine-gate-rule'),'gate build test text');assert.match(doc.body.textContent!,/민회와 격문: 기본 명예 요구 \+2/);assert.ok(doc.querySelector('.engine-gate-prep .engine-argument-list'),'arguments before the debate');
  }finally{dom.window.close();}
 });
+
+test('first-cooperation pact panel: swap common cards for talent cards, pick an early stratagem, and see them in the next hand (jsdom)',{timeout:180000},async()=>{
+ const built=await build({logLevel:'silent',build:{write:false}}),out=Array.isArray(built)?built[0]:built;assert.ok('output' in out);const js=out.output.find(x=>x.type==='chunk');assert.ok(js&&js.type==='chunk');const errors:string[]=[];
+ const dom=new JSDOM('<main id="app"></main>',{url:'http://localhost/',runScripts:'outside-only',beforeParse(w){w.structuredClone=structuredClone;w.matchMedia=(()=>({matches:true})) as unknown as typeof w.matchMedia;w.addEventListener('error',e=>errors.push(String(e.error)));}});dom.window.eval(js.code);const doc=dom.window.document;
+ const click=(selector:string)=>{const b=doc.querySelector<HTMLButtonElement>(selector);assert.ok(b,selector);assert.equal(b.disabled,false,selector+' '+b.textContent);b.click();assert.deepEqual(errors,[]);};const act=(a:string)=>click(`[data-explore-action="${a}"]`);
+ const change=(selector:string,value:string)=>{const el=doc.querySelector<HTMLInputElement|HTMLSelectElement>(selector)!;el.value=value;el.dispatchEvent(new dom.window.Event('change',{bubbles:true}));};
+ const state=()=>{const data=loadCampaign(dom.window.localStorage);assert.ok(data.ok);return data.data.activeExpedition!;};
+ try{
+  click('[data-a="world-new"]');change('[data-world-seed]','141001');click('[data-campaign-choice="founder"][data-value="chengong"]');change('[data-raising-origin]','notable');click('[data-world="start"]');act('enter');act('inn:area:yard');act('inn:select:dianwei');act('inn:offer:escort');act('inn:accept:escort');
+  const panel=doc.querySelector('.engine-pact');assert.ok(panel,'pact panel');assert.equal(panel!.querySelectorAll('.engine-pact-cards article').length,4);assert.equal(panel!.querySelectorAll('.engine-pact-stratagems article').length,3);
+  const p=state().campaign!.personnel!,man=p.library.find(l=>l.id==='manifesto')!;act(`engine:pact-swap:d_guard:${man.uid}`);act('engine:pact-stratagem:open_flag');act('engine:pact-close');assert.equal(doc.querySelector('.engine-pact'),null);
+  const s=state();assert.ok(!s.campaign!.personnel!.loadouts.raising.includes(man.uid));assert.deepEqual(s.campaign!.world!.raising!.engine!.stratagems,['open_flag']);
+  act('leave');for(const id of ['market','store']){click(`[data-city-location="${id}"]`);act('move:'+id);}act('enter');assert.ok([...doc.querySelectorAll('.exploration-hand-card h4')].some(h=>h.textContent==='방비 태세'),'pact card in the first hand');
+  click('[data-explore-tab="engine"]');assert.ok(doc.querySelector('[data-engine-report]'),'local debug report button');
+ }finally{dom.window.close();}
+});

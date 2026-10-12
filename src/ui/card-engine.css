@@ -59,3 +59,8 @@
 @media (max-width:820px){.engine-puzzle-state,.engine-loadout-grid{grid-template-columns:1fr}}
 .engine-resolution small,.engine-obstacle small,.engine-deck-card small{display:block;margin-top:6px}
 .engine-resolution .btn{display:block}
+.engine-pact{margin:16px 0;padding:20px 22px;border:1px solid #c9a564;border-radius:6px;background:#2a2a1e;color:#efe5cf}
+.engine-pact-cards,.engine-pact-stratagems{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:12px 0}
+.engine-pact article{padding:12px;border:1px solid #6f6a52;border-radius:5px;background:#24312b}
+.engine-pact article.chosen{border-color:#f1cf86;background:#3a3a26}
+.engine-pact .btn{margin:6px 6px 0 0}

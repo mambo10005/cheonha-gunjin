@@ -19,11 +19,11 @@ export const PUZZLES:Record<string,PuzzleDef>={
   intro:'수레는 실렸지만 장부와 실제 수량이 다르고, 호위는 비어 있으며, 하역장 길은 막혀 있고, 창고 책임자는 경계합니다. 카드로 장애를 줄여 해결 방식을 여세요.',
   obstacles:[
    {id:'ledger_gap',name:'장부 불일치',hp:2,accepts:['investigate','trade'],key:'ledger',text:'출입 장부와 자루 수가 맞지 않습니다.'},
-   {id:'escort_gap',name:'호위 공백',hp:2,accepts:['mobilize','prepare'],key:'momentum',text:'수레를 지킬 사람이 모자랍니다.'},
+   {id:'escort_gap',name:'호위 공백',hp:2,accepts:['mobilize','prepare','resolve'],key:'guard',text:'수레를 지킬 사람이 모자랍니다.'},
    {id:'blocked',name:'막힌 통로',hp:2,accepts:['investigate','resolve'],key:'clue',text:'하역장 통로가 짐으로 막혔습니다.'},
    {id:'keeper_alert',name:'책임자 경계',hp:2,accepts:['persuade','trade'],key:'support',text:'창고 책임자가 외부인을 의심합니다.'},
   ],
-  inspect:{cart:{clue:1},passage:{clue:1},guards:{momentum:1},ledger:{ledger:2},contract:{promise:1},key:{inside:1},workers:{inside:1,clue:1},sacks:{supply:1},route:{clue:1},'damaged-sacks':{ledger:1},'locked-door':{alert:1,inside:1}},
+  inspect:{cart:{clue:1},passage:{clue:1},guards:{guard:1},ledger:{ledger:2},contract:{promise:1},key:{inside:1},workers:{inside:1,clue:1},sacks:{supply:1},route:{clue:1},'damaged-sacks':{ledger:1},'locked-door':{alert:1,inside:1}},
   items:{ledger:{ledger:2},map:{clue:2},letter:{support:2},ration:{supply:2},seal:{inside:1}},
   resolutions:[
    {id:'debate',label:'장부 설전',text:'장부 불일치를 풀었다면 창고 책임자·호위 대표와 장부를 근거로 설전합니다.',quality:'debate',requires:{cleared:['ledger_gap']},legacy:{kind:'policy',text:'창고 장부 공개 · 거병 후 구휼 창고 정책 후보'}},
@@ -57,7 +57,7 @@ export const PUZZLES:Record<string,PuzzleDef>={
    {id:'discipline',name:'군기 해이',hp:2,accepts:['prepare'],key:'supply',text:'보급이 끊겨 훈련이 흐트러졌습니다.'},
    {id:'garrison_alert',name:'수비대 경계',hp:2,accepts:['investigate','trade','persuade'],key:'inside',text:'수비대가 병영 출입을 감시합니다.'},
   ],
-  inspect:{roster:{clue:1,support:1},weapons:{momentum:1},orders:{inside:1,clue:1},supplies:{supply:1,ledger:1}},
+  inspect:{roster:{clue:1,support:1},weapons:{momentum:1,guard:1},orders:{inside:1,clue:1},supplies:{supply:1,ledger:1}},
   items:{ration:{supply:2},seal:{inside:2},medicine:{supply:1},map:{clue:2}},
   resolutions:[
    {id:'duel',label:'훈련 대표 대결',text:'지휘권 불신을 1 이하로 낮추면 훈련 대표와 대결합니다. 대결 전 전술 3장을 고릅니다.',quality:'duel',requires:{atMost:{command_distrust:1}},legacy:{kind:'gate',text:'대결로 얻은 지휘권 · 군영 장악 관문 상대 체력 −3'}},

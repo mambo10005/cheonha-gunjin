@@ -111,7 +111,7 @@ test('burden cards are usable but weak alone: they never reduce obstacles, yet f
 test('gate rules test the build: assembly needs fall with distinct talents and chains; barracks hp tracks the barracks puzzle; inside may skip the duel',()=>{
  const P=atStore();const e=P.e;const s=createDuel(3,'chengong','champion');const base=s.enemyHp;applyGateDuelRules(P.r,s,'barracks',null);assert.equal(s.enemyHp,base+4+6,'unsolved barracks: +4 and +2 per obstacle');
  e.puzzles.barracks={id:'barracks',status:'resolved',focus:null,obstacles:PUZZLES.barracks.obstacles.map(o=>({id:o.id,hp:0,max:o.hp})),marks:{},alert:0,resolution:'drill',plays:3,inspected:[],items:[],log:[]};const s2=createDuel(3,'chengong','champion');applyGateDuelRules(P.r,s2,'barracks',null);assert.equal(s2.enemyHp,base+4-3);
- assert.equal(insideSkipsDuel(P.r,'success'),false);e.legacy.push({id:'escort:alternate',kind:'gate',text:''});assert.equal(insideSkipsDuel(P.r,'success'),true);assert.equal(insideSkipsDuel(P.r,'partial'),false);
+ assert.equal(insideSkipsDuel(P.r,'success'),false);e.legacy.push({id:'escort:alternate',kind:'gate',text:''});assert.equal(insideSkipsDuel(P.r,'success'),false,'alternate alone is not enough');e.stats.produced.inside=4;assert.equal(insideSkipsDuel(P.r,'success'),true);assert.equal(insideSkipsDuel(P.r,'partial'),false);
 });
 
 test('preview equals the actual play (marks, obstacles, stats), and draw/power gains are capped per visit',()=>{

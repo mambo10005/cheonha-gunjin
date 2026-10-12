@@ -1,5 +1,5 @@
 import {INN_AREAS,INN_GUESTS,INN_QUESTS,INN_TOPICS} from '../data/inn.ts';
-import {escortBattleConversions} from './card-engine.ts';
+import {escortBattleConversions,recordSequence} from './card-engine.ts';
 import {CARDS} from '../data/cards.ts';
 import type {RunState} from './types.ts';
 import type {Result} from './run.ts';
@@ -92,6 +92,7 @@ export function handleInnAction(r:RunState,command:string,h:InnHooks):Result {
     const time=bond?2:1,funds=bond?4:1,c=afford(r,time,funds);if(!c.ok)return c;pay(r,h,time,funds);
     quest.conclusion=bond?'보증 호위 계약 · 자금 4 · 왕복 호위 · 사고 책임 호위 측':'책임 분담 호위 계약 · 자금 1 · 편도 1회 · 사고 책임 우리 측';
     quest.evidence.push(bond?'contract:4':'contract:1',bond?'period:round-trip':'period:one-trip',bond?'risk:escort':'risk:client');quest.result='partial';
+    if(!bond&&r.campaign!.world!.raising!.engine){/* 책임 분담: 부담 카드 「후원 청구서」가 보관함에 생긴다 */const p=r.campaign!.personnel!;p.library.push({uid:p.nextUid++,id:'debt_note',sourceType:'event',sourceId:'escort',ownerType:'promise',owners:[],activities:['raising'],expires:null,spent:false});p.revision++;h.emit('cardGranted','책임 분담 · 부담 카드 「후원 청구서」가 보관함에 들어왔습니다.');}
     if(!bond)h.emit('questStepAdvanced',d.title+' · 호위 인원은 줄이고 사고 책임은 우리가 집니다. 호송 때 피로와 손실 위험이 남습니다.');
     ensureLocationScene(x).usedInteractions.push('escort:'+arg);ensureLocationScene(x).phase='resolution';advanceQuest(quest,h,arg);return ok;
    }
@@ -173,7 +174,7 @@ export function finishInnBattle(r:RunState,h:InnHooks):Result {
  const x=xof(r),s=x.inn,a=s?.activity,b=r.battle;if(!s||!a||a.kind!=='battle')return no('진행 중인 공동 호위 전투가 없습니다.');
  const quest=s.quests.escort,d=INN_QUESTS.escort,prep=r.campaign!.world!.preparation;
  if(b&&b.result==='ongoing')return no('전투가 아직 끝나지 않았습니다.');
- const won=b?.result==='win';prep.food=Math.max(0,b?b.food:prep.food);
+ const won=b?.result==='win';prep.food=Math.max(0,b?b.food:prep.food);recordSequence(r,'battle','escort',b?`${b.turn??0}턴`:null,b?.result??'none');
  r.battle=null;r.screen='map';s.activity=null;quest.evidence=quest.evidence.filter(v=>v!=='ambush');x.locations.store.secured=true;x.locations.gate.secured=true;
  const o=r.campaign!.personnel!.officers.dianwei;
  if(won){

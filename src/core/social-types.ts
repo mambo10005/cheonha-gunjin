@@ -13,6 +13,8 @@ export interface DuelState {
   protection?: number; enemyShield?: number;
   /** 거병 카드 엔진의 대결 전술 3장(선제·대응·승부수). */
   loadout?: { opening: string | null; response: string | null; gambit: string | null; used: string[]; revealed?: boolean };
+  /** 성문 내응 전환: 기습(첫 합 무효)·호위 지원 제거·반격 추가 피해. */
+  initiative?: boolean; noSupport?: boolean; counterBonus?: number;
   lastMode?: DuelAction;
   rng: number; opponentId: string; generalId: string; round: number; maxRounds: number;
   hp: number; maxHp: number; enemyHp: number; enemyMaxHp: number; momentum: number;

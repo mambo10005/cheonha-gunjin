@@ -18,5 +18,7 @@ export function validEngine(e:unknown):boolean {
  if(!object(e.principles)||!Object.entries(e.principles).every(([id,v])=>TALENTS[id]&&['base','alt'].includes(v as string))||!object(e.growth)||!Object.entries(e.growth).every(([id,v])=>TALENTS[id]&&['add','upgrade','replace','principle'].includes(v as string)))return false;
  if(e.reward!==null&&(!object(e.reward)||!strings(e.reward.cards,3)||!strings(e.reward.stratagems,2)||!e.reward.stratagems.every((id:string)=>STRATAGEMS[id])))return false;
  if(!strings(e.rewardsTaken,10)||!Array.isArray(e.rests)||!object(e.stats)||!strings(e.log,60))return false;
+ if(e.pact!==undefined&&e.pact!==null&&(!object(e.pact)||!TALENTS[e.pact.talent]||typeof e.pact.open!=='boolean'||!strings(e.pact.cards,4)||!strings(e.pact.stratagems,3)||!Array.isArray(e.pact.swaps)||e.pact.swaps.length>2||!(e.pact.stratagem===null||STRATAGEMS[e.pact.stratagem])))return false;
+ if(e.telemetry!==undefined&&(!object(e.telemetry)||!object(e.telemetry.plays)||!Array.isArray(e.telemetry.sequences)||e.telemetry.sequences.length>20))return false;
  return true;
 }
