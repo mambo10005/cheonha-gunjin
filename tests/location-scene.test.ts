@@ -9,7 +9,7 @@ import {startCityExploration} from '../src/core/city-exploration-start.ts';
 import {saveCampaign,loadCampaign,campaignSnapshot,CAMPAIGN_KEY} from '../src/core/campaign-save.ts';
 import {memoryKV} from '../src/core/save.ts';
 import type {RunState} from '../src/core/types.ts';
-const fresh=()=>{const r=newWorldCampaign(141001).activeExpedition!;assert.ok(startCityExploration(r,'xingyang','chengong','notable').ok);return r;};
+const fresh=()=>{const r=newWorldCampaign(141001).activeExpedition!;assert.ok(startCityExploration(r,'xingyang','chengong','notable').ok);/* 카드 엔진 이전 저장(레거시 규칙) 경로를 검증한다. 카드 엔진 경로는 tests/card-engine*.test.ts */delete r.campaign!.world!.raising!.engine;return r;};
 const act=(r:RunState,a:string)=>{const result=exploreAction(r,a,explorationOf(r)!.revision);assert.ok(result.ok,a+' '+result.reason);};
 const reload=(r:RunState)=>{const kv=memoryKV();assert.ok(saveCampaign(kv,r));const loaded=loadCampaign(kv);assert.ok(loaded.ok);return loaded.data.activeExpedition!;};
 function visit(r:RunState,to:string){const x=explorationOf(r)!;if(x.scene!=='map')act(r,'leave');const d=CITY_EXPLORATION_DEFS.xingyang,queue=[[x.location]],seen=new Set<string>();let route:string[]=[];while(queue.length){const path=queue.shift()!,at=path.at(-1)!;if(at===to){route=path;break;}if(seen.has(at))continue;seen.add(at);for(const edge of d.links){const n=edge.a===at?edge.b:edge.b===at?edge.a:null;if(n&&!seen.has(n))queue.push([...path,n]);}}assert.ok(route.length);for(const id of route.slice(1))act(r,'move:'+id);act(r,'enter');}

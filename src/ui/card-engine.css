@@ -1,0 +1,61 @@
+/* 카드 엔진: 사건 퍼즐·표식·활동 덱·전술. 글자는 15px 이상, 대비를 유지한다. */
+.engine-puzzle,.engine-reward,.engine-conversion,.engine-loadout,.engine-drawer>section,.engine-gate-prep{margin:16px 0;padding:20px 22px;border:1px solid #7d6a48;border-radius:6px;background:#1c2a26;color:#efe5cf}
+.engine-puzzle>header p{margin-top:6px;color:#d9d2bd}
+.engine-puzzle.failed{border-color:#b0614e;background:#2b1d1a}
+.engine-puzzle-state{display:grid;grid-template-columns:minmax(260px,1fr) minmax(260px,1fr);gap:18px;margin:16px 0}
+.engine-puzzle h4,.engine-drawer h4,.engine-loadout h4{font-size:19px}
+.engine-marks{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0;padding:0;list-style:none}
+.engine-marks li{display:flex;gap:6px;align-items:baseline;padding:6px 10px;border:1px solid #6f6a52;border-radius:4px;background:#26342d;font-size:16px}
+.engine-marks li strong{font-size:19px;color:#f3dca6}
+.engine-marks li.mark-alert{border-color:#a8774d}
+.engine-marks li.danger{border-color:#e07a5f;background:#3a2420}
+.engine-chain{margin:8px 0 10px;padding-left:22px;font-size:16px}
+.engine-chain small{display:block}
+.engine-obstacles{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.engine-obstacle{padding:14px;border:1px solid #6c6a51;border-radius:5px;background:#24352d}
+.engine-obstacle header{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.engine-obstacle.cleared{opacity:.72;border-style:dashed}
+.engine-obstacle.focus{border-color:#f1cf86;box-shadow:0 0 0 2px #f1cf8633}
+.engine-hp{display:flex;gap:4px;margin:8px 0}
+.engine-hp i{width:22px;height:10px;border-radius:2px;background:#3b4a40}
+.engine-hp i.on{background:#d88a57}
+.engine-obstacle p{font-size:16px}
+.engine-obstacle .btn{margin-top:8px}
+.engine-items,.engine-resolutions{margin-top:16px}
+.engine-items .btn{margin:6px 6px 0 0}
+.engine-resolutions{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.engine-resolutions>h4{grid-column:1/-1}
+.engine-resolution{padding:14px;border:1px solid #807250;border-radius:5px;background:#2a3a2b}
+.engine-resolution.locked{opacity:.8;background:#222b26}
+.engine-quality{display:inline-block;padding:2px 8px;border-radius:3px;font-size:15px;background:#43553f}
+.engine-quality.q-complete{background:#4f6a3f}.engine-quality.q-partial{background:#6a5a35}.engine-quality.q-debate{background:#3d4f6a}.engine-quality.q-duel{background:#6a3d3d}
+.engine-resolution .btn{margin-top:10px}
+.engine-arguments,.engine-puzzle details{margin-top:14px}
+.engine-argument-list{margin:8px 0;padding-left:20px;font-size:16px}
+.engine-reward-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:12px 0}
+.engine-reward-cards article{padding:14px;border:1px solid #8a7a52;border-radius:5px;background:#2a3529}
+.engine-reward-other{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-start}
+.engine-reward-other details{flex-basis:100%}
+.engine-reward-other details .btn{margin:6px 6px 0 0}
+.card-grammar{font-size:15px;color:#f0d9a0;line-height:1.5}
+.engine-preview{margin-top:6px;color:#f3dca6}
+.engine-loadout-grid{display:grid;grid-template-columns:repeat(3,minmax(200px,1fr));gap:12px;margin-top:10px}
+.engine-loadout-slot{display:grid;gap:8px;align-content:start}
+.engine-loadout-slot h5{margin:0;font-size:18px}
+.engine-tactic{display:grid;gap:2px;text-align:left;padding:10px 12px;border:1px solid #6f6a52;border-radius:5px;background:#24312b;color:#efe5cf}
+.engine-tactic.selected{border-color:#f1cf86;background:#3a3a26}
+.engine-tactic:disabled:not(.selected){opacity:.6}
+.engine-duel-loadout{margin:8px 0;font-size:16px;color:#f0dfb7}
+.engine-deck-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px;margin:10px 0}
+.engine-deck-card{padding:12px;border:1px solid #6c6a51;border-radius:5px;background:#24352d}
+.engine-deck-card.locked{opacity:.75}
+.engine-deck-card>span{font-size:15px;color:#c9c3a9}
+.engine-deck-card h5{margin:4px 0;font-size:18px}
+.engine-talent{padding:12px 0;border-top:1px solid #4f5642}
+.engine-growth{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.engine-rest{display:flex;flex-wrap:wrap;gap:8px}
+.engine-gate-rule{margin:8px 0;color:#f3dca6}
+.engine-conversion ul{margin:8px 0;padding-left:20px;font-size:16px}
+@media (max-width:820px){.engine-puzzle-state,.engine-loadout-grid{grid-template-columns:1fr}}
+.engine-resolution small,.engine-obstacle small,.engine-deck-card small{display:block;margin-top:6px}
+.engine-resolution .btn{display:block}

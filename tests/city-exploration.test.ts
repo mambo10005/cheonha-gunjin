@@ -14,7 +14,7 @@ import {saveCampaign,loadCampaign} from '../src/core/campaign-save.ts';
 import {memoryKV} from '../src/core/save.ts';
 import {deckPolicyAction} from '../src/sim/debate-deck-policy.ts';
 import type {RunState} from '../src/core/types.ts';
-const fresh=(seed=141001)=>{const r=newWorldCampaign(seed).activeExpedition!;assert.ok(startCityExploration(r,'xingyang','chengong','notable').ok);return r;};
+const fresh=(seed=141001)=>{const r=newWorldCampaign(seed).activeExpedition!;assert.ok(startCityExploration(r,'xingyang','chengong','notable').ok);/* 카드 엔진 이전 저장(레거시 규칙) 경로를 검증한다. 카드 엔진 경로는 tests/card-engine*.test.ts */delete r.campaign!.world!.raising!.engine;return r;};
 const action=(r:RunState,a:string)=>exploreAction(r,a,explorationOf(r)!.revision);
 const run=(r:RunState,a:string)=>{const result=action(r,a);assert.ok(result.ok,a+': '+result.reason);assert.ok(validCityExploration(explorationOf(r),'xingyang'),a+' exploration schema');return result;};
 function reload(r:RunState){const kv=memoryKV();saveCampaign(kv,r);const restored=loadCampaign(kv);assert.ok(restored.ok,JSON.stringify(restored));return restored.data.activeExpedition!;}

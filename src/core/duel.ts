@@ -26,6 +26,7 @@ export function canDuelAction(s: DuelState, action: string, round: number): Chec
     if (action === 'sacrifice' && s.hp <= 4) return { ok: false, reason: '체력 5 이상 필요.' };
     return { ok: true };
   }
+  if (action === 'gambit') return s.loadout?.gambit && !s.loadout.used.includes('gambit') ? { ok: true } : { ok: false, reason: '승부수 전술이 없거나 이미 사용했습니다.' };
   if (!['strike', 'probe', 'guard', 'finisher', 'surrender'].includes(action)) return { ok: false, reason: '없는 대결 행동입니다.' };
   if (action === 'finisher' && s.momentum < 2) return { ok: false, reason: '승부수에는 기세 2가 필요합니다.' };
   return { ok: true };
@@ -35,7 +36,8 @@ export function resolveDuelAction(s: DuelState, action: string, round: number): 
   if (!check.ok) return check;
   if (action === 'surrender') { s.result = 'surrender'; s.log.push('기권: 이번 전투 첫 턴 지휘력 -1.'); return check; }
   const tactic = Object.hasOwn(TACTICS, action) ? action as TacticId : null;
-  const a = tactic ? TACTICS[tactic].mode : action as DuelAction;
+  const gambit = action === 'gambit' ? s.loadout!.gambit : null;
+  const a = tactic ? TACTICS[tactic].mode : gambit ? 'strike' : action as DuelAction;
   if (s.build) nextBuildTurn(s.build);
   if (tactic) s.usedTactics!.push(tactic);
   const momentumBefore = s.momentum;
@@ -83,7 +85,20 @@ export function resolveDuelAction(s: DuelState, action: string, round: number): 
     if (tactic === 'brace' && taken === 0 && enemy !== 'guard') emit('guarded');
     s.lastMode = a;
   }
+  if (s.loadout) {
+    const l = s.loadout, used = (id: string) => l.used.includes(id), use = (id: string) => l.used.push(id);
+    if (gambit) {
+      use('gambit');
+      if (gambit === 'all_in') { dealt = 8 + momentumBefore * 3; s.momentum = 0; s.log.push(`결사 일격: 기세 ${momentumBefore} 소진.`); }
+      if (gambit === 'expose') { s.enemyShield = 0; dealt = 6; taken = 0; s.log.push('허점 폭로: 상대 방비 제거·이번 피해 무효.'); }
+      if (gambit === 'oath') { s.hp = Math.min(s.maxHp, s.hp + 5); s.momentum = Math.min(5, momentumBefore + 2); dealt = 4; s.log.push('맹약의 증언: 체력 5 회복·기세 +2.'); }
+    }
+    if (l.opening === 'read' && !used('read') && taken > 0) { taken = Math.max(0, taken - 3); use('read'); }
+    if (l.response === 'counter' && !used('counter') && a === 'guard' && taken === 0 && enemy !== 'guard') { dealt += 5; use('counter'); s.log.push('반격 태세: 반격 피해 5.'); }
+    if (l.response === 'second' && !used('second') && taken >= s.hp) { taken = Math.max(0, s.hp - 1); use('second'); s.log.push('보좌 개입: 쓰러질 피해를 체력 1로 버팀.'); }
+  }
   s.hp = Math.max(0, s.hp - taken); s.enemyHp = Math.max(0, s.enemyHp - dealt);
+  if (s.loadout?.response === 'ration' && !s.loadout.used.includes('ration') && s.hp > 0 && s.hp * 2 <= s.maxHp) { s.hp = Math.min(s.maxHp, s.hp + 6); s.loadout.used.push('ration'); s.log.push('보급 회복: 체력 6 회복.'); }
   s.round++; s.lastAction = a;
   s.log.push(`${s.round}회: 상대 체력 -${dealt}, 내 체력 -${taken}${repeat ? ' (연속 행동 효율 감소)' : ''}.`);
   if (s.hp === 0 && s.enemyHp === 0) s.result = 'draw';

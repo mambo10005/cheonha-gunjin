@@ -16,6 +16,6 @@ export interface RaisingState {
  reward:null|{token:string;cards:string[];scheme:string;ally:string};revision:number;
  plan:null|'assembly'|'barracks'|'inside';gate:null|{debate:DebateState|null;duel:DuelState|null;debateGrade:string|null;duelGrade:string|null;representative:string;support:number;discount:number;tacticRefund:boolean};
  grade:null|'great'|'success'|'conditional'|'incomplete'|'escaped'|'lost';attempt:number;
- result:string[];log:string[];converted:boolean;injuries?:Record<string,number>;
+ result:string[];log:string[];converted:boolean;injuries?:Record<string,number>;engine?:import('./card-engine-types.ts').EngineState;
  stats:{plays:Record<string,number>;picks:Record<string,number>;skips:number;removes:number;upgrades:number;mods:number;chains:number;reshuffles:number;recoveries:number;allyPicks:Record<string,number>};
 }

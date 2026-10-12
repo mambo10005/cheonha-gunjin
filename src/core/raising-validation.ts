@@ -2,6 +2,7 @@ import {RAISING_CARDS,ORIGINS,REPRESENTATIVES,ALLIES,SCHEMES,NODES,PLANS} from '
 import {GENERALS} from '../data/generals.ts';
 import {activity} from './save-validation.ts';
 import type {RunState} from './types.ts';
+import {validEngine} from './card-engine-validation.ts';
 const object=(x:unknown):x is Record<string,any>=>!!x&&typeof x==='object'&&!Array.isArray(x);
 const int=(x:unknown,min=0,max=100000)=>typeof x==='number'&&Number.isInteger(x)&&x>=min&&x<=max;
 const strings=(x:unknown,max=200)=>Array.isArray(x)&&x.length<=max&&x.every(s=>typeof s==='string'&&s.length<=10000);
@@ -22,6 +23,7 @@ export function validRaising(r:RunState):boolean {
  if(q.phase==='debate'&&!q.gate?.debate||q.phase==='duel'&&!q.gate?.duel)return false;
  if(!object(q.stats)||!['plays','picks','allyPicks'].every(k=>object(q.stats[k as keyof typeof q.stats])&&Object.values(q.stats[k as keyof typeof q.stats]).every(n=>int(n,0,1000)))||!['skips','removes','upgrades','mods','chains','reshuffles','recoveries'].every(k=>int(q.stats[k as keyof typeof q.stats],0,1000)))return false;
  if(q.injuries!==undefined&&(!object(q.injuries)||!Object.entries(q.injuries).every(([id,n])=>Object.hasOwn(GENERALS,id)&&int(n,1,2))))return false;
+ if(!validEngine(q.engine))return false;
  if(q.phase!=='founded'&&w.stage!=='preparing'&&w.stage!=='failed'||q.phase==='founded'&&w.stage==='preparing')return false;
  return true;
 }

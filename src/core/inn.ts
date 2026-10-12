@@ -1,4 +1,6 @@
 import {INN_AREAS,INN_GUESTS,INN_QUESTS,INN_TOPICS} from '../data/inn.ts';
+import {escortBattleConversions} from './card-engine.ts';
+import {CARDS} from '../data/cards.ts';
 import type {RunState} from './types.ts';
 import type {Result} from './run.ts';
 import type {InnState,InnQuestState,InnArea} from './inn-types.ts';
@@ -32,7 +34,11 @@ export function syncInn(r:RunState,h:InnHooks){const x=xof(r),s=x.inn;if(!s||x.c
  const escort=s.quests.escort;if(escort&&['accepted','active'].includes(escort.status)&&escort.step===0&&x.location==='store'&&['cart','passage','guards'].every(c=>escort.evidence.includes(c))&&x.tick<=escort.due){escort.evidence.push(INN_QUESTS.escort.steps[0].id);advanceQuest(escort,h,'scene-inspection');h.emit('questStepAdvanced',INN_QUESTS.escort.title+' · 수레·통로·호위 인력 조사 완료. 이제 계약·설전·대결·우회로 중 해결 방식을 고르세요.');}
 }
 export function questTarget(r:RunState){const s=innOf(r);return Object.values(s?.quests??{}).find(q=>['accepted','active','readyToReport'].includes(q.status));}
-export function innQuestActions(r:RunState,q:InnQuestState){const d=INN_QUESTS[q.id],x=xof(r);if(!['accepted','active','readyToReport'].includes(q.status))return [];const step=d.steps[q.step];if(x.location!==step.location||!['location','result'].includes(x.scene))return [];return step.approaches;}
+export function innQuestActions(r:RunState,q:InnQuestState){const d=INN_QUESTS[q.id],x=xof(r);if(!['accepted','active','readyToReport'].includes(q.status))return [];const step=d.steps[q.step];if(x.location!==step.location||!['location','result'].includes(x.scene))return [];
+ /* 카드 엔진: 이 단계는 장소 사건 퍼즐이 해결 방식을 연다. 퍼즐 결과 또는 실패 후속만 허용 */
+ const managed=!!r.campaign?.world?.raising?.engine&&(q.id==='escort'&&q.step<=1||q.id==='recommendation'&&q.step>=1&&q.step<=2);
+ if(managed)return step.approaches.filter(a=>q.evidence.includes('puzzle:'+a)||q.evidence.includes('blocked')&&['retry-investigate','pay','contract'].includes(a));
+ return step.approaches;}
 function advanceQuest(q:InnQuestState,h:InnHooks,approach:string){q.approaches.push(approach);q.step++;q.status=q.step===INN_QUESTS[q.id].steps.length-1?'readyToReport':'active';h.emit(q.status==='readyToReport'?'questReadyToReport':'questStepAdvanced',INN_QUESTS[q.id].title+' · '+INN_QUESTS[q.id].steps[q.step].objective);}
 function eligiblePerson(r:RunState,id:string){return id==='innkeeper'||innPatrons(r).includes(id);}
 export function handleInnAction(r:RunState,command:string,h:InnHooks):Result {
@@ -74,7 +80,7 @@ export function handleInnAction(r:RunState,command:string,h:InnHooks):Result {
   const quest=s.quests[id],d=INN_QUESTS[id];if(!quest||!d||!innQuestActions(r,quest).includes(arg)||x.converted)return no('현재 의뢰의 목표 장소와 단계를 확인하세요.');if(x.tick+1>quest.due)return no('이 활동에 필요한 의뢰 기한이 부족합니다.');
   if(arg==='report')return report(r,id,h);
   if(id==='escort'&&quest.step===1){
-   const checked=['cart','passage','guards'].every(clue=>quest.evidence.includes(clue));
+   const viaPuzzle=quest.evidence.includes('puzzle:'+arg),checked=viaPuzzle||quest.evidence.includes('blocked')&&arg==='contract'||['cart','passage','guards'].every(clue=>quest.evidence.includes(clue));
    if(!checked)return no('먼저 창고에서 수레, 통로, 호위 인력을 각각 조사하세요.');
    if(arg==='contract'){
     const c=afford(r,1,3);if(!c.ok)return c;pay(r,h,1,3);quest.conclusion='유료 호위 계약 · 자금 3 · 왕복 1회';quest.evidence.push('contract:3','period:one-trip','risk:escort');quest.result='partial';h.effects({debt:1,promise:'ration'},d.title+' · 단기 호위 계약');ensureLocationScene(x).usedInteractions.push('escort:contract');ensureLocationScene(x).phase='resolution';advanceQuest(quest,h,arg);return ok;
@@ -82,7 +88,7 @@ export function handleInnAction(r:RunState,command:string,h:InnHooks):Result {
    if(arg==='contract-shared'||arg==='contract-bond'){
     // 계약 조건 협상: 보수·기간·사고 책임을 바꾼 다른 계약안. 단기 계약(contract)은 기존 조건 그대로 유지한다.
     const bond=arg==='contract-bond';
-    if(bond&&!quest.evidence.some(v=>v==='ledger'||v==='contract'))return no('보증 계약은 창고의 출입 장부나 계약서를 먼저 조사해 수량을 맞춰야 제안할 수 있습니다.');
+    if(bond&&!viaPuzzle&&!quest.evidence.some(v=>v==='ledger'||v==='contract'))return no('보증 계약은 창고의 출입 장부나 계약서를 먼저 조사해 수량을 맞춰야 제안할 수 있습니다.');
     const time=bond?2:1,funds=bond?4:1,c=afford(r,time,funds);if(!c.ok)return c;pay(r,h,time,funds);
     quest.conclusion=bond?'보증 호위 계약 · 자금 4 · 왕복 호위 · 사고 책임 호위 측':'책임 분담 호위 계약 · 자금 1 · 편도 1회 · 사고 책임 우리 측';
     quest.evidence.push(bond?'contract:4':'contract:1',bond?'period:round-trip':'period:one-trip',bond?'risk:escort':'risk:client');quest.result='partial';
@@ -91,7 +97,7 @@ export function handleInnAction(r:RunState,command:string,h:InnHooks):Result {
    }
    if(arg==='alternate'){
     const hasIntel=r.campaign!.world!.raising!.intel>=1||x.items.some(i=>i.id==='map')||x.companions.includes('lusu')||quest.evidence.includes('lusu-joint');
-    if(!quest.evidence.includes('workers')||!quest.evidence.includes('passage')||!hasIntel)return no('짐꾼 증언·통로 조사와 정보 1, 지도, 노숙 동행 또는 노숙과의 공동 대조가 필요합니다.');
+    if(!viaPuzzle&&(!quest.evidence.includes('workers')||!quest.evidence.includes('passage')||!hasIntel))return no('짐꾼 증언·통로 조사와 정보 1, 지도, 노숙 동행 또는 노숙과의 공동 대조가 필요합니다.');
     const c=afford(r,2);if(!c.ok)return c;pay(r,h,2);quest.conclusion='짐꾼과 노숙이 찾은 좁은 우회로';quest.evidence.push('alternate-route');quest.result='partial';const lusu=r.campaign!.personnel!.officers.lusu;if(lusu){lusu.trust=Math.min(100,lusu.trust+5);lusu.proof=true;lusu.events.push(d.title+' · 짐꾼 증언으로 대체 통로 확보');r.campaign!.personnel!.revision++;h.emit('relationshipChanged','노숙 · 우회로 공동 조사 · 신뢰 +5·협력 실적');}h.effects({exposure:1},d.title+' · 비공개 우회로');ensureLocationScene(x).usedInteractions.push('escort:alternate');ensureLocationScene(x).phase='resolution';advanceQuest(quest,h,arg);return ok;
    }
   }
@@ -159,7 +165,8 @@ export function escortBattleSetup(r:RunState,q:InnQuestState){
 function createEscortBattle(r:RunState,q:InnQuestState):BattleState{
  const x=xof(r),setup=escortBattleSetup(r,q),seed=((x.tick+1)*7919+(x.revision+1)*104729+q.acceptedAt*31)%2147483646+1;
  const generals=[{id:'dianwei',row:'front' as const},...r.generals.filter(g=>g.id!=='dianwei').slice(0,1).map(g=>({id:g.id,row:'rear' as const}))];
- return createBattle({build:r.build,rng:seed,hp:setup.hp,maxHp:setup.hp,food:Math.max(0,r.campaign!.world!.preparation.food),deck:r.deck,generals,relics:r.relics,lordId:r.lordId,terrain:'plains',encounterId:'e_bandit',enemies:setup.enemies,difficulty:0,allyBlessing:false,opening:{block:setup.block,damage:setup.damage,energyPenalty:0}});
+ const temp=escortBattleConversions(r).filter(c=>CARDS[c.card]).map((c,i)=>({uid:90001+i,id:c.card}));
+ return createBattle({build:r.build,rng:seed,hp:setup.hp,maxHp:setup.hp,food:Math.max(0,r.campaign!.world!.preparation.food),deck:[...r.deck,...temp],generals,relics:r.relics,lordId:r.lordId,terrain:'plains',encounterId:'e_bandit',enemies:setup.enemies,difficulty:0,allyBlessing:false,opening:{block:setup.block,damage:setup.damage,energyPenalty:0}});
 }
 /** 공동 호위 전투를 끝내고 의뢰·준비 자원에 결과를 반영한다. 같은 전투 보상은 한 번만 적용된다. */
 export function finishInnBattle(r:RunState,h:InnHooks):Result {
