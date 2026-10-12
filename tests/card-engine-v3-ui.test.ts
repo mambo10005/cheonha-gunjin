@@ -5,6 +5,7 @@ import {JSDOM} from 'jsdom';
 import {saveCampaign,loadCampaign,CAMPAIGN_KEY} from '../src/core/campaign-save.ts';
 import {memoryKV} from '../src/core/save.ts';
 import {runDianwei,runLusu} from '../src/sim/card-engine-builds.ts';
+import {raisingOf} from '../src/core/raising.ts';
 import type {RunState} from '../src/core/types.ts';
 import {freshRun,Player} from '../src/sim/card-engine-play.ts';
 // 관문 대결 2판·설전 등급·난도·사람 플레이 시험 묶음의 공개 DOM 확인(jsdom). 실제 브라우저 렌더링이나 사람의 플레이 결과는 아니다.
@@ -30,6 +31,8 @@ test('gate screens show duel v2 state, debate grade checklist, profile and insid
   assert.match(field!.textContent!,/라운드 1\/4/,'military: short rounds');
   const opp=doc.querySelector<HTMLButtonElement>('.field-side.theirs button.field-arg');assert.ok(opp);opp!.click();assert.deepEqual(errors,[]);assert.ok(state().campaign!.world!.raising!.gate!.debate!.field!.focus,'target an opposing argument');
   dom.window.close();
+  // 거병 성공 결과 화면: 부담 결산 선택이 보이고, 고르면 저장에 남는다(한 번)
+  const {runChengpu}=await import('../src/sim/card-engine-builds.ts');const cp=runChengpu(true,null);const R=cp.state;if(R&&raisingOf(R)?.phase==='result'){dom=boot(R);({doc,click,state}=run(dom));click('[data-a="world-continue"]');const st=doc.querySelector('.engine-settlement');assert.ok(st,'settlement panel');assert.match(st!.textContent!,/부담 장부/);assert.ok(doc.querySelector('[data-explore-action="engine:settle:carry"]'));click('[data-explore-action="engine:settle:carry"]');assert.equal(state().campaign!.world!.raising!.engine!.burdenSettlement,'carry');assert.equal(doc.querySelector('[data-explore-action="engine:settle:fund"]'),null,'chosen once');dom.window.close();}
   const P=new Player(freshRun());P.act('enter');P.act('inn:offer:escort');P.act('inn:accept:escort');P.act('engine:pact-close');P.act('leave');
   dom=boot(P.r);({doc,click,state}=run(dom));click('[data-a="world-continue"]');click('[data-explore-tab="engine"]');const pt=doc.querySelector('.engine-playtest');assert.ok(pt,'playtest package');assert.match(pt!.textContent!,/141001/);assert.ok(doc.querySelector('.engine-playtest-guide:not([open])'),'routes hidden until opened');
   click('[data-explore-action^="engine:survey:chain:"]');assert.equal(state().campaign!.world!.raising!.engine!.telemetry.survey!.chain,'그렇다');

@@ -40,7 +40,7 @@ export const DECK_CATEGORY_NAMES:Record<DeckCategory,string>={protagonist:'주�
 const raisingOf=(r:RunState)=>r.campaign?.world?.raising;
 export const newTelemetry=():EngineTelemetry=>({plays:{},events:{},stratagems:{},firstPlays:[],rewards:{taken:[],declined:0},swaps:[],sequences:[],withdrawals:0,cancels:0,afterFailure:[],results:[]});
 /** 1차 카드 엔진 저장(협력·계측 필드 없음)은 읽을 때 빈 기본값을 채운다. */
-export const engineOf=(r:RunState):EngineState|undefined=>{const e=raisingOf(r)?.engine;if(e){e.telemetry??=newTelemetry();if(e.pact===undefined)e.pact=null;e.profile??='standard';e.debates??=[];e.duels??=[];}return e;};
+export const engineOf=(r:RunState):EngineState|undefined=>{const e=raisingOf(r)?.engine;if(e){e.telemetry??=newTelemetry();if(e.pact===undefined)e.pact=null;e.profile??='standard';e.debates??=[];e.duels??=[];e.burdenLedger??={created:0,used:0,converted:0,exhausted:0};if(e.burdenSettlement===undefined)e.burdenSettlement=null;}return e;};
 
 export function ensureEngine(r:RunState):EngineState|undefined {
  const q=raisingOf(r);if(!q||!personnelOf(r))return undefined;
@@ -136,7 +136,7 @@ export function engineAfterPlay(r:RunState,c:RaisingCard,exhausted:boolean){
  for(const id of e.stratagems){
   if(id==='relay_trust'&&prev?.family==='intel'&&['network','scheme'].includes(g.family)&&useOnce(e,'s:'+id,2))fire(id,{force:1,marks:{inside:1}},'밀서와 인맥');
   if(id==='banner_march'&&g.family==='military'&&(s.marks.support??0)>=1&&useOnce(e,'s:'+id,2)){spend(e,o,'support',1);fire(id,{marks:{momentum:2}},'민심의 진군');}
-  if(id==='heavy_burden'&&(g.produces.burden??0)>0&&useOnce(e,'s:'+id,2)){o.produced.burden=Math.max(0,(o.produced.burden??0)-1);fire(id,{marks:{supply:1,promise:1}},'짐을 진 맹세(부담 1 → 보급·약속, 이 카드는 소멸)');if(g.burden)burnCard=true;}
+  if(id==='heavy_burden'&&(g.produces.burden??0)>0&&useOnce(e,'s:'+id,2)){o.produced.burden=Math.max(0,(o.produced.burden??0)-1);fire(id,{marks:{supply:1,promise:1}},'짐을 진 맹세(부담 1 → 보급·약속, 이 카드는 소멸)');e.burdenLedger!.converted++;if(g.burden)burnCard=true;}
   if(id==='many_hands'&&g.action==='persuade'&&(Object.keys(o.consumed).length>0||followed)&&useOnce(e,'s:'+id,2)){fire(id,{force:1},'공론의 조항');const n=e.arguments.filter(a=>a.id.startsWith('clause:')).length;if(n<3)addArgument(e,{id:'clause:'+n,source:'puzzle',label:`조항 초안 ${n+1} · ${RAISING_CARDS[c.id].name}`,text:'설전 덱에 「조항 정리」 1장(부담 −1·신뢰 +1)'});}
   if(id==='oath_policy'&&(o.consumed.promise??0)>0&&useOnce(e,'s:'+id,3)){fire(id,{marks:{support:1}},'약속의 제도화');const n=e.legacy.filter(l=>l.id.startsWith('oath:')).length;if(n<2)e.legacy.push({id:'oath:'+n,kind:'policy',text:'약속의 제도화 · 거병 후 공동 운영 정책'});}
   if(id==='burn_bridge'&&(exhausted||g.burden)&&useOnce(e,'s:'+id,2))fire(id,{draw:1},'소진의 결단');
@@ -144,8 +144,8 @@ export function engineAfterPlay(r:RunState,c:RaisingCard,exhausted:boolean){
   if(id==='ledger_net'&&['investigate','trade'].includes(g.action)&&useOnce(e,'s:'+id,2)){if((o.consumed.ledger??0)>0)fire(id,{marks:{clue:1,inside:1}},'장부의 그물');else if((s.marks.ledger??0)>=1){spend(e,o,'ledger',1);fire(id,{marks:{clue:1,inside:1}},'장부의 그물');}else s.uses['s:'+id]--;}
  }
  for(const id of talents)if(id==='chengpu'&&principleOf(e,id)==='alt'&&(o.consumed.supply??0)>=2&&useOnce(e,'p:chengpu',2))apply(o,{draw:1},'정보 · 노장의 셈');
- if(g.burden)e.stats.burdenUses++;
- if(burnCard&&q.discard.includes(c.uid)){q.discard=q.discard.filter(v=>v!==c.uid);q.exhaust.push(c.uid);}
+ if(g.burden){e.stats.burdenUses++;e.burdenLedger!.used++;}
+ if(burnCard&&q.discard.includes(c.uid)){q.discard=q.discard.filter(v=>v!==c.uid);q.exhaust.push(c.uid);if(g.burden)e.burdenLedger!.exhausted++;}
  e.telemetry.plays[c.id]=(e.telemetry.plays[c.id]??0)+1;{const ev=currentPuzzleId(r)??explorationOf(r)?.event?.id??'none';e.telemetry.events[ev]=(e.telemetry.events[ev]??0)+1;}if(e.telemetry.firstPlays.length<12)e.telemetry.firstPlays.push(c.id);
  // 5) 퍼즐 장애: 열쇠 표식은 이전에 쌓인 것만 소비(생산 전에 판정)
  let hit='';
@@ -261,7 +261,7 @@ export function chooseEngineReward(r:RunState,kind:string,a?:string,b?:string):R
  else if(kind==='relation'){const id=a??rw.officer;const o=id&&p.officers[id];if(!o||o.information<2)return no('만난 인재를 고르세요.');o.trust=Math.min(100,o.trust+10);o.events.push('사건 보상 · 관계 신뢰 +10');p.revision++;}
  else if(kind==='stratagem'){if(!a||!rw.stratagems.includes(a))return no('제안된 책략 중에서 고르세요.');const res=equipStratagem(r,a,b,true);if(!res.ok)return res;}
  else if(kind==='item'){if(!rw.item)return no('제안된 아이템이 없습니다.');explorationInternals.giveItem(x,rw.item as ExplorationItemId,'사건 보상');}
- else if(kind==='burden-favor'){if(e.stats.burdenUses<2)return no('부담 카드를 두 번 이상 써야 열리는 보상입니다.');const l=p.library.find(c=>c.uid===Number(a)&&RAISING_CARDS[c.id]?.burden);if(!l)return no('바꿀 부담 카드를 고르세요.');l.id='fund';const c=raisingOf(r)!.cards.find(c=>c.personnelCard===l.uid);if(c)c.id='fund';p.revision++;log(e,'부담을 신용으로 · 부담 카드가 공동 기금으로 바뀜');}
+ else if(kind==='burden-favor'){if(e.stats.burdenUses<2)return no('부담 카드를 두 번 이상 써야 열리는 보상입니다.');const l=p.library.find(c=>c.uid===Number(a)&&RAISING_CARDS[c.id]?.burden);if(!l)return no('바꿀 부담 카드를 고르세요.');l.id='fund';const c=raisingOf(r)!.cards.find(c=>c.personnelCard===l.uid);if(c)c.id='fund';e.burdenLedger!.converted++;p.revision++;log(e,'부담을 신용으로 · 부담 카드가 공동 기금으로 바뀜');}
  else if(kind==='resource'){if(a==='food')w.preparation.food=Math.min(200,w.preparation.food+2);else w.preparation.funds=Math.min(200,w.preparation.funds+2);}
  else return no('없는 보상 선택입니다.');
  if(kind==='skip')e.telemetry.rewards.declined++;else e.telemetry.rewards.taken.push(kind+(a?':'+a:''));
@@ -270,6 +270,7 @@ export function chooseEngineReward(r:RunState,kind:string,a?:string,b?:string):R
 export function upgradeLibraryCard(r:RunState,uid:number,branch?:string):Result {const p=personnelOf(r)!,e=engineOf(r)!,l=p.library.find(c=>c.uid===uid);if(!l||l.upgrade||l.spent||!['bold','quiet'].includes(branch??''))return no('강화하지 않은 카드와 강화 분기(강행·정밀)를 고르세요.');l.upgrade=branch as 'bold'|'quiet';const c=raisingOf(r)!.cards.find(c=>c.personnelCard===uid);if(c)c.upgrade=l.upgrade;e.stats.cardsUpgraded++;p.revision++;return ok;}
 export function removeLibraryCard(r:RunState,uid:number):Result {
  const p=personnelOf(r)!,e=engineOf(r)!,q=raisingOf(r)!,l=p.library.find(c=>c.uid===uid);if(!l)return no('보관함 카드를 고르세요.');if(l.owners.some(o=>o!==p.protagonistId))return no('인재 카드는 제거하지 않고 편성에서만 뺍니다.');if(p.loadouts.raising.length<=6&&p.loadouts.raising.includes(uid))return no('활동 덱은 최소 6장입니다.');
+ if(RAISING_CARDS[l.id]?.burden)e.burdenLedger!.exhausted++;
  p.library=p.library.filter(c=>c.uid!==uid);for(const k of Object.keys(p.loadouts) as (keyof typeof p.loadouts)[])p.loadouts[k]=p.loadouts[k].filter(v=>v!==uid);const c=q.cards.find(c=>c.personnelCard===uid);if(c){q.cards=q.cards.filter(v=>v.uid!==c.uid);for(const pile of ['draw','hand','discard','exhaust'] as const)q[pile]=q[pile].filter(v=>v!==c.uid);}e.stats.cardsRemoved++;p.revision++;return ok;
 }
 
@@ -401,7 +402,7 @@ export function setupEngineDuel(r:RunState,s:DuelState,objective:string,extra:Pa
 export function applyGateDuelRules(r:RunState,s:DuelState,plan:string,debateGrade:string|null){const e=engineOf(r);if(!e)return;const b=gateBuildSummary(r)!;
  if(plan==='barracks'){const pz=b.barracks,left=(id:string)=>!pz||pz.obstacles.find(o=>o.id===id)!.hp>0;const support=Math.max(0,profileOf(r).duel.support+(left('garrison_alert')?1:0)+(left('discipline')?1:0)-(b.legacy.includes('duel:escort-perfect')?1:0));
   s.counterBonus=Math.min(2,Math.floor(b.counters/2))*3;const conv=[{text:`병영 퍼즐 → 상대 병사 지원 카드 ${support}장(수비대 경계·군기 해이 ${left('garrison_alert')||left('discipline')?'남음':'해결'})`},{text:`방비 생산 ${b.guard} → 시작 방비 +${Math.min(6,b.guard)}`},{text:`반격 ${b.counters}회 → 반격 피해 +${s.counterBonus}`}];
-  const mom=Math.min(3,Math.floor(b.momentum/3))+(b.legacy.includes('escort:duel')?1:0);if(mom)conv.push({text:`기세 생산 → 시작 기세 +${mom}`});
+  const mom=Math.min(3,Math.floor(b.momentum/3))+(b.legacy.includes('escort:duel')?1:0)+(b.legacy.includes('duel:trainer-command')?1:0);if(mom)conv.push({text:`기세 생산 → 시작 기세 +${mom}`});
   setupEngineDuel(r,s,'barracks_gate',{support,startGuard:Math.min(6,b.guard),startMomentum:mom,conversions:conv});return;}
  if(plan==='inside'){const o=insideObstacles(r,debateGrade)!;const f=raisingOf(r)?.gate?.debate?.field;const conv:{text:string}[]=[];const ex:Partial<DuelDeckSetup>={addOpp:[],removeOpp:[]};
   // 감시
@@ -471,8 +472,22 @@ export function engineSummary(r:RunState){const e=engineOf(r),p=personnelOf(r);i
 /** 거병 성공 시 사건 퍼즐·책략의 결과를 도시 정책·약속으로 옮긴다. 정책은 도시 상한(2)까지만. */
 const LEGACY_POLICY:Record<string,string>={'gate:assembly-clause':'settlement','gate:barracks-duel':'training','gate:inside-duel':'relay','escort:debate':'granary','escort:contract-bond':'relay','recommendation:truth':'settlement','barracks:drill':'training','oath:0':'settlement','oath:1':'granary'};
 const LEGACY_PROMISE:Record<string,'ration'|'authority'|'shared'>={'gate:assembly-conditional':'authority','escort:contract':'ration','recommendation:conditional':'ration','recommendation:expose':'authority','barracks:supply':'ration','escort:contract-shared':'shared'};
+/** 부담 결산: 실제로 사용·변환·소멸한 부담만 조건에 넣는다(생성만 하거나 손에 든 부담은 보상이 아니다). */
+export const BURDEN_SETTLEMENTS:Record<string,{name:string;text:string;cost:string;gain:string}>={
+ fund:{name:'공동 기금',text:'부담을 함께 진 사람들의 돈을 세력 금고로 모읍니다.',gain:'즉시 자금 +3, 「상단 보호」 정책 후보',cost:'상단 의무(호송 안전 — 치안 40 이상 유지) 생성'},
+ share:{name:'책임 분담',text:'부담을 나눠 진 기록으로 의무 하나를 덜어 냅니다.',gain:'거병 의무 하나 해제(만기 연장이 아니라 이행 처리)',cost:'즉시 자금 −2'},
+ carry:{name:'장부 이월',text:'남은 부담 장부를 도시 현안으로 넘깁니다.',gain:'현안 「장부 이월」 해결 시 자재 +3·안정 +3',cost:'실패하면 안정 −6·생산 −4 — 보상과 위험을 함께 가짐'},
+};
+const PROMISE_NAMES:Record<string,string>={ration:'병영 군량 지급',shared:'사고 책임 분담',authority:'자치 약속',escort:'호송 안전'};
+export function burdenSettlementStatus(r:RunState){const e=engineOf(r);if(!e)return null;const l=e.burdenLedger!;const used=l.used+l.converted+l.exhausted;const eligible=l.used>=2&&(l.converted+l.exhausted)>=1;return {ledger:l,eligible,reason:eligible?'':`부담 카드를 2번 이상 쓰고(지금 ${l.used}) 변환·소멸 1번 이상(지금 ${l.converted+l.exhausted}) 해야 결산이 열립니다`,score:used,chosen:e.burdenSettlement??null};}
+export function chooseBurdenSettlement(r:RunState,id:string):Result{const e=engineOf(r);if(!e)return no('카드 엔진 이전 저장입니다.');const st=burdenSettlementStatus(r)!;if(!st.eligible)return no(st.reason);if(!BURDEN_SETTLEMENTS[id])return no('결산 선택을 고르세요.');if(e.burdenSettlement)return no('부담 결산은 한 번만 고릅니다.');e.burdenSettlement=id;log(e,`부담 결산 · ${BURDEN_SETTLEMENTS[id].name}`);return ok;}
 export function applyEngineFounding(r:RunState,city:CityState,policyExists:(id:string)=>boolean):string[] {
  const e=engineOf(r);if(!e)return [];const lines:string[]=[];const c=r.campaign!;
+ // 부담 결산(선택했을 때만, 한 번)
+ if(e.burdenSettlement&&!e.legacy.some(l=>l.id==='settle:'+e.burdenSettlement)){const id=e.burdenSettlement,w=r.campaign!.world!;e.legacy.push({id:'settle:'+id,kind:'policy',text:`부담 결산 · ${BURDEN_SETTLEMENTS[id].name}`});
+  if(id==='fund'){w.treasury+=3;if(policyExists('merchants')&&city.policies.length<2&&!city.policies.some(p=>p.id==='merchants'))city.policies.push({id:'merchants',remaining:3});const duty=city.promises.some(p=>p.id==='escort')?'ration':'escort';if(!city.promises.some(p=>p.id===duty))city.promises.push({id:duty,due:3,status:'active'});lines.push(`부담 결산 · 공동 기금: 자금 +3, 상단 보호 정책, 상단 의무(${PROMISE_NAMES[duty]}) 생성`);}
+  if(id==='share'){const target=city.promises.find(p=>p.status==='active');if(target){target.status='fulfilled';lines.push(`부담 결산 · 책임 분담: 의무 「${PROMISE_NAMES[target.id]??target.id}」 이행 처리, 자금 −2`);}else lines.push('부담 결산 · 책임 분담: 덜어낼 의무 없음, 자금 −2');w.treasury=Math.max(0,w.treasury-2);}
+  if(id==='carry'){if(!city.issues.some(i=>i.id==='ledger_carry'))city.issues.push({id:'ledger_carry',due:3,progress:0,status:'active'});lines.push('부담 결산 · 장부 이월: 현안 「장부 이월」 생성(해결 시 자재 +3·안정 +3, 실패 시 안정 −6·생산 −4)');}}
  const policy=(pol:string,text:string)=>{if(!policyExists(pol))return;if(city.policies.length<2&&!city.policies.some(p=>p.id===pol)){city.policies.push({id:pol,remaining:3});lines.push(`정책 시행 · ${text}`);}else lines.push(`정책 후보(상한 초과로 보류) · ${text}`);};
  const promise=(id:string,text:string)=>{if(!city.promises.some(p=>p.id===id))city.promises.push({id,due:3,status:'active'});lines.push(`의무 · ${text}`);};
  for(const l of e.legacy){
@@ -521,6 +536,7 @@ export function engineDuelFinished(r:RunState,s:DuelState,context:string){const 
  // 대결 결과 → 이후 설전의 조건(보상이 아니라 논거·청중으로): 위신·군사 보증·청중 경계·부상 책임
  const conv=(id:string,label:string,text:string)=>{if(!e.arguments.some(a=>a.id===id)){addArgument(e,{id,source:'puzzle',label,text});log(e,`대결 → 설전 · ${label}`);}};
  if(def.id==='practice'&&ev.rank>=3)conv('duel:dianwei-vouch','전위의 보증(뒤뜰 시험)','설전에 「전위의 보증」 증거 카드');
+ if(def.id==='trainer'&&ev.rank>=3&&!e.legacy.some(l=>l.id==='duel:trainer-command'))e.legacy.push({id:'duel:trainer-command',kind:'gate',text:'훈련 대표의 지휘 인정 · 군영 장악 대결 시작 기세 +1'});
  if(def.id==='escort_captain'&&ev.rank>=2)conv('duel:prestige','호위 대표의 인정(위신)','설전에 「위신」 증거 카드');
  if(ev.excessive)conv('aud:au_watch','청중의 경계(과잉 무력)','다음 설전 청중에 「청중의 경계」');
  if(ev.injury.player==='major')conv('aud:au_injury','부상 책임','다음 설전 청중에 「부상 책임」');

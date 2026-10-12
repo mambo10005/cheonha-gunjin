@@ -5,7 +5,7 @@
  * 「탐욕」(즉시 피해 최대 카드, 하한) 두 정책. 자동 정책 결과이며 사람의 판단·재미를 대신하지 않는다.
  */
 import {writeFileSync} from 'node:fs';
-import {freshRun,Player,debateAction,deckDuelAction} from './card-engine-play.ts';
+import {freshRun,Player,debateAction,deckDuelAction,type DuelPolicy} from './card-engine-play.ts';
 import {DEBATE_CARDS} from '../data/debate-cards.ts';
 import {ARGUMENT_DEFS} from '../data/debate-field.ts';
 import {DUEL_CARDS,OPP_CARDS} from '../data/duel-cards.ts';
@@ -27,7 +27,7 @@ export function stripBuild(r:RunState,keepParty=false){const e=engineOf(r)!,p=pe
  for(const sw of e.pact?.swaps??[]){const l=p.library.find(l=>l.id===sw.added&&l.sourceType==='officer');if(l){l.id=sw.removed;l.sourceType='protagonist';l.sourceId=p.protagonistId;const c=q.cards.find(c=>c.personnelCard===l.uid);if(c)c.id=sw.removed;}}
  x.items=[];if(!keepParty){x.companions=[];p.party=[];}p.assistant=null;return r;}
 /** 대결 덱에서 인재 원칙·지원 카드를 뺀다(대표가 인재 자신인 군영 대결의 B용). */
-function stripDuelOfficers(s:DuelState){const d=s.deck!;d.officers=[];const drop=d.cards.filter(c=>c.source==='인재 지원').map(c=>c.uid);d.cards=d.cards.filter(c=>!drop.includes(c.uid));for(const k of ['draw','hand','discard','exhaust'] as const)d[k]=d[k].filter(u=>!drop.includes(u));while(d.hand.length<d.handSize&&d.draw.length)d.hand.push(d.draw.pop()!);}
+function stripDuelOfficers(s:DuelState){const d=s.deck!;d.officers=[];const drop=d.cards.filter(c=>c.source==='인재 지원'||c.source==='전술').map(c=>c.uid);d.cards=d.cards.filter(c=>!drop.includes(c.uid));for(const k of ['draw','hand','discard','exhaust','tacticHand'] as const)d[k]=d[k].filter(u=>!drop.includes(u));while(d.hand.length<d.handSize&&d.draw.length)d.hand.push(d.draw.pop()!);}
 
 // ── 설전 ──
 interface DebateRound {round:number;hand:string[];plays:string[];intent:string;events:string[]}
@@ -57,7 +57,7 @@ export async function assemblyAB(){const {runXunyu}=await import('./card-engine-
 
 // ── 대결 ──
 interface DuelExchange {exchange:number;intent:string;plays:string[];after:string}
-function runDuel(s:DuelState,policy:'smart'|'greedy',act:(a:string)=>void){const xs:DuelExchange[]=[];let cur:DuelExchange|null=null;
+function runDuel(s:DuelState,policy:DuelPolicy,act:(a:string)=>void){const xs:DuelExchange[]=[];let cur:DuelExchange|null=null;
  for(let i=0;i<150&&s.result==='ongoing';i++){if(!cur)cur={exchange:s.round+1,intent:intentLabel(s,s.deck!.intent),plays:[],after:''};const a=deckDuelAction(s,policy);const label=a.startsWith('card:')?DUEL_CARDS[s.deck!.cards.find(c=>c.uid===Number(a.slice(5)))!.id].name:a==='end'?'합 마치기':a;act(a);cur.plays.push(label);
   if(a==='end'||s.result!=='ongoing'){const v=s.v2!,d=s.deck!;cur.after=`${DISTANCE_NAMES[v.distance]}·${v.stance?STANCE_NAMES[v.stance]:'-'} · 체력 ${s.hp}/${s.maxHp} · 상대 ${s.enemyHp}/${s.enemyMaxHp}(방비 ${s.enemyShield??0}) · 기세 ${s.momentum}/${d.oppMomentum} · 빈틈 ${v.opening?'내':''}${d.oppOpening?'상대':''}${!v.opening&&!d.oppOpening?'없음':''} · 지원 ${v.support}`;xs.push(cur);cur=null;}}
  return xs;}
@@ -65,23 +65,24 @@ function duelReport(s:DuelState,xs:DuelExchange[]){const ev=evaluateDuel(s),d=s.
 /** 대결 A/B ① 군영 장악(지휘형). A: 전위 빌드. B: 빌드 제거 + 전위 원칙·지원 카드 제외(탐색 전환은 남김). */
 export async function duelAB(){
  const {runDianwei}=await import('./card-engine-builds.ts');const at=runDianwei(false).gateState;if(!at)throw new Error('관문 직전 상태 없음');
- const run=(r:RunState,label:string,policy:'smart'|'greedy',strip:boolean)=>{const q=raisingOf(r)!;const res=selectRaisingPlan(r,'barracks',personnelOf(r)!.representative!,q.revision);if(!res.ok)throw new Error(res.reason);const s=q.gate!.duel!;if(strip)stripDuelOfficers(s);
+ const run=(r:RunState,label:string,policy:DuelPolicy,strip:boolean)=>{const q=raisingOf(r)!;const res=selectRaisingPlan(r,'barracks',personnelOf(r)!.representative!,q.revision);if(!res.ok)throw new Error(res.reason);const s=q.gate!.duel!;if(strip)stripDuelOfficers(s);
   const xs=runDuel(s,policy,a=>{const r2=actRaisingGate(r,a,q.revision);if(!r2.ok)throw new Error(r2.reason);});const rep=duelReport(s,xs);finishRaisingGate(r,q.revision);return {label,policy,...rep,campaign:q.grade,afterUprising:engineFoundingResult(r).filter(t=>t.includes('군영')||t.includes('병'))};};
- return {A:run(structuredClone(at),'A · 전위 빌드','smart',false),B:run(stripBuild(structuredClone(at),true),'B · 전위 원칙·지원·전술 제거','smart',true),Agreedy:run(structuredClone(at),'A · 전위 빌드(탐욕)','greedy',false),Bgreedy:run(stripBuild(structuredClone(at),true),'B · 제거(탐욕)','greedy',true)};
+ return {A:run(structuredClone(at),'A · 전위 빌드(목표 인식)','objective',false),B:run(stripBuild(structuredClone(at),true),'B · 전위 원칙·지원·전술 제거(목표 인식)','objective',true),Adeep:run(structuredClone(at),'A · 전위 빌드(깊은 탐색)','deep',false),Agreedy:run(structuredClone(at),'A · 전위 빌드(탐욕)','greedy',false),Bgreedy:run(stripBuild(structuredClone(at),true),'B · 제거(탐욕)','greedy',true)};
 }
 /** 대결 A/B ② 창고 호위 대표(맹공형)와 ③ 전위 뒤뜰 시험(반격형). */
 export async function escortYardAB(){const {runDianwei}=await import('./card-engine-builds.ts');const es=runDianwei(true).escortState;if(!es)throw new Error('호위 대표 직전 상태 없음');
- const exploreRun=(r:RunState,label:string,policy:'smart'|'greedy',start:(P:Player)=>void)=>{const P=new Player(r);start(P);const s=P.x.duel!;const xs=runDuel(s,policy,a=>P.act('social:'+a));const rep=duelReport(s,xs);P.act('finish-social');const e=P.e;return {label,policy,...rep,relation:personnelOf(P.r)!.officers.dianwei?.trust??null,carry:e.arguments.filter(a=>a.id.startsWith('duel:')||a.id.startsWith('aud:')).map(a=>a.label)};};
- const escort=(P:Player)=>P.act('engine:resolve:duel');const yard=(P:Player)=>{P.visit('inn');P.act('inn:area:yard');P.act('inn:courtyard');};
- return {escortA:exploreRun(structuredClone(es),'A · 전위 빌드(호위 대표)','smart',escort),escortB:exploreRun(stripBuild(structuredClone(es)),'B · 빌드 제거(호위 대표)','smart',escort),escortGreedy:exploreRun(structuredClone(es),'A · 탐욕(호위 대표)','greedy',escort),
-  yardA:exploreRun(structuredClone(es),'A · 전위 빌드(뒤뜰)','smart',yard),yardB:exploreRun(stripBuild(structuredClone(es)),'B · 빌드 제거(뒤뜰)','smart',yard)};}
+ const exploreRun=(r:RunState,label:string,policy:DuelPolicy,start:(P:Player)=>void)=>{const P=new Player(r);start(P);const s=P.x.duel!;const xs=runDuel(s,policy,a=>P.act('social:'+a));const rep=duelReport(s,xs);P.act('finish-social');const e=P.e;return {label,policy,...rep,relation:personnelOf(P.r)!.officers.dianwei?.trust??null,carry:e.arguments.filter(a=>a.id.startsWith('duel:')||a.id.startsWith('aud:')).map(a=>a.label)};};
+ const escort=(P:Player)=>P.act('engine:resolve:duel');/** 뒤뜰 시험 고정 조건: 피로를 푼 상태(피로는 대결 체력을 깎아 시험의 평가를 왜곡한다). A·B 모두 같은 조건. */
+ const yard=(P:Player)=>{P.x.fatigue=0;P.visit('inn');P.act('inn:area:yard');P.act('inn:courtyard');};
+ return {escortA:exploreRun(structuredClone(es),'A · 전위 빌드(호위 대표·목표 인식)','objective',escort),escortB:exploreRun(stripBuild(structuredClone(es)),'B · 빌드 제거(호위 대표·목표 인식)','objective',escort),escortDeep:exploreRun(structuredClone(es),'A · 깊은 탐색(호위 대표)','deep',escort),escortGreedy:exploreRun(structuredClone(es),'A · 탐욕(호위 대표)','greedy',escort),
+  yardA:exploreRun(structuredClone(es),'A · 전위 빌드(뒤뜰·목표 인식)','objective',yard),yardB:exploreRun(stripBuild(structuredClone(es)),'B · 빌드 제거(뒤뜰·목표 인식)','objective',yard),yardDeep:exploreRun(structuredClone(es),'A · 깊은 탐색(뒤뜰)','deep',yard),yardGreedy:exploreRun(structuredClone(es),'A · 탐욕(뒤뜰)','greedy',yard)};}
 /** 성문 내응: 설전(완전/부분)×우회로×단서×명분×내부 협력 48조합을 끝까지. 해결한 장애 수별 후속 덱·첫 의도·현안. */
 export function insideMatrix(r0:RunState){const rows:{inside:number;clue:number;cause:number;passage:boolean;debate:string;resolved:number;skip:boolean;obstacles:string;oppDeck:string;firstIntent:string;start:string;result:string;grade:string;campaign:string;issues:string[]}[]=[];
  for(const debate of ['success','partial'] as const)for(const passage of [false,true])for(const clue of [0,5])for(const cause of [0,4])for(const inside of [0,2,4]){const r=structuredClone(r0),e=engineOf(r)!;e.stats.produced={inside,clue,support:cause,opinion:0,ledger:3,momentum:inside>=4?6:0};e.legacy=e.legacy.filter(l=>l.id!=='escort:alternate');if(passage)e.legacy.push({id:'escort:alternate',kind:'gate',text:'비밀 우회로'});
   const q=raisingOf(r)!;const res=selectRaisingPlan(r,'inside',personnelOf(r)!.representative!,q.revision);if(!res.ok)throw new Error(res.reason);q.gate!.debate!.result=debate;finishRaisingGate(r,q.revision);const o=insideObstacles(r,debate)!;const resolved=[o.watch,o.commander==='resolved',o.soldiers==='resolved'].filter(Boolean).length;const obstacles=`감시 ${o.watch?'해결':'남음'} · 지휘관 ${({resolved:'해결',weakened:'약화',unresolved:'남음'})[o.commander]} · 병사 ${({resolved:'해결',weakened:'일부',unresolved:'남음'})[o.soldiers]}`;
   if(q.phase!=='duel'){rows.push({inside,clue,cause,passage,debate,resolved,skip:true,obstacles,oppDeck:'-',firstIntent:'-',start:'대결 없음',result:'-',grade:'-',campaign:q.grade??'',issues:engineOf(r)!.legacy.filter(l=>l.id.startsWith('issue:')).map(l=>l.text)});continue;}
   const s=q.gate!.duel!,d=s.deck!;const oppDeck=`${d.archetype}: ${d.oppCards.map(c=>OPP_CARDS[c.id].name).join('·')}`;const firstIntent=intentLabel(s,d.intent);const start=`상대 ${s.enemyHp} · 방비 ${s.enemyShield??0} · 지원 ${s.v2!.support} · ${DISTANCE_NAMES[s.v2!.distance]} · 기세 ${s.momentum}`;
-  runDuel(s,'smart',a=>{const r2=actRaisingGate(r,a,q.revision);if(!r2.ok)throw new Error(r2.reason);});const ev=evaluateDuel(s);finishRaisingGate(r,q.revision);
+  runDuel(s,'objective',a=>{const r2=actRaisingGate(r,a,q.revision);if(!r2.ok)throw new Error(r2.reason);});const ev=evaluateDuel(s);finishRaisingGate(r,q.revision);
   rows.push({inside,clue,cause,passage,debate,resolved,skip:false,obstacles,oppDeck,firstIntent,start,result:s.result,grade:ev.grade,campaign:q.grade??'',issues:engineOf(r)!.legacy.filter(l=>l.id.startsWith('issue:')).map(l=>l.text)});}
  return rows;}
 if(import.meta.main){const debate=debateAB();const assembly=await assemblyAB();const duel=await duelAB();const escortYard=await escortYardAB();const {runLusu}=await import('./card-engine-builds.ts');const lusu=runLusu();const inside=lusu.gateState?insideMatrix(lusu.gateState):[];

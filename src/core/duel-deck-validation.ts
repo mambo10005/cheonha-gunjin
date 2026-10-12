@@ -10,7 +10,7 @@ const intent=(i:unknown)=>obj(i)&&int(i.uid,0,2000)&&typeof i.card==='string'&&O
 export function validDuelDeck(d:unknown):boolean{
  if(!obj(d)||d.version!==1||typeof d.archetype!=='string'||!Object.hasOwn(DUEL_ARCHETYPES,d.archetype))return false;
  if(!arr(d.cards)||d.cards.length<1||d.cards.length>30||!d.cards.every(c=>obj(c)&&int(c.uid,1,999)&&typeof c.id==='string'&&Object.hasOwn(DUEL_CARDS,c.id)))return false;
- const piles=['draw','hand','discard','exhaust'].map(k=>d[k]);if(!piles.every(arr)||(d.hand as unknown[]).length>8)return false;
+ const piles=['draw','hand','discard','exhaust','tacticHand'].map(k=>d[k]);if(!piles.every(arr)||(d.hand as unknown[]).length>8||(d.tacticHand as unknown[]).length>3)return false;
  const all=piles.flat() as unknown[],ids=d.cards.map(c=>(c as Obj).uid);if(new Set(ids).size!==ids.length||all.length!==ids.length||new Set(all).size!==all.length||!all.every(u=>ids.includes(u)))return false;
  if(!int(d.nextUid,1,1000)||!int(d.revision,0,100000)||!int(d.points,0,3)||!int(d.pointsMax,1,3)||!int(d.handSize,1,6))return false;
  if(!arr(d.oppCards)||d.oppCards.length>20||!d.oppCards.every(c=>obj(c)&&int(c.uid,0,2000)&&typeof c.id==='string'&&Object.hasOwn(OPP_CARDS,c.id)))return false;

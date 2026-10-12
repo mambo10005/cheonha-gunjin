@@ -130,3 +130,8 @@ button.field-arg{cursor:pointer}button.field-arg.focused{border-color:#f1cf86;bo
 .exploration-social-stage.compact{max-height:200px;overflow:hidden}
 .exploration-social-stage.compact img{max-height:180px;object-fit:contain}
 .duel-meta h5{font-size:16px;margin:8px 0 2px}
+.duel-guide{font-size:15px;color:#f0d9a8;border-top:1px dashed #6f6a52;padding-top:4px}
+.engine-settlement{margin:12px 0;padding:16px 18px;border:1px solid #7d6a48;border-radius:6px;background:#1c2a26;color:#efe5cf;font-size:16px}
+.engine-settlement-options{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+.engine-settlement-options article{padding:10px 12px;border:1px solid #807250;border-radius:6px;background:#2a3a2b}
+.engine-settlement-options h4{margin:0 0 4px;font-size:18px}.engine-settlement-options p{margin:3px 0;font-size:15px}

@@ -96,10 +96,10 @@ export const OPP_CARDS:Record<string,OppCardDef>=Object.fromEntries(([
 export interface DuelArchetype {id:string;name:string;text:string;weak:string;deck:string[];growGuard?:number}
 export const DUEL_ARCHETYPES:Record<string,DuelArchetype>={
  assault:{id:'assault',name:'맹공형',text:'접근해 강공을 거듭하고 기세가 높습니다.',weak:'수세·유인에 취약',deck:['o_strike','o_strike','o_strike','o_rush','o_build','o_finisher','o_jab']},
- counter:{id:'counter',name:'반격형',text:'방비와 반격 태세로 무리한 연속 공격을 처벌합니다.',weak:'간보기와 보법에 취약',deck:['o_guard','o_guard','o_counter','o_counter','o_strike','o_jab','o_finisher']},
+ counter:{id:'counter',name:'반격형',text:'방비와 반격 태세로 무리한 연속 공격을 처벌합니다.',weak:'간보기와 보법에 취약',deck:['o_guard','o_counter','o_counter','o_strike','o_jab','o_jab','o_finisher']},
  trick:{id:'trick',name:'기교형',text:'거리를 바꾸고 속임수로 카드를 봉쇄합니다.',weak:'정보와 예측에 취약',deck:['o_feint','o_feint','o_step','o_jab','o_jab','o_strike','o_watch']},
  endure:{id:'endure',name:'지구형',text:'수세와 회복으로 버티며 합이 지날수록 방비가 쌓입니다.',weak:'빠른 방비 파괴 필요',deck:['o_guard','o_guard','o_recover','o_recover','o_strike','o_build','o_finisher'],growGuard:1},
  command:{id:'command',name:'지휘형',text:'둘러선 병사의 지원과 지휘권으로 싸웁니다. 설전·내부 협력으로 지원 카드를 걷어낼 수 있습니다.',weak:'지원 제거·방비 반격',deck:['o_strike','o_strike','o_command','o_guard','o_finisher']},
 };
 /** 사건 목표 → 상대 원형. */
-export const OBJECTIVE_ARCHETYPE:Record<string,string>={practice:'counter',escort_captain:'assault',barracks_gate:'command',inside_gate:'endure'};
+export const OBJECTIVE_ARCHETYPE:Record<string,string>={practice:'counter',escort_captain:'assault',barracks_gate:'command',inside_gate:'endure',trainer:'counter'};

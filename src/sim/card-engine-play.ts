@@ -17,7 +17,7 @@ import {clauseContext,evaluateDebate} from '../core/debate-grade.ts';
 import {fieldSummary} from '../core/debate-field.ts';
 import type {DebateState} from '../core/social-types.ts';
 import {canDuelAction,previewDuelAction,duelActionList} from '../core/duel.ts';
-import {evaluateDuel} from '../data/duel-objectives.ts';
+import {evaluateDuel,DUEL_OBJECTIVES,HOSTILE_POLICY} from '../data/duel-objectives.ts';
 import type {RunState} from '../core/types.ts';
 import type {DuelState} from '../core/social-types.ts';
 
@@ -44,28 +44,37 @@ export class Player {
  puzzle(){return currentPuzzle(this.r);}
  cardName(id:string){return RAISING_CARDS[id]?.name??id;}
  debate(style:'stable'|'chain'='stable',gate=false){for(let i=0;i<200;i++){const s=gate?this.q.gate?.debate:this.x.debate;if(!s||s.result!=='ongoing')break;const a=debateAction(s,style);if(gate){const res=actRaisingGate(this.r,a,this.q.revision);if(!res.ok)throw new Error('gate debate '+res.reason);}else this.act('social:'+a);}return (gate?this.q.gate!.debate!:this.x.debate!).result;}
- duelPolicy:'smart'|'greedy'='smart';
- duel(gate=false){for(let i=0;i<120;i++){const s=gate?this.q.gate?.duel:this.x.duel;if(!s||s.result!=='ongoing')break;const a=this.duelPolicy==='smart'?smartDuel(s):bestDuel(s);if(gate){const res=actRaisingGate(this.r,a,this.q.revision);if(!res.ok)throw new Error('gate duel '+res.reason);}else this.act('social:'+a);}return (gate?this.q.gate!.duel!:this.x.duel!).result;}
+ duelPolicy:DuelPolicy='objective';
+ duel(gate=false){for(let i=0;i<120;i++){const s=gate?this.q.gate?.duel:this.x.duel;if(!s||s.result!=='ongoing')break;const a=this.duelPolicy==='greedy'?bestDuel(s):s.deck?deckDuelAction(s,this.duelPolicy):smartDuel(s);if(gate){const res=actRaisingGate(this.r,a,this.q.revision);if(!res.ok)throw new Error('gate duel '+res.reason);}else this.act('social:'+a);}return (gate?this.q.gate!.duel!:this.x.duel!).result;}
  plan(plan:string){const res=selectRaisingPlan(this.r,plan,this.p.representative!,this.q.revision);if(!res.ok)throw new Error('plan '+res.reason);this.trail.push('plan:'+plan);return this;}
  finishGate(){const res=finishRaisingGate(this.r,this.q.revision);if(!res.ok)throw new Error('finish '+res.reason);return this;}
  found(){const w=this.r.campaign!.world!;const res=foundRaisingFaction(this.r,w.factionName,w.flagColor,this.q.revision);if(!res.ok)throw new Error('found '+res.reason);return this;}
 }
 /** 대결 덱 정책. smart: 이번 합에 쓸 카드 순서를 모두 펼쳐 상대 의도 실행 뒤 상태로 평가(연쇄 인식). greedy: 즉시 피해가 가장 큰 카드만(하한). */
-export function deckDuelValue(s:DuelState):number{const v=s.v2!,d=s.deck!;if(s.result==='win'||s.result==='draw'){const ev=evaluateDuel(s);return (s.result==='win'?300:80)+ev.rank*260-v.stats.rounds*6-(s.maxHp-s.hp)*2;}if(s.result==='lose'||s.result==='surrender')return -1000;
- const technique=v.stats.counters>=1||v.stats.openingsUsed>=1?18:0;
+/** 대결 덱 가치. objective: 사건 목표(DuelObjectiveDefinition.policy)를 반영 / deep: 체력·승리만(순수 탐색) / 둘 다 같은 두 합 탐색을 쓴다. */
+export type DuelPolicy='objective'|'deep'|'greedy'|'smart';
+export function deckDuelValue(s:DuelState,mode:'objective'|'deep'='objective'):number{const v=s.v2!,d=s.deck!;const def=DUEL_OBJECTIVES[v.objective];const w=mode==='objective'&&def?def.policy:HOSTILE_POLICY;
+ const ev=s.result!=='ongoing'?evaluateDuel(s):null;
+ if(s.result==='win'||s.result==='draw'){const r=ev!.rank;return (s.result==='win'?300*w.win:80*w.win)+r*260*w.rank-v.stats.rounds*6*w.rounds-(s.maxHp-s.hp)*2*w.hp-(ev!.injury.player==='major'?40:ev!.injury.player==='minor'?12:0)*w.injury;}
+ if(s.result==='lose'||s.result==='surrender')return -1000;
+ const technique=(v.stats.counters>=1||v.stats.openingsUsed>=1?18:0)+(d.stats.readResponses??0)*4;
+ const reckless=((v.stats.forceHit??0)>=18||(v.stats.forceOverkill??0)>=8?120:0)+v.stats.blindFinishers*25+(d.stats.ignoredIntents??0)*35+Math.max(0,(d.stats.repeatAttacks??0)-1)*15+(d.stats.gambitExchange!==undefined&&d.stats.gambitExchange<=2&&def?.id==='practice'?60:0);
  // 목표 진척: 지금 이긴다고 가정했을 때 최상 등급 조건(승리 제외)을 얼마나 채웠는지. 남은 합이 있고 체력이 넉넉할 때만 잠재 가치로 본다.
- const sim=structuredClone(s);sim.result='win';const top=evaluateDuel(sim).checks[0].items.filter(i=>!i.text.startsWith('승리'));const frac=top.length?top.filter(i=>i.ok).length/top.length:1;const left=s.maxRounds-s.round;const potential=left>=1&&s.hp>s.maxHp*.45?(300+3*260)*frac*.75:0;
- return potential+(s.enemyMaxHp-s.enemyHp)*2.2-(s.maxHp-s.hp)*2.6+(v.opening?9:0)+(d.oppOpening?9:0)+s.momentum*1.5-d.oppMomentum*1.5+(s.protection??0)*.4-v.support*7-((v.stats.forceHit??0)>=18||(v.stats.forceOverkill??0)>=8?120:0)-d.injuries.length*10+technique-(s.enemyShield??0)*.6-v.stats.rounds*4;}
+ // 등급마다 (지금 이긴다면) 조건 충족 비율 × 그 등급의 가치 중 최댓값을 잠재 가치로 본다 — 실수로 최상 등급이 막혀도 다음 등급을 노린다
+ let potential=0;if(mode==='objective'&&def){const sim=structuredClone(s);sim.result='win';const left=s.maxRounds-s.round;const hpScale=s.hp<=s.maxHp*.25?0.2:s.hp<=s.maxHp*.5?0.6:1;if(left>=1)for(const c of evaluateDuel(sim).checks){if(c.rank<=0)continue;const items=c.items.filter(i=>!i.text.startsWith('승리')&&!i.text.includes('기권'));const frac=items.length?items.filter(i=>i.ok).length/items.length:1;potential=Math.max(potential,(300*w.win+c.rank*260*w.rank)*frac*.75*hpScale*Math.min(1,left/2));}}
+ // 합이 얼마 남지 않으면 판정으로 끝나므로 상대 체력을 깎는 쪽이 중요해진다(연습 시험 제외)
+ const closing=def?.id!=='practice'&&s.maxRounds-s.round<=2?1.8:1;
+ return potential+(s.enemyMaxHp-s.enemyHp)*2.2*w.enemy*closing-(s.maxHp-s.hp)*2.6*w.hp+(v.opening?9:0)*w.technique+(d.oppOpening?9:0)*w.technique+s.momentum*1.5-d.oppMomentum*1.5+(s.protection??0)*.4*w.hp-v.support*7*w.support-reckless*w.restraint-d.injuries.length*10*w.injury+technique*w.technique-(s.enemyShield??0)*.6-v.stats.rounds*4*w.rounds;}
 /** 이번 합 카드 순서(최대 4장)를 펼쳐 끝 상태들을 모은다. */
-function exchangeEnds(s:DuelState):{first:string;state:DuelState}[]{const out:{first:string;state:DuelState}[]=[];const playable=(st:DuelState)=>st.deck!.hand.map(u=>'card:'+u).filter(a=>canDuelAction(st,a,st.round).ok);
+export function exchangeEnds(s:DuelState):{first:string;state:DuelState}[]{const out:{first:string;state:DuelState}[]=[];const playable=(st:DuelState)=>[...st.deck!.hand,...st.deck!.tacticHand].map(u=>'card:'+u).filter(a=>canDuelAction(st,a,st.round).ok);
  const dfs=(st:DuelState,first:string,depth:number)=>{if(st.result!=='ongoing'){out.push({first,state:st});return;}out.push({first:first||'end',state:previewDuelAction(st,'end').state});if(depth>=4)return;for(const a of playable(st))dfs(previewDuelAction(st,a).state,first||a,depth+1);};
  dfs(s,'',0);return out;}
-export function deckDuelAction(s:DuelState,policy:'smart'|'greedy'='smart'):string{
- if(policy==='greedy'){let best='end',bv=0;for(const a of s.deck!.hand.map(u=>'card:'+u).filter(a=>canDuelAction(s,a,s.round).ok)){const n=previewDuelAction(s,a).state;const dmg=s.enemyHp-n.enemyHp;if(dmg>bv){bv=dmg;best=a;}}return best;}
+export function deckDuelAction(s:DuelState,policy:DuelPolicy='objective'):string{const mode=policy==='deep'?'deep':'objective';
+ if(policy==='greedy'){let best='end',bv=0;for(const a of [...s.deck!.hand,...s.deck!.tacticHand].map(u=>'card:'+u).filter(a=>canDuelAction(s,a,s.round).ok)){const n=previewDuelAction(s,a).state;const dmg=s.enemyHp-n.enemyHp;if(dmg>bv){bv=dmg;best=a;}}return best;}
  // 두 합 앞까지 본다: 이번 합 끝 상태 상위 6개에서 다음 합의 최선을 더한다
- const ends=exchangeEnds(s).map(e=>({...e,v:deckDuelValue(e.state)})).sort((a,b)=>b.v-a.v);let best={a:ends[0]?.first??'end',v:-Infinity};
- const ongoing=ends.filter(e=>e.state.result==='ongoing').slice(0,10);const done=ends.filter(e=>e.state.result!=='ongoing');
- for(const e of [...done,...ongoing]){let v=e.v;if(e.state.result==='ongoing'){const next=exchangeEnds(e.state).map(n=>deckDuelValue(n.state));v=Math.max(v*0.5,...next);}if(v>best.v)best={a:e.first,v};}
+ const ends=exchangeEnds(s).map(e=>({...e,v:deckDuelValue(e.state,mode)})).sort((a,b)=>b.v-a.v);let best={a:ends[0]?.first??'end',v:-Infinity};
+ const ongoing=ends.filter(e=>e.state.result==='ongoing').slice(0,16);const done=ends.filter(e=>e.state.result!=='ongoing');
+ for(const e of [...done,...ongoing]){let v=e.v;if(e.state.result==='ongoing'){const next=exchangeEnds(e.state).map(n=>deckDuelValue(n.state,mode));v=Math.max(v*0.5,...next);}if(v>best.v)best={a:e.first,v};}
  return best.a;}
 export function bestDuel(s:DuelState){if(s.deck)return deckDuelAction(s,'greedy');const options=duelActionList(s).filter(a=>a!=='surrender'&&canDuelAction(s,a,s.round).ok);return options.map(a=>{const n=previewDuelAction(s,a).state;return {a,v:n.result==='win'?1000:n.result==='lose'?-1000:n.hp/n.maxHp-n.enemyHp/n.enemyMaxHp+n.momentum*.03};}).sort((a,b)=>b.v-a.v)[0]?.a??'guard';}
 /** 연쇄를 이해하는 대결 정책: 상대 순서가 정해져 있으므로 남은 합을 끝까지 탐색해 목표 등급·남은 체력이 가장 좋은 행동을 고른다. */

@@ -35,12 +35,12 @@ export function socialView(run: RunState): string | null {
       body += '<div class="activity-grid">' + Object.entries(GROWTH).map(([id, d]) => '<div class="panel"><h3>' + d.name + '</h3><p>' + d.text + '</p><p class="tiny">연결: ' + DOCTRINES[d.direction].name + '. 교리 없이도 준비와 소비 가능. 기존 분기 전환 불가.</p>' + button('growth', '선택 장수 성장 / 강화', { choice: id }) + '</div>').join('') + '</div>';
       body += '<div class="activity-grid">' + Object.entries(DOCTRINES).filter(([id]) => !run.build.doctrines.includes(id as keyof typeof DOCTRINES)).map(([id, d]) => '<div class="panel"><h3>' + d.name + '</h3><p>' + d.text + '</p>' + button('growth', '교리 추가', { choice: 'doctrine:' + id, reason: p.general ? '공동 작전은 지정 장수 성장 또는 회복만 선택합니다.' : run.build.doctrines.length >= 2 ? '교리 슬롯 2개가 찼습니다.' : undefined }) + '</div>').join('') + '</div>' + button('growth', '성장 대신 병력 +8 · 군량 +2', { choice: 'recover' }); break;
     case 'duelOffer':
-      body = `<h1>무장 대결 — 대결 신청</h1><p>상대 장수: ${esc(DUEL_OPPONENTS[p.opponentId].name)}</p><p>${esc(DUEL_OPPONENTS[p.opponentId].tendency)}</p>
+      body = `<h1>간이 겨루기 — 신청</h1><p>상대 장수: ${esc(DUEL_OPPONENTS[p.opponentId].name)}</p><p>${esc(DUEL_OPPONENTS[p.opponentId].tendency)}</p>
       <p class="small">최대 4회. 승리: 시작 방비 +6 또는 원정 성장 또는 병력 +8·군량 +2 / 무승부: +2 / 패배·기권: 첫 턴 지휘력 -1. 원정 병력과 별도 체력, 영구 사망 없음. 거절은 불이익 없음.</p>
       ${representatives(run)}${tacticsView(run)}<div class="row">${button('accept-duel', '도전 수락')}${button('decline-duel', '도전 거절')}</div>`; break;
     case 'duel': {
       const s = p.state;
-      body = `<h1>무장 대결 · ${resultName[s.result]}</h1><p>${esc(GENERALS[s.generalId].name)} 체력 ${s.hp}/${s.maxHp} · 기세 ${s.momentum} / 상대 ${esc(DUEL_OPPONENTS[s.opponentId].name)} 체력 ${s.enemyHp}/${s.enemyMaxHp}</p>
+      body = `<h1>간이 겨루기 · ${resultName[s.result]}</h1><p>${esc(GENERALS[s.generalId].name)} 체력 ${s.hp}/${s.maxHp} · 기세 ${s.momentum} / 상대 ${esc(DUEL_OPPONENTS[s.opponentId].name)} 체력 ${s.enemyHp}/${s.enemyMaxHp}</p>
       <p>선택 ${s.round}/4. 최대 회차: 남은 체력 비율이 높은 쪽 승리, 체력 2에 해당하는 차이 이내 무승부. 같은 행동 연속 사용 시 피해 -2·방어 감소 6→3 (침착 예외).</p>`;
       if (s.build) body += `<p class="chip">준비: 반격 ${s.build.tokens.riposte} / 돌파 ${s.build.tokens.charge} / 정보 ${s.build.tokens.insight} · 보호 ${s.protection ?? 0} · 적 방비 ${s.enemyShield ?? 0}</p>`;
       if (s.result === 'ongoing') {
@@ -71,7 +71,7 @@ export function socialView(run: RunState): string | null {
       <div class="activity-grid">${(Object.keys(TRADE_NAMES) as TradeId[]).map(t => {
         const q = quoteForRun(run, t)!;
         return `<div class="panel"><h3>${TRADE_NAMES[t]}</h3><p class="small">${esc(describeTrade(q))}</p>${button('trade', '조건 수락', { choice: t, reason: q.reason ?? (run.food < q.cost ? `군량 ${q.cost} 필요` : undefined) })}
-        ${!p.negotiated ? button('begin-debate', '설전으로 협상', { choice: t, reason: q.reason ?? (run.food < 1 ? '군량 1 필요' : undefined) }) : ''}</div>`;
+        ${!p.negotiated ? button('begin-debate', '간이 교섭으로 협상', { choice: t, reason: q.reason ?? (run.food < 1 ? '군량 1 필요' : undefined) }) : ''}</div>`;
       }).join('')}</div>${button('decline-trade', '거래 거절')}`; break;
     }
     case 'socialResult': body = `<h1>활동 결과</h1><p>${esc(p.text)}</p><button class="btn primary" data-a="leave">지도로</button>`; break;

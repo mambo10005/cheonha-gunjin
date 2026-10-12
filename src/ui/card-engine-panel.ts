@@ -10,7 +10,7 @@ import {RAISING_CARDS} from '../data/raising.ts';
 import {OFFICERS} from '../data/personnel.ts';
 import {EXPLORATION_ITEMS} from '../data/city-exploration.ts';
 import {CARDS} from '../data/cards.ts';
-import {COMMON_CARDS,engineOf,currentPuzzle,puzzleResolutions,alertLimit,duelTacticOptions,DUEL_TACTICS,debateArguments,escortBattleConversions,gateRuleText,insideObstacles,deckComposition,deckCategory,DECK_CAPS,DECK_CATEGORY_NAMES,DECK_LIMIT,activeTalents,loadoutComplete} from '../core/card-engine.ts';
+import {COMMON_CARDS,engineOf,currentPuzzle,puzzleResolutions,alertLimit,duelTacticOptions,DUEL_TACTICS,debateArguments,escortBattleConversions,gateRuleText,insideObstacles,burdenSettlementStatus,BURDEN_SETTLEMENTS,deckComposition,deckCategory,DECK_CAPS,DECK_CATEGORY_NAMES,DECK_LIMIT,activeTalents,loadoutComplete} from '../core/card-engine.ts';
 import {explorationOf} from '../core/city-exploration.ts';
 import {personnelOf,isRecruited,personnelAvailability} from '../core/personnel-rules.ts';
 import {esc} from './html.ts';
@@ -133,3 +133,6 @@ export function playtestPanel(r:RunState){const e=engineOf(r);if(!e)return '';co
  <details class="engine-playtest-guide"><summary>막혔을 때만 열기 · 추천 경로</summary><p>처음에는 열지 말고 스스로 연쇄를 찾아 보세요. 경로를 열었다면 언제 열었는지 따로 메모해 주세요.</p>${PLAYTEST_ROUTES.map(rt=>`<details><summary>${esc(rt.name)}</summary><ol>${rt.steps.map(s=>`<li>${esc(s)}</li>`).join('')}</ol></details>`).join('')}</details>
  <details class="engine-survey"${Object.keys(sv).length?' open':''}><summary>플레이 후 설문 (${Object.keys(sv).filter(k=>SURVEY_QUESTIONS.some(q=>q.id===k)).length}/${SURVEY_QUESTIONS.length})</summary>${SURVEY_QUESTIONS.map(q=>`<div class="engine-survey-row"><p>${esc(q.text)}</p><div>${SURVEY_ANSWERS.map(a=>`<button data-explore-action="engine:survey:${q.id}:${encodeURIComponent(a)}" aria-pressed="${sv[q.id]===a}">${a}</button>`).join('')}</div></div>`).join('')}</details>
  <button class="btn" data-engine-report>플레이 기록·설문 내보내기(로컬 파일)</button></section>`;}
+/** 거병 성공 결과: 부담 결산 선택(실제로 사용·변환·소멸한 부담만 조건). 한 번만. */
+export function burdenSettlementPanel(r:RunState){const st=burdenSettlementStatus(r);if(!st)return '';const l=st.ledger;
+ return `<section class="engine-settlement"><h3>부담 결산</h3><p>부담 장부 · 생성 ${l.created} · 사용 ${l.used} · 변환 ${l.converted} · 소멸 ${l.exhausted}</p>${st.chosen?`<p><b>${esc(BURDEN_SETTLEMENTS[st.chosen].name)}</b> 선택 · 세력 창설 때 적용됩니다.</p>`:st.eligible?`<p>부담을 실제로 써서 얻은 결산입니다. 보상은 의무·정책·현안과 맞바꿉니다.</p><div class="engine-settlement-options">${Object.entries(BURDEN_SETTLEMENTS).map(([id,d])=>`<article><h4>${esc(d.name)}</h4><p>${esc(d.text)}</p><p>얻음 · ${esc(d.gain)}</p><p>대가 · ${esc(d.cost)}</p><button class="btn" data-explore-action="engine:settle:${id}">${esc(d.name)} 선택</button></article>`).join('')}</div>`:`<p>${esc(st.reason)}</p>`}</section>`;}

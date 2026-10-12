@@ -28,7 +28,8 @@ export function enableDuelDeck(s:DuelState,o:DuelDeckSetup):DuelState{
  const archetype=DUEL_ARCHETYPES[o.archetype]??DUEL_ARCHETYPES.assault;let oppIds=[...archetype.deck,...(o.addOpp??[])];for(const r of o.removeOpp??[]){const i=oppIds.indexOf(r);if(i>=0)oppIds.splice(i,1);}
  for(let i=0;i<(o.support??0);i++)oppIds.push('o_support');
  const oppCards=oppIds.map((id,i)=>({uid:900+i,id}));
- s.deck={version:1,archetype:archetype.id,cards,draw:shuffle(s,cards.map(c=>c.uid)),hand:[],discard:[],exhaust:[],nextUid:uid,revision:0,points:3,pointsMax:3,handSize:4,
+ const tacticUids=cards.filter(c=>c.source==='전술').map(c=>c.uid);
+ s.deck={version:1,archetype:archetype.id,cards,draw:shuffle(s,cards.filter(c=>c.source!=='전술').map(c=>c.uid)),hand:[],tacticHand:tacticUids,discard:[],exhaust:[],nextUid:uid,revision:0,points:3,pointsMax:3,handSize:4,
   oppCards,oppDraw:shuffle(s,oppCards.map(c=>c.uid)),oppDiscard:[],intent:null,upcoming:[],revealed:o.revealFirst?1:0,conceal:!!o.concealFirst&&!officers.includes('guojia'),
   oppMomentum:o.oppStartMomentum??0,oppStance:null,oppOpening:false,oppOpeningAt:-1,openingAt:-1,oppNextBonus:0,fatigue:0,injuries:[],medicine:o.medicine??0,firstHitReduce:o.firstHitReduce??0,
   reactions:[],blocked:[],nextBlocked:[],readThisExchange:false,blindPenalty:0,secondReady:false,holdGuard:false,formalized:!!o.formalDraw,drawRank:o.drawRank??0,officers,principleUsed:[],prepared:(o.conversions??[]).map(c=>c.text),
@@ -36,7 +37,7 @@ export function enableDuelDeck(s:DuelState,o:DuelDeckSetup):DuelState{
  if(o.voidFirstWatch)s.deck.prepared.push('첫 감시 카드 무효');if(o.weakSupport)s.deck.prepared.push('병사 지지 · 상대 지원 카드 약화');
  s.protection=(s.protection??0)+(o.startGuard??0);s.momentum=Math.min(5,s.momentum+(o.startMomentum??0));
  nextIntent(s,!!o.voidFirstWatch);drawHand(s);
- s.log.push(`대결 덱 ${cards.length}장(기본 ${ids.length}·전술 ${tactics.length}·인재 ${supports.length}) · 합마다 손패 4장·전술력 3. 상대: ${archetype.name} — ${archetype.text} (${archetype.weak})`);
+ s.log.push(`대결 덱 ${cards.length-tactics.length}장(기본 ${ids.length}·인재 ${supports.length}) + 준비 전술 ${tactics.length}장(뽑지 않고 언제든 1회) · 합마다 손패 4장·전술력 3. 상대: ${archetype.name} — ${archetype.text} (${archetype.weak})`);
  if(s.deck.prepared.length)s.log.push('준비 전환: '+s.deck.prepared.join(' · '));
  return s;
 }
@@ -57,11 +58,11 @@ function fillUpcoming(s:DuelState){const d=s.deck!;while(d.upcoming.length<Math.
 export function intentLabel(s:DuelState,it:OppIntent|null):string{if(!it)return '없음';if(it.concealed)return '숨겨진 의도(감시)';if(it.dispersed)return '병사 해산 · 행동 없음';const c=OPP_CARDS[it.card];const reach=s.v2!.distance!=='far'?'':it.kind==='attack'?' · 원거리: 뛰어들며 −2':['jab','finisher','feint','watch'].includes(it.kind)?' · 원거리라 닿지 않음':'';
  const amt=it.kind==='attack'||it.kind==='rush'||it.kind==='jab'||it.kind==='feint'||it.kind==='watch'?` 피해 ${it.amount+s.deck!.oppNextBonus}`:it.kind==='finisher'?(s.deck!.oppMomentum>=2?` 피해 ${it.amount+s.deck!.oppNextBonus}`:' (기세 부족 → 기세 모으기)'):it.kind==='guard'||it.kind==='recover'||it.kind==='support'?` +${it.amount}`:'';
  return `${c.name}${amt}${reach}${it.forced?' (유인됨)':''}`;}
-export function duelDeckActions(s:DuelState):string[]{const d=s.deck;if(!d||s.result!=='ongoing')return [];return [...d.hand.map(u=>'card:'+u),'end','surrender'];}
+export function duelDeckActions(s:DuelState):string[]{const d=s.deck;if(!d||s.result!=='ongoing')return [];return [...d.hand.map(u=>'card:'+u),...d.tacticHand.map(u=>'card:'+u),'end','surrender'];}
 
 export function canDuelDeckAction(s:DuelState,action:string):Check{const d=s.deck!;
  if(s.result!=='ongoing')return {ok:false,reason:'끝난 대결입니다.'};if(action==='end'||action==='surrender')return {ok:true};
- if(!action.startsWith('card:'))return {ok:false,reason:'없는 대결 행동입니다.'};const uid=Number(action.slice(5));if(!d.hand.includes(uid))return {ok:false,reason:'손에 없는 카드입니다.'};
+ if(!action.startsWith('card:'))return {ok:false,reason:'없는 대결 행동입니다.'};const uid=Number(action.slice(5));if(!d.hand.includes(uid)&&!d.tacticHand.includes(uid))return {ok:false,reason:'손에 없는 카드입니다.'};
  const c=duelCardDef(s,uid)!;const v=s.v2!;
  if(d.blocked.includes(c.family))return {ok:false,reason:`상대 속임수로 이번 합 ${c.family} 카드가 봉쇄됨.`};
  if(d.points<c.cost)return {ok:false,reason:`전술력 ${c.cost} 필요(남은 ${d.points}).`};
@@ -94,7 +95,9 @@ function removeSupport(s:DuelState,n:number,notes:string[]){const d=s.deck!;let 
  const removed=n-left;if(removed>0){s.v2!.support=Math.max(0,s.v2!.support-removed);d.stats.supportRemoved+=removed;note(notes,`상대 지원 카드 ${removed}장 제거`);}}
 
 function playCard(s:DuelState,uid:number,notes:string[]){const d=s.deck!,v=s.v2!,c=duelCardDef(s,uid)!;const it=d.intent;
- d.points-=c.cost;d.hand.splice(d.hand.indexOf(uid),1);(c.exhaust?d.exhaust:d.discard).push(uid);d.played.push({id:c.id,family:c.family});d.stats.cards[c.id]=(d.stats.cards[c.id]??0)+1;v.stats.actions.push(c.id);
+ d.points-=c.cost;if(d.hand.includes(uid))d.hand.splice(d.hand.indexOf(uid),1);else d.tacticHand.splice(d.tacticHand.indexOf(uid),1);(c.exhaust?d.exhaust:d.discard).push(uid);d.played.push({id:c.id,family:c.family});d.stats.cards[c.id]=(d.stats.cards[c.id]??0)+1;v.stats.actions.push(c.id);
+ if(c.family==='공세'||c.family==='승부수'){const last=d.played.slice(0,-1).filter(p=>p.family==='공세'||p.family==='승부수').at(-1)?.id??d.lastAttackCard;if(last===c.id)d.stats.repeatAttacks=(d.stats.repeatAttacks??0)+1;}
+ if(c.id==='t_all_in'||c.id==='finisher'){const open=v.opening||d.oppOpening;if(d.stats.gambitExchange===undefined&&c.id==='t_all_in'&&!open)d.stats.gambitExchange=s.round+1;if(open)d.stats.openingGambits=(d.stats.openingGambits??0)+1;}
  if(c.id==='s_xunyu'){d.formalized=true;note(notes,'정식 조건 확정 · 무승부를 한 등급 높게 인정');}
  if(c.id==='s_lusu'){d.oppMomentum=Math.max(0,d.oppMomentum-2);}
  if(c.family==='간보기'){d.readThisExchange=true;d.stats.probes++;if(it?.concealed){it.concealed=false;note(notes,'숨긴 의도를 확인');}}
@@ -149,11 +152,20 @@ function resolveIntent(s:DuelState,notes:string[]):{dealt:number;taken:number;la
   case 'support':s.enemyShield=(s.enemyShield??0)+(d.prepared.some(p=>p.startsWith('병사 지지'))?1:3);s.momentum=Math.max(0,s.momentum-1);note(notes,'병사들이 거듦 · 상대 방비 +, 내 기세 −1');break;
   case 'command':{d.oppMomentum=Math.min(5,d.oppMomentum+1);const sup=d.oppDiscard.findIndex(u=>d.oppCards.find(c=>c.uid===u)?.id==='o_support');if(sup>=0){d.oppDraw.push(d.oppDiscard.splice(sup,1)[0]);note(notes,'지휘 · 병사 지원을 다시 불러옴');}break;}
  }
- d.oppDiscard.push(it.uid);dealt+=Math.max(0,hpBefore-s.enemyHp-dealt);return {dealt,taken,label};
+ if(d.oppCards.some(c=>c.uid===it.uid))d.oppDiscard.push(it.uid);dealt+=Math.max(0,hpBefore-s.enemyHp-dealt);return {dealt,taken,label};
+}
+/** 합의 카드 순서가 상대 의도에 맞았는지 판정(합 끝 또는 제압 직후 한 번). */
+function judgeIntent(s:DuelState){const d=s.deck!;
+// 의도 대응 판정: 공격 의도에 수세·회피·유인을 준비했거나 지원을 흩었으면 대응, 반격 태세에 공세·승부수로 들이받았거나 공격 의도에 방비 없이 공격만 했으면 무시
+ {const k=d.intent?.kind;const atk=!!k&&['attack','rush','jab','finisher','feint','watch'].includes(k);const defended=d.played.some(p=>p.family==='수세'||p.family==='보법'||p.family==='유인')||d.readThisExchange&&d.played.some(p=>p.family==='간보기');const atkCards=d.played.filter(p=>p.family==='공세'||p.family==='승부수').length;
+  if(atk&&defended||k==='counter'&&atkCards===0&&d.played.length>0||(k==='guard'||k==='recover'||k==='build')&&d.played.some(p=>p.id==='break'||p.family==='간보기'))d.stats.readResponses=(d.stats.readResponses??0)+1;
+  else if(k==='counter'&&atkCards>=1||atk&&atkCards>=1&&!defended&&(s.protection??0)===0)d.stats.ignoredIntents=(d.stats.ignoredIntents??0)+1;}
 }
 function endExchange(s:DuelState,notes:string[]){const d=s.deck!,v=s.v2!;const before={hp:s.hp,enemy:s.enemyHp};const cards=d.played.map(p=>DUEL_CARDS[p.id].name);
+ judgeIntent(s);
  const r=resolveIntent(s,notes);
  const attacked=d.played.some(p=>p.family==='공세'||p.family==='승부수');d.attackExchanges=attacked?d.attackExchanges+1:0;
+ d.lastAttackCard=d.played.filter(p=>p.family==='공세'||p.family==='승부수').at(-1)?.id??d.lastAttackCard;
  if(d.played.length)d.stats.sequences.push(d.played.map(p=>p.family).join('→'));
  d.stats.log.push({exchange:s.round+1,cards,intent:r.label,dealt:Math.max(0,before.enemy-s.enemyHp),taken:Math.max(0,before.hp-s.hp),distance:DISTANCE_NAMES[v.distance],stance:v.stance?STANCE_NAMES[v.stance]:'-',opening:v.opening,oppOpening:d.oppOpening,notes:[...notes]});if(d.stats.log.length>8)d.stats.log.shift();
  // 빈틈 만료: 만든 다음 합 끝까지
@@ -165,14 +177,14 @@ function endExchange(s:DuelState,notes:string[]){const d=s.deck!,v=s.v2!;const b
  d.discard.push(...d.hand.splice(0));d.reactions=[];d.played=[];d.readThisExchange=false;d.blindPenalty=0;d.blocked=d.nextBlocked;d.nextBlocked=[];
  d.points=d.pointsMax-(d.fatigue>=3?1:0);d.revealed=Math.max(0,d.revealed-1);
  if(s.hp===0&&s.enemyHp===0)s.result='draw';else if(s.hp===0)s.result='lose';else if(s.enemyHp===0)s.result='win';
- else if(s.round>=s.maxRounds){s.result=s.enemyHp*4<=s.enemyMaxHp&&s.hp*s.enemyMaxHp>s.enemyHp*s.maxHp?'win':s.hp*2<s.maxHp&&s.enemyHp*2>s.enemyMaxHp?'lose':'draw';note(notes,`${s.maxRounds}합 종료 · 상대 체력 25% 이하면 판정승, 아니면 무승부`);}
+ else if(s.round>=s.maxRounds){if(v.objective==='practice'){s.result='draw';note(notes,`${s.maxRounds}합 종료 · 연습 시험은 끝까지 겨룬 것으로 평가`);}else{s.result=s.enemyHp*4<=s.enemyMaxHp&&s.hp*s.enemyMaxHp>s.enemyHp*s.maxHp?'win':s.hp*2<s.maxHp&&s.enemyHp*2>s.enemyMaxHp?'lose':'draw';note(notes,`${s.maxRounds}합 종료 · 상대 체력 25% 이하면 판정승, 아니면 무승부`);}}
  if(s.result==='ongoing'){nextIntent(s);drawHand(s);}
 }
 export function resolveDuelDeckAction(s:DuelState,action:string):Check{const check=canDuelDeckAction(s,action);if(!check.ok)return check;const d=s.deck!,notes:string[]=[];
  if(action==='surrender'){s.result='surrender';s.log.push('기권.');d.revision++;return {ok:true};}
  if(action==='end'){endExchange(s,notes);s.log.push(`${s.round}합 · ${notes.join(' · ')||'조용한 합'}`);}
  else{const uid=Number(action.slice(5));const c=duelCardDef(s,uid)!;playCard(s,uid,notes);s.log.push(`${c.name} · ${notes.join(' · ')||c.text}`);
-  if(s.enemyHp===0&&s.result==='ongoing'){s.result=s.hp>0?'win':'draw';s.round++;s.v2!.stats.rounds++;}else if(s.hp===0&&s.result==='ongoing'){s.result='lose';}}
+  if(s.enemyHp===0&&s.result==='ongoing'){judgeIntent(s);const v=s.v2!;d.stats.log.push({exchange:s.round+1,cards:d.played.map(p=>DUEL_CARDS[p.id].name),intent:intentLabel(s,d.intent)+' (제압으로 무산)',dealt:0,taken:0,distance:DISTANCE_NAMES[v.distance],stance:v.stance?STANCE_NAMES[v.stance]:'-',opening:v.opening,oppOpening:d.oppOpening,notes:[...notes]});s.result=s.hp>0?'win':'draw';s.round++;v.stats.rounds++;}else if(s.hp===0&&s.result==='ongoing'){s.result='lose';}}
  if(s.log.length>60)s.log.splice(0,s.log.length-60);d.revision++;return {ok:true};
 }
 export function previewDuelDeck(s:DuelState,action:string){const state=structuredClone(s);return {check:resolveDuelDeckAction(state,action),state};}

@@ -92,7 +92,7 @@ export function handleInnAction(r:RunState,command:string,h:InnHooks):Result {
     const time=bond?2:1,funds=bond?4:1,c=afford(r,time,funds);if(!c.ok)return c;pay(r,h,time,funds);
     quest.conclusion=bond?'보증 호위 계약 · 자금 4 · 왕복 호위 · 사고 책임 호위 측':'책임 분담 호위 계약 · 자금 1 · 편도 1회 · 사고 책임 우리 측';
     quest.evidence.push(bond?'contract:4':'contract:1',bond?'period:round-trip':'period:one-trip',bond?'risk:escort':'risk:client');quest.result='partial';
-    if(!bond&&r.campaign!.world!.raising!.engine){/* 책임 분담: 부담 카드 「후원 청구서」가 보관함에 생긴다 */const p=r.campaign!.personnel!;p.library.push({uid:p.nextUid++,id:'debt_note',sourceType:'event',sourceId:'escort',ownerType:'promise',owners:[],activities:['raising'],expires:null,spent:false});p.revision++;h.emit('cardGranted','책임 분담 · 부담 카드 「후원 청구서」가 보관함에 들어왔습니다.');}
+    if(!bond&&r.campaign!.world!.raising!.engine){/* 책임 분담: 부담 카드 「후원 청구서」가 보관함에 생긴다 */const p=r.campaign!.personnel!;p.library.push({uid:p.nextUid++,id:'debt_note',sourceType:'event',sourceId:'escort',ownerType:'promise',owners:[],activities:['raising'],expires:null,spent:false});p.revision++;const eng=r.campaign!.world!.raising!.engine!;eng.burdenLedger??={created:0,used:0,converted:0,exhausted:0};eng.burdenLedger.created++;h.emit('cardGranted','책임 분담 · 부담 카드 「후원 청구서」가 보관함에 들어왔습니다.');}
     if(!bond)h.emit('questStepAdvanced',d.title+' · 호위 인원은 줄이고 사고 책임은 우리가 집니다. 호송 때 피로와 손실 위험이 남습니다.');
     ensureLocationScene(x).usedInteractions.push('escort:'+arg);ensureLocationScene(x).phase='resolution';advanceQuest(quest,h,arg);return ok;
    }

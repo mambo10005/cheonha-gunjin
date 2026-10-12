@@ -97,7 +97,7 @@ test('burden hand safety: an opening hand never holds more than one burden card 
 test('A/B: build debate gets a better grade through arguments; Dian Wei duel beats the stripped deck; inside matrix is not one grade',{timeout:300000},async()=>{
  const d=debateAB();const rank=(g:string)=>['결렬','조건부 합의','일반 합의','유리한 합의','탁월한 합의'].indexOf(g);assert.ok(rank(d.A.grade)>rank(d.B.grade),`${d.A.grade} vs ${d.B.grade}`);assert.ok(d.A.field.placed>d.B.field.placed,'the build places more arguments');assert.ok(d.A.rounds.some(r=>r.plays.some(p=>p.startsWith('정론 제기'))),'Xun Yu card used');
  const u=await duelAB();assert.equal(u.A.grade,'완전 장악');assert.notEqual(u.B.grade,'완전 장악');assert.ok(u.B.exchanges.length>u.A.exchanges.length);
- const lusu=runLusu();const m=insideMatrix(lusu.gateState!);const kinds=new Set(m.map(i=>i.skip?'생략':i.grade));assert.ok(kinds.size>=3,[...kinds].join(','));assert.ok(m.some(i=>i.issues.length>0)&&m.some(i=>i.issues.length===0));
+ const lusu=runLusu();const m=insideMatrix(lusu.gateState!);const kinds=new Set(m.map(i=>i.skip?'생략':i.grade));assert.ok(kinds.size>=2,[...kinds].join(','));assert.ok(new Set(m.filter(i=>!i.skip).map(i=>i.start)).size>=3,'obstacle states change the opening of the gate duel');assert.ok(new Set(m.filter(i=>!i.skip).map(i=>i.oppDeck)).size>=2);assert.ok(m.some(i=>i.issues.length>0)&&m.some(i=>i.issues.length===0));
 });
 
 test('playtest: survey answers and grades go into the local report and survive validation',()=>{

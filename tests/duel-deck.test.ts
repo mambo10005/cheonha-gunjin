@@ -19,7 +19,7 @@ test('duel deck: 9–12 cards (base 8 + tactics + talent support), hand 4, 3 tac
  const s=duel({tactics:['t_press','t_counter','t_all_in'],officers:['dianwei'],familyCard:'break'});const d=s.deck!;
  assert.ok(d.cards.length>=9&&d.cards.length<=12,String(d.cards.length));assert.equal(d.hand.length,4);assert.equal(d.points,3);assert.ok(d.cards.some(c=>c.id==='s_dianwei'));assert.ok(d.cards.some(c=>c.id==='t_all_in'));
  assert.equal(d.archetype,'assault');assert.ok(d.oppCards.every(c=>OPP_CARDS[c.id]));assert.ok(d.intent);
- const total=d.cards.length;play(s,'end');assert.equal(d.hand.length,4);assert.equal(d.draw.length+d.hand.length+d.discard.length+d.exhaust.length,total);assert.ok(validDuelDeck(d));
+ const total=d.cards.length;play(s,'end');assert.equal(d.hand.length,4);assert.equal(d.draw.length+d.hand.length+d.tacticHand.length+d.discard.length+d.exhaust.length,total);assert.equal(d.tacticHand.length,3,'tactic cards wait in the prepared slot, not in the draw pile');assert.ok(validDuelDeck(d));
 });
 
 test('distance and stance change which cards work; reasons are shown',()=>{
@@ -91,7 +91,7 @@ test('inside gate: each unresolved obstacle changes the real follow-up deck (wat
 
 test('duel results become later debate conditions (not rewards): practice → Dian Wei guarantee argument, over-force → watchful audience',async()=>{
  const {freshRun,Player}=await import('../src/sim/card-engine-play.ts');const {engineDuelFinished,engineFieldSetup}=await import('../src/core/card-engine.ts');
- const P=new Player(freshRun());const s=duel({objective:'practice',archetype:'counter'});s.result='win';s.v2!.stats.counters=1;s.v2!.stats.distances=['mid','near'];s.v2!.stats.stances=['defense','offense'];
+ const P=new Player(freshRun());const s=duel({objective:'practice',archetype:'counter'});s.result='win';s.v2!.stats.counters=1;s.v2!.stats.openingsUsed=1;s.v2!.stats.rounds=3;s.round=3;s.deck!.stats.readResponses=1;s.v2!.stats.distances=['mid','near'];s.v2!.stats.stances=['defense','offense'];
  engineDuelFinished(P.r,s,'inn_courtyard');assert.ok(P.e.arguments.some(a=>a.id==='duel:dianwei-vouch'));assert.ok(engineFieldSetup(P.r,'inn_documents').evidence.includes('a_vouch'));
  const t=duel();t.result='win';t.v2!.stats.forceHit=20;engineDuelFinished(P.r,t,'inn_escort');assert.ok(engineFieldSetup(P.r,'gate:assembly').audience!.includes('au_watch'));
 });

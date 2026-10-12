@@ -31,6 +31,8 @@ export interface EngineState {
  version:1;stratagems:string[];stratagemSwaps:number;
  scene:{location:string;marks:MarkBag;chain:ChainLink[];uses:Record<string,number>;draws:number;powerGain:number}|null;
  puzzles:Record<string,PuzzleState>;
+ /** 부담 장부: 플레이로 생성·사용·변환·소멸한 부담 카드 수(시작 덱의 부담은 생성에 넣지 않음). */burdenLedger?:{created:number;used:number;converted:number;exhausted:number};
+ /** 거병 성공 시 부담 결산 선택(한 번). */burdenSettlement?:string|null;
  arguments:EngineArgument[];loadout:DuelLoadout;battleCards:{id:string;source:string;label:string}[];
  principles:Record<string,'base'|'alt'>;growth:Record<string,'add'|'upgrade'|'replace'|'principle'>;
  legacy:{id:string;kind:'policy'|'obligation'|'gate';text:string}[];

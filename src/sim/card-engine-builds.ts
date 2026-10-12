@@ -5,9 +5,9 @@
  * 결과는 재미를 입증하지 않는다. 서로 다른 선택과 해결 경로가 실제로 작동하는지만 기록한다.
  */
 import {writeFileSync} from 'node:fs';
-import {freshRun,Player,BUILD_SEED} from './card-engine-play.ts';
-import {puzzleResolutions,engineSummary,debateArguments,escortBattleConversions} from '../core/card-engine.ts';
-import {selectRaisingPlan} from '../core/raising.ts';
+import {freshRun,Player,BUILD_SEED,deckDuelAction} from './card-engine-play.ts';
+import {puzzleResolutions,engineSummary,debateArguments,escortBattleConversions,burdenSettlementStatus,BURDEN_SETTLEMENTS} from '../core/card-engine.ts';
+import {selectRaisingPlan,actRaisingGate} from '../core/raising.ts';
 import {CARD_GRAMMAR} from '../data/card-grammar.ts';
 import {PUZZLES} from '../data/card-puzzles.ts';
 import {STRATAGEMS} from '../data/stratagems.ts';
@@ -150,8 +150,9 @@ if(import.meta.main){
  console.log(JSON.stringify(builds,null,1));
 }
 /* ── 부담 빌드: 정보(程普) · 부담 생성·사용·전환·소멸·보상 조건 ── */
-export function runChengpu(burdenBuild=true){
- const P=new Player(freshRun()),notes:string[]=[],social:string[]=[],battleNotes:string[]=[];let firstQuest:Record<string,number>={};const burdenLog:string[]=[];
+export function runChengpu(burdenBuild=true,settlement:'fund'|'share'|'carry'|null='fund'){
+ const P=new Player(freshRun()),notes:string[]=[],social:string[]=[],battleNotes:string[]=[];let firstQuest:Record<string,number>={};const burdenLog:string[]=[];const burdenHand:string[]=[];let duelOrder:string[]=[],settlementChoice='';let resultState:import('../core/types.ts').RunState|null=null;
+ const handSeen=new Set<string>();const watchHand=()=>{for(const uid of P.q.hand){const id=P.q.cards.find(c=>c.uid===uid)?.id;if(id&&RAISING_CARDS[id]?.burden&&!handSeen.has(id)){handSeen.add(id);burdenHand.push(`${placeName(P.x.location)} ${P.x.tick}시 · 손패에 ${RAISING_CARDS[id].name}`);}}};const act0=P.act.bind(P);P.act=(a:string)=>{const res=act0(a);watchHand();return res;};
  const seen=(t:string)=>{for(const line of P.e.log.slice(-6))if((line.includes('부담')||line.includes('짐을 진')||line.includes('분산 보급'))&&!burdenLog.includes(line))burdenLog.push(line);void t;};
  const findChengpu=()=>{for(let i=0;i<4;i++){const loc=P.x.sightings.chengpu.location;P.visit(loc);if(charactersAt(P.r).includes('chengpu'))return loc;}throw new Error('정보를 찾지 못함');};
  try{
@@ -170,9 +171,9 @@ export function runChengpu(burdenBuild=true){
  P.visit('barracks');script(P,['inspect:supplies',['discipline','debt_note'],['discipline','loan'],['discipline','poverty'],['discipline','person_chengpu_b'],['discipline','person_chengpu_a'],['discipline','role_supply_a'],['command_distrust','d_guard'],['discipline','cache']],notes);seen('barracks');
  const ok2=solve(P,{resolution:'supply',focus:['discipline'],inspect:['weapons'],priority:['debt_note','loan','poverty','person_chengpu_b','person_chengpu_a','role_supply_a','cache','coin']},notes,2);seen('barracks2');notes.push('병영 퍼즐(보급 약속) 목표 달성: '+ok2);if(ok2){P.act('engine:resolve:supply');const fav=P.e.stats.burdenUses>=2&&P.p.library.find(l=>RAISING_CARDS[l.id]?.burden&&P.p.loadouts.raising.includes(l.uid));notes.push('보상: '+(fav&&burdenBuild?(P.act(`engine:reward:burden-favor:${fav.uid}`),`부담을 신용으로(${RAISING_CARDS['fund'].name}로 전환)`):pickReward(P,['card:medicine','anycard'])));}
  if(P.x.scene!=='map')P.act('leave');P.act('plan');P.officer('elect:chengong:chengpu');
- social.push(control(P,'barracks'));P.plan('barracks');const s=P.q.gate!.duel!;social.push(`군영 장악 대결 시작: 상대 체력 ${s.enemyHp}, 기세 ${s.momentum}, 방비 ${s.protection??0}`);social.push('군영 장악 대결: '+P.duel(true));P.finishGate();
- if(P.q.phase==='result'){P.officer('doctrine:people');P.found();}
+ social.push(control(P,'barracks'));P.plan('barracks');const s=P.q.gate!.duel!;social.push(`군영 장악 대결 시작: 상대 체력 ${s.enemyHp}, 기세 ${s.momentum}, 방비 ${s.protection??0}`);const dk=s.deck;if(dk){for(let i=0;i<120&&s.result==='ongoing';i++){const pain=dk.hand.filter(u=>dk.cards.find(c=>c.uid===u)!.id==='pain').length;if(pain)burdenHand.push(`${s.round+1}합 손패에 부상 카드 ${pain}`);const a=deckDuelAction(s,'objective');const r=actRaisingGate(P.r,a,P.q.revision);if(!r.ok)throw new Error('gate duel '+r.reason);if(a==='end'||s.result!=='ongoing')social.push(`  ${s.round}합 뒤: 체력 ${s.hp}/${s.maxHp} 상대 ${s.enemyHp}/${s.enemyMaxHp} 방비 ${s.enemyShield} 지원 ${s.v2!.support} 기세 ${s.momentum} 거리 ${s.v2!.distance} 손패 ${dk.hand.map(u=>dk.cards.find(c=>c.uid===u)!.id).join(',')}`);}}else P.duel(true);social.push('군영 장악 대결: '+s.result);duelOrder=dk?dk.stats.log.map(l=>`${l.exchange}합 ${l.cards.join('→')||'-'} / 상대 ${l.intent}`):[];P.finishGate();
+ if(P.q.phase==='result'){P.officer('doctrine:people');const st=burdenSettlementStatus(P.r)!;settlementChoice=st.eligible?(settlement?(P.act('engine:settle:'+settlement),BURDEN_SETTLEMENTS[settlement].name):'선택 안 함'):'결산 조건 미충족: '+st.reason;resultState=structuredClone(P.r);if(settlement||!st.eligible)P.found();}
  }catch(e){notes.push('중단: '+(e as Error).message);}
- const rep=report(P,burdenBuild?'정보 · 부담 활용':'정보 · 일반 물자(대조)',notes,social,battleNotes,firstQuest);
- return {report:rep,burdenLog,burdenUses:P.e.stats.burdenUses,burdenMarks:{produced:P.e.stats.produced.burden??0,consumed:P.e.stats.consumed.burden??0},exhausted:P.q.exhaust.map(uid=>P.q.cards.find(c=>c.uid===uid)?.id),deckBurden:P.p.library.filter(l=>RAISING_CARDS[l.id]?.burden).map(l=>l.id),tick:P.x.tick,resources:{...P.r.campaign!.world!.preparation},debt:P.r.campaign!.world!.diplomacy.obligation};
+ const rep=report(P,burdenBuild?'정보 · 부담 활용':'정보 · 일반 물자(대조)',notes,social,battleNotes,firstQuest);const city=P.r.campaign!.cities.xingyang!;
+ return {report:rep,state:resultState,burdenLog,ledger:{...P.e.burdenLedger!},settlement:settlementChoice,duelOrder,burdenHand,issues:city.issues.map(i=>i.id),treasury:P.r.campaign!.world!.treasury,cityFood:city.food,burdenUses:P.e.stats.burdenUses,burdenMarks:{produced:P.e.stats.produced.burden??0,consumed:P.e.stats.consumed.burden??0},exhausted:P.q.exhaust.map(uid=>P.q.cards.find(c=>c.uid===uid)?.id),deckBurden:P.p.library.filter(l=>RAISING_CARDS[l.id]?.burden).map(l=>l.id),tick:P.x.tick,resources:{...P.r.campaign!.world!.preparation},debt:P.r.campaign!.world!.diplomacy.obligation};
 }

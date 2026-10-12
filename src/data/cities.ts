@@ -80,6 +80,7 @@ export const ISSUE_DEFS:Record<string,{name:string;families:AdminFamily[];effect
  remnants:{name:'잔당 잠복',families:['security','military','diplomacy','intel'],effects:[{field:'security',amount:-10},{field:'materials',amount:-3}],reward:[{field:'readiness',amount:4}],group:'locals',text:'순찰·동원·향촌 조정 또는 설전. 실패 시 치안 −10·자재 −3, 위협 +5.'},
  monopoly:{name:'시장 독점',families:['trade','diplomacy'],effects:[{field:'production',amount:-8},{field:'order',amount:-4}],reward:[{field:'materials',amount:3}],group:'traders',text:'통행 허가·조정 또는 설전. 실패 시 생산 −8·안정 −4.'},
  corruption:{name:'관리 부패',families:['intel','security','records'],effects:[{field:'food',amount:-4},{field:'order',amount:-6}],reward:[{field:'security',amount:4}],group:'locals',text:'정보·치안·기록으로 2회 진전. 실패 시 식량 −4·안정 −6.'},
+ ledger_carry:{name:'장부 이월',families:['records','trade','intel'],effects:[{field:'order',amount:-6},{field:'production',amount:-4}],reward:[{field:'materials',amount:3},{field:'order',amount:3}],group:'traders',text:'거병 전 부담 장부를 도시 현안으로 넘김. 기록·거래·정보로 2회 진전하면 자재 +3·안정 +3. 실패 시 안정 −6·생산 −4.'},
  flood:{name:'농지 침수',families:['works','farm'],effects:[{field:'production',amount:-10},{field:'food',amount:-4}],reward:[{field:'food',amount:3}],group:'refugees',text:'농정·토목 또는 수로 완공. 실패 시 생산 −10·식량 −4.'},
 };
 export const PROJECT_DEFS:Record<string,{name:string;district:DistrictId;effects:CityEffect[];text:string}>={
