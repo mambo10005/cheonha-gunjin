@@ -1,0 +1,215 @@
+{
+ "start": {
+  "hp": 22,
+  "energy": 4,
+  "block": {
+   "front": 3,
+   "rear": 0
+  },
+  "hand": [
+   "spear",
+   "unrest",
+   "feint",
+   "spear",
+   "order"
+  ],
+  "draw": [
+   "formation",
+   "unrest",
+   "formation",
+   "spear",
+   "readied",
+   "spear",
+   "formation"
+  ],
+  "enemies": [
+   {
+    "id": "bandit",
+    "hp": 15,
+    "intent": {
+     "kind": "attack",
+     "row": "rear",
+     "dmg": 5,
+     "hits": 1
+    }
+   },
+   {
+    "id": "bandit",
+    "hp": 15,
+    "intent": {
+     "kind": "attack",
+     "row": "rear",
+     "dmg": 5,
+     "hits": 1
+    }
+   },
+   {
+    "id": "bandit",
+    "hp": 15,
+    "intent": {
+     "kind": "attack",
+     "row": "rear",
+     "dmg": 5,
+     "hits": 1
+    }
+   }
+  ]
+ },
+ "exactGreedy": {
+  "result": "win",
+  "hp": 8,
+  "turns": [
+   {
+    "turn": 1,
+    "hpStart": 22,
+    "hand": [
+     "spear",
+     "unrest",
+     "feint",
+     "spear",
+     "order"
+    ],
+    "plays": [
+     "spear→적1",
+     "spear→적1",
+     "feint→적1"
+    ],
+    "blockAfter": {
+     "front": 0,
+     "rear": 0
+    },
+    "incoming": 15,
+    "taken": 12,
+    "enemyHp": [
+     0,
+     15,
+     15
+    ],
+    "deadCards": 1
+   },
+   {
+    "turn": 2,
+    "hpStart": 10,
+    "hand": [
+     "formation",
+     "spear",
+     "readied",
+     "spear",
+     "formation"
+    ],
+    "plays": [
+     "readied",
+     "formation→front",
+     "formation→front",
+     "spear→적2"
+    ],
+    "blockAfter": {
+     "front": 0,
+     "rear": 0
+    },
+    "incoming": 16,
+    "taken": 2,
+    "enemyHp": [
+     0,
+     0,
+     8
+    ],
+    "deadCards": 0
+   },
+   {
+    "turn": 3,
+    "hpStart": 8,
+    "hand": [
+     "unrest",
+     "formation",
+     "feint",
+     "spear",
+     "readied"
+    ],
+    "plays": [
+     "formation→rear",
+     "spear→적3"
+    ],
+    "blockAfter": {
+     "front": 0,
+     "rear": 0
+    },
+    "incoming": 5,
+    "taken": 0,
+    "enemyHp": [
+     0,
+     0,
+     2
+    ],
+    "deadCards": 1
+   },
+   {
+    "turn": 4,
+    "hpStart": 8,
+    "hand": [
+     "formation",
+     "spear",
+     "formation",
+     "spear",
+     "unrest"
+    ],
+    "plays": [
+     "spear→적3"
+    ],
+    "blockAfter": {
+     "front": 0,
+     "rear": 0
+    },
+    "incoming": 8,
+    "taken": 0,
+    "enemyHp": [
+     0,
+     0,
+     0
+    ],
+    "deadCards": 1
+   }
+  ],
+  "dealt": 59
+ },
+ "sameSeed": {
+  "deep": "win",
+  "focus": "win",
+  "blockFirst": "win"
+ },
+ "winRates": {
+  "greedy": 0.9333333333333333,
+  "deep": 1,
+  "focus": 0.95,
+  "blockFirst": 0.3333333333333333,
+  "greedyNoUnrest": 1,
+  "greedyContractBlock3": 0.9833333333333333,
+  "greedyHpPlus6": 0.9833333333333333,
+  "greedyPlusFormation": 0.9333333333333333
+ },
+ "chainAblation": {
+  "note": "deep=4수 탐색(방비→반격 카드 연쇄를 한 턴 안에서 계산), greedy=하한. noChain=호위 편성(시작 방비 3·반격 카드 생성) 제거, hp-6=병력 2 준비",
+  "rows": [
+   {
+    "label": "편성 연쇄",
+    "greedy": 0.9333333333333333,
+    "deep": 1
+   },
+   {
+    "label": "편성 없음",
+    "greedy": 0.75,
+    "deep": 1
+   },
+   {
+    "label": "편성 연쇄·병력 2",
+    "greedy": 0.4666666666666667,
+    "deep": 0.8
+   },
+   {
+    "label": "편성 없음·병력 2",
+    "greedy": 0.15,
+    "deep": 0.6
+   }
+  ]
+ }
+}

@@ -1,5 +1,7 @@
 # 시드 141001 빌드 검증 (카드 엔진 2차 조정)
 
+> 3차 조정(결과 등급·조항·대결 2판) 이후의 A/B·성문 조합·호위 전투·부담 빌드 결과는 `card-engine-grades.md`에 있습니다. 아래는 2차 시점 기록입니다.
+
 - 실행: `node src/sim/card-engine-builds.ts`(세 빌드) · `node src/sim/card-engine-ab.ts`(설전·대결 A/B, 성문 내응 단계표) · `node src/sim/escort-battle-analysis.ts <저장 상태|current>`(호위 전투 분석)
 - 결과 파일: `card-engine-builds.json`, `card-engine-ab.json`, `card-engine-burden.json`, `escort-battle-old-9edf070.json`, `escort-battle-current.json`
 - 모든 행동은 실제 게임 명령입니다. 카드 순서는 사람이 정한 빌드 스크립트, 설전·대결·전투의 개별 수는 미리보기 기반 자동 정책입니다.

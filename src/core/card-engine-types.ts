@@ -37,7 +37,10 @@ export interface EngineState {
  reward:EngineReward|null;rewardsTaken:string[];rests:number[];
  pact:null|{talent:string;open:boolean;cards:string[];stratagems:string[];swaps:{removed:string;added:string}[];stratagem:string|null};
  telemetry:EngineTelemetry;
- stats:{chains:Record<string,number>;consumed:Record<string,number>;produced:Record<string,number>;distinctOwners:string[];burdenUses:number;forceDealt:number;cardsRemoved:number;cardsUpgraded:number;skips:number};
+ profile?:'lenient'|'standard'|'harsh';insideDistance?:'near'|'mid'|'far';
+ debates?:{context:string;grade:string;base:string;clauses:string[];pressure:boolean;rounds:number;failed:string[]}[];
+ duels?:{context:string;grade:string;result:string;rounds:number;reasons:string[]}[];
+ stats:{privateInterest?:number;chains:Record<string,number>;consumed:Record<string,number>;produced:Record<string,number>;distinctOwners:string[];burdenUses:number;forceDealt:number;cardsRemoved:number;cardsUpgraded:number;skips:number};
  log:string[];
 }
 /** 사람 플레이 전 로컬 계측. 외부 전송 없이 저장 기록과 디버그 리포트에만 남는다. */
@@ -45,4 +48,5 @@ export interface EngineTelemetry {
  plays:Record<string,number>;events:Record<string,number>;stratagems:Record<string,number>;firstPlays:string[];
  rewards:{taken:string[];declined:number};swaps:string[];sequences:{kind:'debate'|'duel'|'battle';context:string;actions:string[];result:string}[];
  withdrawals:number;cancels:number;afterFailure:string[];results:string[];
+ survey?:Record<string,string>;
 }

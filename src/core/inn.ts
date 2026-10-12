@@ -166,8 +166,11 @@ export function escortBattleSetup(r:RunState,q:InnQuestState){
 function createEscortBattle(r:RunState,q:InnQuestState):BattleState{
  const x=xof(r),setup=escortBattleSetup(r,q),seed=((x.tick+1)*7919+(x.revision+1)*104729+q.acceptedAt*31)%2147483646+1;
  const generals=[{id:'dianwei',row:'front' as const},...r.generals.filter(g=>g.id!=='dianwei').slice(0,1).map(g=>({id:g.id,row:'rear' as const}))];
- const temp=escortBattleConversions(r).filter(c=>CARDS[c.card]).map((c,i)=>({uid:90001+i,id:c.card}));
- return createBattle({build:r.build,rng:seed,hp:setup.hp,maxHp:setup.hp,food:Math.max(0,r.campaign!.world!.preparation.food),deck:[...r.deck,...temp],generals,relics:r.relics,lordId:r.lordId,terrain:'plains',encounterId:'e_bandit',enemies:setup.enemies,difficulty:0,allyBlessing:false,opening:{block:setup.block,damage:setup.damage,energyPenalty:0}});
+ const conv=escortBattleConversions(r),temp=conv.filter(c=>CARDS[c.card]).map((c,i)=>({uid:90001+i,id:c.card})),formation=conv.some(c=>c.card==='escort-formation');
+ const b=createBattle({build:r.build,rng:seed,hp:setup.hp,maxHp:setup.hp,food:Math.max(0,r.campaign!.world!.preparation.food),deck:[...r.deck,...temp],generals,relics:r.relics,lordId:r.lordId,terrain:'plains',encounterId:'e_bandit',enemies:setup.enemies,difficulty:0,allyBlessing:false,opening:{block:setup.block+(formation?3:0),damage:setup.damage,energyPenalty:0}});
+ if(formation)b.flags.escortChain=1;
+ if(conv.some(c=>c.card==='prepared-hand')){const isBlock=(id:string)=>CARDS[id]?.effects.some(e=>e.k.startsWith('block'));if(!b.hand.some(c=>isBlock(c.id))){const i=b.draw.findIndex(c=>isBlock(c.id));const out=b.hand.findIndex(c=>!isBlock(c.id));if(i>=0&&out>=0){const [card]=b.draw.splice(i,1);b.draw.push(b.hand.splice(out,1,card)[0]);}}}
+ return b;
 }
 /** 공동 호위 전투를 끝내고 의뢰·준비 자원에 결과를 반영한다. 같은 전투 보상은 한 번만 적용된다. */
 export function finishInnBattle(r:RunState,h:InnHooks):Result {

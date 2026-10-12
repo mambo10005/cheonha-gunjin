@@ -149,6 +149,8 @@ export interface BattleFlags {
   guojiaUsed: boolean;
   chengongBonus: number;
   familiesPlayed: Family[];
+  /** 공동 호위 편성: 첫 방비 카드 사용 때 반격 카드를 손에 만든다(남은 횟수). */
+  escortChain?: number;
 }
 
 export interface BattleState {

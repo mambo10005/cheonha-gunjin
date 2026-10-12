@@ -20,5 +20,11 @@ export function validEngine(e:unknown):boolean {
  if(!strings(e.rewardsTaken,10)||!Array.isArray(e.rests)||!object(e.stats)||!strings(e.log,60))return false;
  if(e.pact!==undefined&&e.pact!==null&&(!object(e.pact)||!TALENTS[e.pact.talent]||typeof e.pact.open!=='boolean'||!strings(e.pact.cards,4)||!strings(e.pact.stratagems,3)||!Array.isArray(e.pact.swaps)||e.pact.swaps.length>2||!(e.pact.stratagem===null||STRATAGEMS[e.pact.stratagem])))return false;
  if(e.telemetry!==undefined&&(!object(e.telemetry)||!object(e.telemetry.plays)||!Array.isArray(e.telemetry.sequences)||e.telemetry.sequences.length>20))return false;
+ if(e.telemetry?.survey!==undefined&&(!object(e.telemetry.survey)||Object.keys(e.telemetry.survey).length>20||!Object.values(e.telemetry.survey).every(v=>typeof v==='string'&&v.length<=300)))return false;
+ if(e.profile!==undefined&&!['lenient','standard','harsh'].includes(e.profile))return false;
+ if(e.insideDistance!==undefined&&e.insideDistance!==null&&!['near','mid','far'].includes(e.insideDistance))return false;
+ const record=(x:unknown)=>object(x)&&typeof x.context==='string'&&typeof x.grade==='string'&&x.grade.length<=40;
+ if(e.debates!==undefined&&(!Array.isArray(e.debates)||e.debates.length>10||!e.debates.every((d:any)=>record(d)&&strings(d.clauses,10)&&strings(d.failed,40))))return false;
+ if(e.duels!==undefined&&(!Array.isArray(e.duels)||e.duels.length>10||!e.duels.every((d:any)=>record(d)&&strings(d.reasons,40)&&int(d.rounds,0,20))))return false;
  return true;
 }

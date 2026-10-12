@@ -350,6 +350,7 @@ export function playCard(b: BattleState, handIdx: number, target: PlayTarget = {
   const cost = effectiveCost(b, c);
   b.hand.splice(handIdx, 1);
   b.energy -= cost;
+  if (b.flags.escortChain && d.effects.some(e => e.k.startsWith('block')) && b.hand.length < 10) { b.flags.escortChain--; b.hand.push({ uid: 96000 + b.turn * 10 + b.hand.length, id: 'counterstrike' }); log(b, '호위 편성: 방비에 맞춰 반격 카드가 손에 들어옴', 'player'); }
   combatEvent(b,{kind:'commandSpent',source:'지휘',amount:cost,remaining:b.energy,reason:'지휘력 지급'});
   if (d.family === 'chaek' && b.terrain === 'mountain') b.flags.firstChaekDiscountUsed = true;
   b.momentum += 1;

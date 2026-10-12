@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {freshRun,Player} from '../src/sim/card-engine-play.ts';
 import {buildXunyu,buildDianwei,buildLusu,runChengpu} from '../src/sim/card-engine-builds.ts';
 import {engineOf,insideConversions,applyGateDuelRules,buildDebugReport,COMMON_CARDS,PACT_CARDS} from '../src/core/card-engine.ts';
-import {createDuel,resolveDuelAction,duelIntent} from '../src/core/duel.ts';
+import {createDuel,resolveDuelAction} from '../src/core/duel.ts';
 import {saveCampaign,loadCampaign} from '../src/core/campaign-save.ts';
 import {memoryKV} from '../src/core/save.ts';
 import {RAISING_CARDS} from '../src/data/raising.ts';
@@ -37,12 +37,13 @@ test('three builds: first five plays differ, and each core stratagem fires at le
  for(const b of builds)assert.ok(['great','success','conditional'].includes(b.grade??''),b.name+' '+b.grade+' '+b.notes.at(-1));
 });
 
-test('inside gate converts debate grade and info/network/inside marks step by step into the follow-up duel',()=>{
+test('inside gate: three obstacles (watch/commander/soldiers) convert step by step into the follow-up duel',()=>{
  const P=new Player(freshRun());const e=P.e;const ids=(g:string)=>insideConversions(P.r,g).map(c=>c.id);
- assert.deepEqual(ids('success'),['debate-success']);e.stats.produced={inside:2};assert.deepEqual(ids('partial'),['debate-partial','no-support']);
- e.stats.produced={inside:4,clue:5};e.legacy.push({id:'escort:alternate',kind:'gate',text:''});assert.deepEqual(ids('failure'),['debate-failure','no-support','initiative','momentum','alternate']);
- const s=createDuel(3,'chengong','sentinel');const base=s.enemyHp;applyGateDuelRules(P.r,s,'inside','failure');assert.equal(s.enemyHp,base+4-4);assert.ok(s.noSupport&&s.initiative);assert.equal(s.enemyShield,0);
- const hp=s.hp;const intent=duelIntent(s);assert.ok(resolveDuelAction(s,'probe',s.round).ok);if(['strike','finisher','probe'].includes(intent))assert.equal(s.hp,hp,'surprise voids the first enemy action');
+ assert.deepEqual(ids('success'),['watch-open','commander','support-open','loyalty']);
+ e.stats.produced={inside:2};assert.deepEqual(ids('partial'),['watch-open','commander-open','no-support','loyalty-open']);
+ e.stats.produced={inside:4,clue:5,support:3,momentum:6,ledger:3};e.legacy.push({id:'escort:alternate',kind:'gate',text:''});assert.deepEqual(ids('failure'),['initiative','commander','no-support','loyalty','momentum','distance']);
+ e.insideDistance='far';const s=createDuel(3,'chengong','sentinel');applyGateDuelRules(P.r,s,'inside','failure');assert.ok(s.v2);assert.equal(s.v2!.objective,'inside_gate');assert.equal(s.v2!.support,0);assert.equal(s.v2!.distance,'far');assert.ok(s.initiative);assert.equal(s.enemyShield,0);
+ const hp=s.hp;assert.ok(resolveDuelAction(s,'probe',s.round).ok);assert.equal(s.hp,hp,'surprise voids the first enemy action');
 });
 
 test('barracks gate reads guard/counter chains: start protection and counter bonus come from the build',()=>{

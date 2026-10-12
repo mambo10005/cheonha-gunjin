@@ -108,10 +108,10 @@ test('burden cards are usable but weak alone: they never reduce obstacles, yet f
  const Q=atStore();Q.e.stratagems=['heavy_burden'];forceHand(Q,['poverty','c_turn','poverty']);Q.play('poverty');Q.play('poverty');assert.ok((marks(Q).supply??0)>=1&&(marks(Q).promise??0)>=1,'짐을 진 맹세 converts burden');
 });
 
-test('gate rules test the build: assembly needs fall with distinct talents and chains; barracks hp tracks the barracks puzzle; inside may skip the duel',()=>{
- const P=atStore();const e=P.e;const s=createDuel(3,'chengong','champion');const base=s.enemyHp;applyGateDuelRules(P.r,s,'barracks',null);assert.equal(s.enemyHp,base+4+6,'unsolved barracks: +4 and +2 per obstacle');
- e.puzzles.barracks={id:'barracks',status:'resolved',focus:null,obstacles:PUZZLES.barracks.obstacles.map(o=>({id:o.id,hp:0,max:o.hp})),marks:{},alert:0,resolution:'drill',plays:3,inspected:[],items:[],log:[]};const s2=createDuel(3,'chengong','champion');applyGateDuelRules(P.r,s2,'barracks',null);assert.equal(s2.enemyHp,base+4-3);
- assert.equal(insideSkipsDuel(P.r,'success'),false);e.legacy.push({id:'escort:alternate',kind:'gate',text:''});assert.equal(insideSkipsDuel(P.r,'success'),false,'alternate alone is not enough');e.stats.produced.inside=4;assert.equal(insideSkipsDuel(P.r,'success'),true);assert.equal(insideSkipsDuel(P.r,'partial'),false);
+test('gate rules test the build: barracks support tracks the barracks puzzle (not enemy hp); inside skips only when all three obstacles are resolved',()=>{
+ const P=atStore();const e=P.e;const s=createDuel(3,'chengong','champion');const base=s.enemyHp;applyGateDuelRules(P.r,s,'barracks',null);assert.equal(s.enemyHp,base,'difficulty is not raised through hp');assert.equal(s.v2!.support,3,'standard 1 + garrison alert + discipline left');assert.equal(s.enemyShield,9);
+ e.puzzles.barracks={id:'barracks',status:'resolved',focus:null,obstacles:PUZZLES.barracks.obstacles.map(o=>({id:o.id,hp:0,max:o.hp})),marks:{},alert:0,resolution:'drill',plays:3,inspected:[],items:[],log:[]};const s2=createDuel(3,'chengong','champion');applyGateDuelRules(P.r,s2,'barracks',null);assert.equal(s2.v2!.support,1);assert.equal(s2.enemyHp,base);
+ assert.equal(insideSkipsDuel(P.r,'success'),false);e.legacy.push({id:'escort:alternate',kind:'gate',text:''});assert.equal(insideSkipsDuel(P.r,'success'),false,'alternate alone is not enough');e.stats.produced.inside=4;e.stats.produced.ledger=3;assert.equal(insideSkipsDuel(P.r,'success'),true);assert.equal(insideSkipsDuel(P.r,'partial'),false,'a partial debate leaves the commander');
 });
 
 test('preview equals the actual play (marks, obstacles, stats), and draw/power gains are capped per visit',()=>{

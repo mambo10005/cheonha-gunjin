@@ -114,7 +114,7 @@ export function resolveDeckAction(s:DebateState,action:string,revision:number):C
   d.adviceUsed=true;emit('speechStarted',s.opponentId,0,'advice','보좌의 조언을 듣겠습니다.');
   if(d.assistant==='caoren')operation({kind:'trust',amount:2},'조인 · 설전당 1회');else{operation({kind:'guard',amount:2},'전위 · 설전당 1회');operation({kind:'score',axis:'safety',amount:1},'전위 호위');}
  }else if(action==='end-round'){
-  const counter=d.counters[d.counterIndex];const guarded=d.guard>0;d.guard=Math.max(0,d.guard-1);
+  const counter=d.counters[d.counterIndex];const guarded=d.guard>0;d.guard=Math.max(0,d.guard-1);if(guarded)d.stats.countersBlocked=(d.stats.countersBlocked??0)+1;else d.stats.countersHit=(d.stats.countersHit??0)+1;
   emit('opponentCountered','counter',guarded?0:1,'counter',guarded?'예고 반론에 대응해 차단했습니다.':COUNTER_TEXT[counter],s.opponentId);
   if(!guarded){if(counter==='profit'||counter==='safety')n.needs[counter]=Math.min(12,(n.needs[counter]??0)+1);else if(counter==='doubt'){s.trust=Math.max(0,s.trust-1);createCard(s,'doubt','discard');}else if(counter==='burden')n.burdenLimit=Math.max(1,n.burdenLimit-1);else if(counter==='delay')createCard(s,'delay');else{const axis=(Object.keys(n.needs) as Axis[]).sort((a,b)=>n.scores[b]-n.scores[a])[0];n.scores[axis]=Math.max(0,n.scores[axis]-1);}}
   if(d.elite)createCard(s,s.round%2?'unsettled':'quibble','discard');

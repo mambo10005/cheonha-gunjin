@@ -64,3 +64,25 @@
 .engine-pact article{padding:12px;border:1px solid #6f6a52;border-radius:5px;background:#24312b}
 .engine-pact article.chosen{border-color:#f1cf86;background:#3a3a26}
 .engine-pact .btn{margin:6px 6px 0 0}
+/* 대결 2판·설전 등급·난도·사람 플레이 시험 */
+.engine-duel-v2,.engine-debate-grade,.engine-profile,.engine-inside-prep,.engine-playtest{margin:12px 0;padding:16px 18px;border:1px solid #7d6a48;border-radius:6px;background:#1c2a26;color:#efe5cf;font-size:16px;line-height:1.55}
+.engine-duel-objective b{color:#f3dca6}
+.engine-duel-state{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+.engine-duel-state span{padding:6px 10px;border:1px solid #6f6a52;border-radius:4px;background:#26342d}
+.engine-duel-state b{margin-left:4px;font-size:18px;color:#f3dca6;white-space:nowrap}
+.engine-duel-hint,.engine-duel-action-text{font-size:15px;color:#d9d2bd}
+.engine-duel-grades h4,.engine-debate-grade h4{margin:10px 0 4px;font-size:17px}
+.engine-duel-grades ul,.engine-debate-grade ul{margin:4px 0;padding-left:20px}
+.engine-ok{color:#9fd59a;margin-right:4px}
+.engine-miss{color:#f0a487;margin-right:4px}
+.engine-debate-grade h3{font-size:20px;color:#f3dca6}
+.engine-debate-grade small{display:block;color:#d9d2bd;font-size:15px}
+.engine-profile-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0}
+.engine-profile-row button,.engine-survey-row button{min-height:40px;padding:6px 14px;border:1px solid #9a8458;border-radius:4px;background:#2a3a2b;color:#efe5cf;font-size:16px;cursor:pointer}
+.engine-profile-row button[aria-pressed="true"],.engine-survey-row button[aria-pressed="true"]{background:#6b5a33;border-color:#f1cf86;color:#fff6dc}
+.engine-survey-row{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid #3d4a40}
+.engine-survey-row p{margin:0;flex:1 1 240px}
+.engine-survey-row div{display:flex;gap:6px}
+.engine-playtest-guide ol{padding-left:22px}
+.engine-playtest details{margin:8px 0}
+@media (max-width:640px){.engine-duel-state span{flex:1 1 40%}.engine-survey-row div{width:100%}.engine-survey-row button{flex:1}}
