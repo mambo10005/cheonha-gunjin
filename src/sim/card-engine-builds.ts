@@ -71,12 +71,13 @@ function pact(P:Player,swaps:[string,string][],stratagem:string,notes:string[]){
 function script(P:Player,steps:([string,string]|string)[],notes:string[]){for(const st of steps){const [focus,card]=Array.isArray(st)?st:[null,st];if(focus&&P.puzzle()?.state.obstacles.find(o=>o.id===focus)?.hp)P.act('engine:focus:'+focus);if(card.startsWith('inspect:')){P.act('scene:'+card);continue;}const c=P.q.cards.find(c=>c.id===card&&P.q.hand.includes(c.uid));if(!c){notes.push(`손패에 없음: ${RAISING_CARDS[card]?.name??card}`);continue;}const res=P.try('card:'+c.uid);if(!res.ok)notes.push(`사용 불가 ${RAISING_CARDS[card].name}: ${res.reason}`);}}
 
 /* ── 빌드 1: 순욱 · 문서·정론·논거·조항 ── */
-export function buildXunyu():BuildReport {
- const P=new Player(freshRun()),notes:string[]=[],social:string[]=[];let firstQuest:Record<string,number>={};
+export function buildXunyu():BuildReport {return runXunyu().report;}
+export function runXunyu(){
+ const P=new Player(freshRun()),notes:string[]=[],social:string[]=[];let firstQuest:Record<string,number>={};let gateState:import('../core/types.ts').RunState|null=null;let docState:import('../core/types.ts').RunState|null=null;
  try{
  P.act('enter');P.act('inn:offer:recommendation');P.act('inn:accept:recommendation');pact(P,[['x_document','coin'],['x_orthodox','manifesto']],'many_hands',notes);P.act('inn:quest:recommendation:public-records');
  P.visit('archive');P.act('scene:inspect:ledger');script(P,[['record_gap','x_document'],['clerk_guard','x_orthodox'],['refugee_distrust','recommend']],notes);
- P.act('engine:resolve:debate');social.push(`서리 설전 시작: 요구 ${JSON.stringify(P.x.debate!.negotiation!.needs)} · 신뢰 ${P.x.debate!.trust} · 집중 ${P.x.debate!.resolve}`);const d=P.debate('stable');social.push('서리 설전: '+d);P.act('finish-social');
+ P.act('engine:resolve:debate');docState=structuredClone(P.r);social.push(`서리 설전 시작: 요구 ${JSON.stringify(P.x.debate!.negotiation!.needs)} · 신뢰 ${P.x.debate!.trust} · 집중 ${P.x.debate!.resolve}`);const d=P.debate('stable');social.push('서리 설전: '+d);P.act('finish-social');
  const concl=P.try('inn:quest:recommendation:truth');if(!concl.ok)P.act('inn:quest:recommendation:conditional');notes.push('결론: '+(concl.ok?'완전 보증':'조건부 보증'));
  notes.push('보상: '+pickReward(P,['card:register','anycard']));
  P.visit('inn');P.act('inn:report:recommendation');firstQuest={...P.e.telemetry.stratagems};P.act('officer:recruit:xunyu:a');notes.push('순욱 등용(고유: 왕좌의 인선)');
@@ -85,24 +86,24 @@ export function buildXunyu():BuildReport {
  P.visit('shrine');script(P,['x_orthodox','person_xunyu_a','role_network_a','recommend','x_document'],notes);const sh=P.try('approach:assembly');notes.push('민회 공론: '+(sh.ok?'민회 계획 발견':sh.reason));
  if(P.x.scene!=='map')P.act('leave');const g1=P.try('engine:growth:xunyu:replace');notes.push('순욱 성장: '+(g1.ok?'역할 카드 교체(명망의 협력)':g1.reason));
  P.act('plan');P.officer('elect:chengong:xunyu');const args=debateArguments(P.r);notes.push(`관문 전 지속 논거 ${args.length}: `+args.map(a=>a.label).join(', '));
- social.push(control(P,'assembly'));P.plan('assembly');const g=P.q.gate!.debate!;social.push(`민회 설전 시작 요구 ${JSON.stringify(g.negotiation!.needs)} 신뢰 ${g.trust} 집중 ${g.resolve}`);
+ gateState=structuredClone(P.r);social.push(control(P,'assembly'));P.plan('assembly');const g=P.q.gate!.debate!;social.push(`민회 설전 시작 요구 ${JSON.stringify(g.negotiation!.needs)} 신뢰 ${g.trust} 집중 ${g.resolve}`);
  const res=P.debate('stable',true);social.push('민회 설전: '+res+` · 조항 ${JSON.stringify(g.deck?.promises??[])}`);P.finishGate();
  if(P.q.phase==='result'){P.officer('doctrine:people');P.found();}
  }catch(e){notes.push('중단: '+(e as Error).message);}
- return report(P,'순욱 · 문서·정론·논거·조항',notes,social,[],firstQuest);
+ return {report:report(P,'순욱 · 문서·정론·논거·조항',notes,social,[],firstQuest),gateState,docState};
 }
 /* ── 빌드 2: 전위 · 방비·기세·반격 ── */
 export function buildDianwei(){const out=runDianwei();return out.report;}
 export function runDianwei(stopAtBattle=false){
- const P=new Player(freshRun()),notes:string[]=[],social:string[]=[],battleNotes:string[]=[];let firstQuest:Record<string,number>={};let battleStart:import('../core/types.ts').RunState|null=null,gateState:import('../core/types.ts').RunState|null=null;
+ const P=new Player(freshRun()),notes:string[]=[],social:string[]=[],battleNotes:string[]=[];let firstQuest:Record<string,number>={};let battleStart:import('../core/types.ts').RunState|null=null,gateState:import('../core/types.ts').RunState|null=null,escortState:import('../core/types.ts').RunState|null=null;
  try{
  P.act('enter');P.act('inn:area:yard');P.act('inn:select:dianwei');P.act('inn:offer:escort');P.act('inn:accept:escort');pact(P,[['d_guard','manifesto'],['d_counter','coin']],'open_flag',notes);
  P.act('engine:tactic:opening:press');P.act('engine:tactic:response:counter');P.act('engine:tactic:gambit:all_in');notes.push('대결 전술: 선제 돌격/반격 태세/결사 일격');
  P.visit('store');script(P,['inspect:guards',['escort_gap','d_guard'],['blocked','d_counter']],notes);spendRest(P,['keeper_alert','ledger_gap'],notes);
- P.act('engine:resolve:duel');const d=P.duel();social.push(`창고 통행권 대결: ${d} (체력 ${P.x.duel!.hp}/${P.x.duel!.maxHp})`);P.act('finish-social');
+ escortState=structuredClone(P.r);P.act('engine:resolve:duel');const d=P.duel();social.push(`창고 통행권 대결: ${d} (체력 ${P.x.duel!.hp}/${P.x.duel!.maxHp})`);P.act('finish-social');
  notes.push('보상: '+pickReward(P,['card:weapons','anycard']));
  P.visit('gate');const conv=escortBattleConversions(P.r);battleNotes.push('전투 전 변환: '+conv.map(c=>`${c.label}→${c.card}`).join(', '));
- P.act('inn:quest:escort:joint-escort');battleStart=structuredClone(P.r);if(stopAtBattle)return {P,battleStart,gateState,report:null as unknown as BuildReport};const br=battle(P);battleNotes.push('공동 호위 전투: '+br);const fin=finishInnBattle(P.r,explorationInternals.innHooks(P.r));if(!fin.ok)throw new Error(fin.reason);P.x.revision++;
+ P.act('inn:quest:escort:joint-escort');battleStart=structuredClone(P.r);if(stopAtBattle)return {P,battleStart,gateState,escortState,report:null as unknown as BuildReport};const br=battle(P);battleNotes.push('공동 호위 전투: '+br);const fin=finishInnBattle(P.r,explorationInternals.innHooks(P.r));if(!fin.ok)throw new Error(fin.reason);P.x.revision++;
  P.visit('inn');P.act('inn:report:escort');firstQuest={...P.e.telemetry.stratagems};P.act('officer:recruit:dianwei:a');notes.push('전위 등용(고유: 철위의 결집)');
  P.act('leave');P.act('companion:dianwei');unequip(P,'recommend');equipTalent(P,'dianwei');const w=P.p.library.find(l=>l.id==='weapons');if(w&&!P.p.loadouts.raising.includes(w.uid))P.try(`officer:equip:${w.uid}:raising`);
  P.visit('barracks');script(P,['inspect:weapons',['discipline','d_guard'],['command_distrust','d_counter'],['command_distrust','person_dianwei_a'],['command_distrust','role_military_a']],notes);
@@ -113,7 +114,7 @@ export function runDianwei(stopAtBattle=false){
  gateState=structuredClone(P.r);social.push(control(P,'barracks'));P.plan('barracks');const s=P.q.gate!.duel!;social.push(`군영 장악 대결 시작: 상대 체력 ${s.enemyHp}, 기세 ${s.momentum}, 방비 ${s.protection??0}, 반격 추가 ${s.counterBonus??0}`);const res=P.duel(true);social.push('군영 장악 대결: '+res);P.finishGate();
  if(P.q.phase==='result'){P.officer('doctrine:strategy');P.found();}
  }catch(e){notes.push('중단: '+(e as Error).message);}
- return {P,battleStart,gateState,report:report(P,'전위 · 방비·기세·반격',notes,social,battleNotes,firstQuest)};
+ return {P,battleStart,gateState,escortState,report:report(P,'전위 · 방비·기세·반격',notes,social,battleNotes,firstQuest)};
 }
 /* ── 빌드 3: 노숙 · 장부·비용·정보 전환 ── */
 export function buildLusu():BuildReport {return runLusu().report;}

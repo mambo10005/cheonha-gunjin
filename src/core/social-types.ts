@@ -18,6 +18,8 @@ export interface DuelState {
   /** 대결 2판(거리·자세·빈틈·지원). 전위 뒤뜰 시험·창고 호위 대표·군영 장악·성문 내응 후속 대결에만 적용. */
   v2?: { objective: string; distance: 'near' | 'mid' | 'far'; stance: 'offense' | 'defense' | 'lure' | null; opening: boolean; openingSource: string | null; support: number; revealed: number; profile: string;
     stats: { rounds: number; taken: number; dealt: number; maxHit: number; forceHit?: number; forceOverkill?: number; counters: number; openingsUsed: number; blindFinishers: number; overkill: number; repeats: number; actions: string[]; distances: string[]; stances: string[]; enemyActions: string[] } };
+  /** 대결 덱(3판): 드로우·손패·버림·소멸, 상대 원형 덱과 의도. 있으면 행동 버튼 대신 카드로 싸운다. */
+  deck?: import('./duel-deck-types.ts').DuelDeck;
   lastMode?: DuelAction;
   rng: number; opponentId: string; generalId: string; round: number; maxRounds: number;
   hp: number; maxHp: number; enemyHp: number; enemyMaxHp: number; momentum: number;
@@ -36,6 +38,8 @@ export interface DebateState {
   /** 카드 엔진: 설전 시작 때 적용한 지속 논거 수(보존 판정용)와 평가 맥락. */
   engineArgs?: { initial: number; record: number; context: string };
   negotiation?: Negotiation;
+  /** 논박진(논거 전장). 없으면 구형 반론 규칙. */
+  field?: import('./debate-field-types.ts').DebateField;
   rng: number; opponentId: string; generalId: string; round: number; maxRounds: number;
   resolve: number; agreement: number; trust: number; aptitude: number; traits: ActivityTrait[];
   concerns: Concern[]; revealed: Concern[]; lastAction: DebateAction | null;

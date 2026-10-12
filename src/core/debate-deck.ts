@@ -5,6 +5,9 @@ import type { RunState,Pending } from './types.ts';
 import type { Axis } from './accord-types.ts';
 import type { DeckCampaign,DebateCard,Effect,Method,Operation,CounterKind } from './debate-deck-types.ts';
 import type { DebateEvent,DebateEventKind } from './debate-events.ts';
+import { fieldOperation,fieldScoreBonus,fieldTrustPenalty,onFieldCardPlayed,afterFieldAction,fieldEndRound,fieldPartialOk,fieldCostDelta,placementNeeded,parsePlacement,attackTargets,playerAlive } from './debate-field.ts';
+/** 'card:<uid>' 또는 'card:<uid>:replace:<argId>' / 'card:<uid>:instant' */
+export const cardUidOf=(action:string)=>Number(action.split(':')[1]);
 export const COUNTER_TEXT:Record<CounterKind,string>={profit:'재협상 · 이익 요구 +1',safety:'재검토 · 안전 요구 +1',doubt:'의심 · 신뢰 −1, 버림패에 의심',burden:'책임 · 부담 상한 −1 (최소 1)',delay:'지연 · 손에 장황함 추가',review:'재심 · 최고 충족 요구 수치 −1'};
 export function defaultDebateBuild():DeckCampaign{return {enabled:true,representative:null,assistant:null,cards:[],nextUid:1,seals:['forum'],slots:2,claimed:[],obligations:[]};}
 export function switchRepresentative(build:DeckCampaign,id:string):{removed:string[];added:string[];size:number}{
@@ -16,7 +19,7 @@ export function switchRepresentative(build:DeckCampaign,id:string):{removed:stri
 }
 export function ensureRepresentative(build:DeckCampaign,id:string){if(build.representative!==id)switchRepresentative(build,id);}
 export function activeCard(s:DebateState,uid:number){return s.deck?.cards.find(c=>c.uid===uid);}
-export function cardDefinition(s:DebateState,action:string){const c=activeCard(s,Number(action.replace('card:','')));return c?DEBATE_CARDS[c.id]:undefined;}
+export function cardDefinition(s:DebateState,action:string){const c=activeCard(s,cardUidOf(action));return c?DEBATE_CARDS[c.id]:undefined;}
 export function cardText(c:DebateCard):string{const d=DEBATE_CARDS[c.id];return (c.upgrade?d.upgrades?.[c.upgrade]?.text:d.text)??d.text;}
 function counterPattern(s:DebateState,elite:boolean):CounterKind[]{
  const pool:CounterKind[]=s.opponentId==='merchant'?['profit','doubt','burden','review','delay']:s.opponentId==='elder'?['safety','review','doubt','safety','burden']:['review','delay','doubt','profit','burden'];
@@ -39,43 +42,49 @@ export function startDeckDebate(s:DebateState,build:DeckCampaign,elite=false,agr
  s.log.push('상대 반론 규칙: '+[...new Set(s.deck.counters)].map(c=>COUNTER_TEXT[c]).join(' / ')+(elite?' · 정예: 연속 같은 계열 수치 −1, 매 반론 방해 1장.':''));
 }
 function draw(s:DebateState,amount:number):void{
- const d=s.deck!;for(let i=0;i<Math.min(4,amount)&&d.hand.length<8;i++){
+ const d=s.deck!;for(let i=0;i<Math.min(s.field?5:4,amount)&&d.hand.length<8;i++){
   if(!d.draw.length){if(!d.discard.length)break;d.draw=shuffle(s,d.discard.splice(0));d.stats.reshuffles++;}
   d.hand.push(d.draw.pop()!);d.stats.drawn++;
  }
 }
 function createCard(s:DebateState,id:string,to:'hand'|'discard'='hand'){const d=s.deck!;if(d.cards.length>=40||!DEBATE_CARDS[id])return;const c={uid:d.nextUid++,id,temporary:true};d.cards.push(c);if(to==='hand'&&d.hand.length<8)d.hand.push(c.uid);else d.discard.push(c.uid);}
-export function deckCost(s:DebateState,c:DebateCard):number{return Math.max(0,DEBATE_CARDS[c.id].cost+(c.personnelCost??0)-(c.mod==='fleeting'?1:0)-(s.deck?.discount??0));}
-export function deckActions(s:DebateState):string[]{return s.deck?[...s.deck.hand.map(uid=>'card:'+uid),'end-round',...(s.deck.assistant&&!s.deck.adviceUsed?['advice']:[]),'settle']:[];}
+export function deckCost(s:DebateState,c:DebateCard):number{return Math.max(0,DEBATE_CARDS[c.id].cost+(c.personnelCost??0)-(c.mod==='fleeting'?1:0)-(s.deck?.discount??0)+fieldCostDelta(s,c));}
+export function deckActions(s:DebateState):string[]{if(!s.deck)return [];const f=s.field;const cards=s.deck.hand.flatMap(uid=>{const c=activeCard(s,uid)!;if(f&&placementNeeded(s,c))return [`card:${uid}:instant`,...playerAlive(f).map(a=>`card:${uid}:replace:${a.argumentId}`)];return ['card:'+uid];});
+ return [...cards,...(f?attackTargets(f).filter(a=>a.argumentId!==f.focus).map(a=>'target:'+a.argumentId):[]),'end-round',...(s.deck.assistant&&!s.deck.adviceUsed?['advice']:[]),'settle'];}
 export function canDeckAction(s:DebateState,action:string,revision:number):Check{
  const d=s.deck;if(!d||s.result!=='ongoing'||revision!==d.revision)return {ok:false,reason:'이미 처리한 입력이거나 종료된 설전입니다.'};
  if(['withdraw','end-round','settle'].includes(action))return {ok:true};
  if(action==='advice')return d.assistant&&!d.adviceUsed?{ok:true}:{ok:false,reason:'보좌 조언은 설전당 1회입니다.'};
- const c=activeCard(s,Number(action.replace('card:','')));if(!action.startsWith('card:')||!c||!d.hand.includes(c.uid))return {ok:false,reason:'현재 손에 없는 카드입니다.'};
+ if(action.startsWith('target:')){const f=s.field;return f&&attackTargets(f).some(a=>a.argumentId===action.slice(7))?{ok:true}:{ok:false,reason:'겨눌 수 있는 상대 논거가 아닙니다.'};}
+ const c=activeCard(s,cardUidOf(action));if(!action.startsWith('card:')||!c||!d.hand.includes(c.uid))return {ok:false,reason:'현재 손에 없는 카드입니다.'};
  const definition=DEBATE_CARDS[c.id];if(definition.owner&&definition.owner!==s.generalId)return {ok:false,reason:'현재 대표의 고유 카드가 아닙니다.'};
  if(d.played>=12)return {ok:false,reason:'라운드 카드 사용 상한 12회입니다. 라운드를 마치세요.'};
  if(s.resolve<deckCost(s,c))return {ok:false,reason:'집중이 부족합니다. 라운드 종료 후 회복하세요.'};
  if(definition.effects.some(e=>e.operations.some(op=>op.kind==='food'&&s.negotiation!.food+op.amount<0)))return {ok:false,reason:'즉시 담보로 지급할 군량 2가 필요합니다.'};
  if(definition.effects.some(e=>e.operations.some(op=>op.kind==='promise'&&d.promises.includes(op.promise))))return {ok:false,reason:'동일 약속은 이미 체결했습니다. 중복 약속할 수 없습니다.'};
+ if(s.field){const pl=parsePlacement(action);if(pl.mode==='replace'&&!playerAlive(s.field).some(a=>a.argumentId===pl.argId))return {ok:false,reason:'교체할 내 논거를 고르세요.'};if(pl.mode==='auto'&&placementNeeded(s,c))return {ok:false,reason:'내 논거 자리 3개가 모두 찼습니다. 교체할 논거를 고르거나, 즉시 효과로 쓰거나, 사용을 취소하세요.'};}
  return {ok:true};
 }
 export function deckGrade(s:DebateState):'success'|'partial'|'failure'{
  const d=s.deck!,n=s.negotiation!;const all=Object.entries(n.needs).every(([a,v])=>n.scores[a as Axis]>=v!);
- if(s.trust>=n.trustNeeded&&n.burden<=n.burdenLimit&&all&&!d.cards.some(c=>c.id==='unsettled'&&!d.exhaust.includes(c.uid)))return 'success';
+ const broken=!!s.field?.stats.coreBroken;
+ if(!broken&&s.trust>=n.trustNeeded&&n.burden<=n.burdenLimit&&all&&!d.cards.some(c=>c.id==='unsettled'&&!d.exhaust.includes(c.uid)))return 'success';
  const first=Object.keys(n.needs)[0] as Axis;
- return s.trust>=2&&n.scores[first]>=n.needs[first]!&&n.burden<=n.burdenLimit+1?'partial':'failure';
+ return s.trust>=2&&n.scores[first]>=n.needs[first]!&&n.burden<=n.burdenLimit+1&&fieldPartialOk(s)?'partial':'failure';
 }
 export function resolveDeckAction(s:DebateState,action:string,revision:number):Check{
  const check=canDeckAction(s,action,revision);if(!check.ok)return check;
  const d=s.deck!,n=s.negotiation!,events:DebateEvent[]=[];let budget=48;d.chain=0;
  const emit=(kind:DebateEventKind,target:string,value:number,resource:string,reason:string,source=s.generalId)=>events.push({kind,target,value,resource,reason,source,visualPriority:kind==='debateResolved'?3:2,sequence:events.length});
  let c:DebateCard|undefined, family:Method|undefined,paid=false,answered=false,burdenGained=false,exhaust=false;
- const scalar=(op:Operation)=>!['copy','generate','draw','focus','exhaustHand','reclaim','amplify'].includes(op.kind);
+ const scalar=(op:Operation)=>!['copy','generate','draw','focus','exhaustHand','reclaim','amplify','argument','expose','redirect','delay','unlock','convert','exact'].includes(op.kind);
+ const placement=parsePlacement(action);
  const operation=(op:Operation,source:string,depth=0):void=>{
   if(--budget<0||depth>6){s.log.push('연쇄 처리 상한: 추가 발동을 생략했습니다.');return;}
   d.chain=Math.max(d.chain,depth);
+  if(s.field&&fieldOperation(s,op,c,family,placement))return;
   if(op.kind==='score'){
-   const axis=op.axis;let amount=op.amount;
+   const axis=op.axis;let amount=op.amount;amount+=fieldScoreBonus(s,axis,amount);
    if(d.elite&&d.previous===family)amount=Math.max(0,amount-1);
    if(s.opponentId==='elder'&&family==='pressure')amount=Math.max(0,amount-1);
    const before=n.scores[axis];n.scores[axis]=Math.max(0,Math.min(30,before+amount));emit('argumentApplied',axis,n.scores[axis]-before,axis,source);(d.axisFamilies[axis]??=[]).push(family??'scheme');
@@ -83,7 +92,7 @@ export function resolveDeckAction(s:DebateState,action:string,revision:number):C
    return;
   }
   switch(op.kind){
-   case 'trust':{const before=s.trust;const doubt=d.hand.some(uid=>activeCard(s,uid)?.id==='doubt')&&family==='trust'&&op.amount>0?1:0;s.trust=Math.max(0,Math.min(20,s.trust+op.amount-doubt));emit('trustChanged','trust',s.trust-before,'trust',source);break;}
+   case 'trust':{const before=s.trust;const doubt=(d.hand.some(uid=>activeCard(s,uid)?.id==='doubt')&&family==='trust'&&op.amount>0?1:0)+fieldTrustPenalty(s,op.amount);s.trust=Math.max(0,Math.min(20,s.trust+op.amount-doubt));emit('trustChanged','trust',s.trust-before,'trust',source);break;}
    case 'burden':{const before=n.burden;n.burden=Math.max(0,Math.min(12,n.burden+op.amount));burdenGained||=n.burden>before;emit('burdenChanged','burden',n.burden-before,'burden',source);if(n.burden>before)trigger(archetype(s.generalId).principles,'burden',depth+1);break;}
    case 'focus':s.resolve=Math.min(6,Math.max(0,s.resolve+op.amount));emit('argumentApplied',s.generalId,op.amount,'focus',source);break;
    case 'draw':{const before=d.hand.length;draw(s,op.amount);emit('followupUnlocked','hand',d.hand.length-before,'draw',source);break;}
@@ -108,21 +117,23 @@ export function resolveDeckAction(s:DebateState,action:string,revision:number):C
   d.uses[key]=(d.uses[key]??0)+1;emit('traitTriggered','chain',1,'chain',e.source);d.stats.chains++;for(const op of e.operations)operation(op,e.source,depth);
  }};
  const baseEffects=(card:DebateCard)=>card.upgrade?DEBATE_CARDS[card.id].upgrades?.[card.upgrade]?.effects??DEBATE_CARDS[card.id].effects:DEBATE_CARDS[card.id].effects;
+ if(action.startsWith('target:')){s.field!.focus=action.slice(7);d.revision++;return {ok:true,events};}
  if(action==='withdraw'){d.withdrawn=true;s.result='failure';s.log.push('철회: 선지급 군량은 환급하지 않으며 기본 제안은 유지됩니다.');}
  else if(action==='settle')s.result=deckGrade(s);
  else if(action==='advice'){
   d.adviceUsed=true;emit('speechStarted',s.opponentId,0,'advice','보좌의 조언을 듣겠습니다.');
   if(d.assistant==='caoren')operation({kind:'trust',amount:2},'조인 · 설전당 1회');else{operation({kind:'guard',amount:2},'전위 · 설전당 1회');operation({kind:'score',axis:'safety',amount:1},'전위 호위');}
  }else if(action==='end-round'){
-  const counter=d.counters[d.counterIndex];const guarded=d.guard>0;d.guard=Math.max(0,d.guard-1);if(guarded)d.stats.countersBlocked=(d.stats.countersBlocked??0)+1;else d.stats.countersHit=(d.stats.countersHit??0)+1;
-  emit('opponentCountered','counter',guarded?0:1,'counter',guarded?'예고 반론에 대응해 차단했습니다.':COUNTER_TEXT[counter],s.opponentId);
-  if(!guarded){if(counter==='profit'||counter==='safety')n.needs[counter]=Math.min(12,(n.needs[counter]??0)+1);else if(counter==='doubt'){s.trust=Math.max(0,s.trust-1);createCard(s,'doubt','discard');}else if(counter==='burden')n.burdenLimit=Math.max(1,n.burdenLimit-1);else if(counter==='delay')createCard(s,'delay');else{const axis=(Object.keys(n.needs) as Axis[]).sort((a,b)=>n.scores[b]-n.scores[a])[0];n.scores[axis]=Math.max(0,n.scores[axis]-1);}}
+  if(s.field){const res=fieldEndRound(s,d.guard);d.guard=Math.max(0,d.guard-res.guardUsed);if(res.blocked)d.stats.countersBlocked=(d.stats.countersBlocked??0)+1;else d.stats.countersHit=(d.stats.countersHit??0)+1;emit('opponentCountered','counter',res.blocked?0:1,'counter',(res.blocked?'의도 차단 · ':'')+res.text,s.opponentId);}
+  const counter=d.counters[d.counterIndex];const guarded=!s.field&&d.guard>0;if(!s.field){d.guard=Math.max(0,d.guard-1);if(guarded)d.stats.countersBlocked=(d.stats.countersBlocked??0)+1;else d.stats.countersHit=(d.stats.countersHit??0)+1;
+  emit('opponentCountered','counter',guarded?0:1,'counter',guarded?'예고 반론에 대응해 차단했습니다.':COUNTER_TEXT[counter],s.opponentId);}
+  if(!s.field&&!guarded){if(counter==='profit'||counter==='safety')n.needs[counter]=Math.min(12,(n.needs[counter]??0)+1);else if(counter==='doubt'){s.trust=Math.max(0,s.trust-1);createCard(s,'doubt','discard');}else if(counter==='burden')n.burdenLimit=Math.max(1,n.burdenLimit-1);else if(counter==='delay')createCard(s,'delay');else{const axis=(Object.keys(n.needs) as Axis[]).sort((a,b)=>n.scores[b]-n.scores[a])[0];n.scores[axis]=Math.max(0,n.scores[axis]-1);}}
   if(d.elite)createCard(s,s.round%2?'unsettled':'quibble','discard');
   s.round++;d.counterIndex++;if(s.round>=s.maxRounds)s.result=deckGrade(s);else{
-   d.discard.push(...d.hand.splice(0));s.resolve=3;d.played=0;d.uses={};d.families=[];d.axisFamilies={};d.previous=null;d.previousBurden=false;d.discount=0;d.revealed=Math.min(d.counters.length,Math.max(d.revealed,d.counterIndex+(s.generalId==='guojia'?2:1)));draw(s,4);
+   d.discard.push(...d.hand.splice(0));s.resolve=3;d.played=0;d.uses={};d.families=[];d.axisFamilies={};d.previous=null;d.previousBurden=false;d.discount=0;d.revealed=Math.min(d.counters.length,Math.max(d.revealed,d.counterIndex+(s.generalId==='guojia'?2:1)));draw(s,s.field?5:4);
   }
  }else{
-  c=activeCard(s,Number(action.slice(5)))!;const definition=DEBATE_CARDS[c.id];family=definition.family;
+  c=activeCard(s,cardUidOf(action))!;const definition=DEBATE_CARDS[c.id];family=definition.family;
   const cost=deckCost(s,c);s.resolve-=cost;d.discount=0;d.hand.splice(d.hand.indexOf(c.uid),1);d.played++;d.stats.plays[c.id]=(d.stats.plays[c.id]??0)+1;
   emit('actionUsed',c.id,0,'card',definition.name);emit('costSpent',s.generalId,-cost,'focus',definition.name);emit('speechStarted',s.opponentId,0,'card',`${definition.name}。${cardText(c)}`);
   if(d.hand.some(uid=>activeCard(s,uid)?.id==='quibble')&&d.previous===family)operation({kind:'burden',amount:1},'말꼬리 · 같은 계열');
@@ -134,6 +145,7 @@ export function resolveDeckAction(s:DebateState,action:string,revision:number):C
   if(c.inherited==='reveal')operation({kind:'reveal',amount:1},'전수된 정보 표식');if(c.inherited==='trust')operation({kind:'trust',amount:1},'전수된 신뢰 표식');
   trigger(archetype(s.generalId).principles,'after');for(const seal of d.seals)trigger(SEALS[seal].effects,'after');
   if(c.mod==='cycle')operation({kind:'draw',amount:1},'순환 개조');if(c.mod==='clean'){const uid=d.discard.find(uid=>DEBATE_CARDS[activeCard(s,uid)!.id].hindrance);if(uid!==undefined){d.discard.splice(d.discard.indexOf(uid),1);d.exhaust.push(uid);}}
+  onFieldCardPlayed(s,c,family);afterFieldAction(s);
   d.previous=family;d.families.push(family);d.previousBurden=burdenGained;d.lastCard=c.id;exhaust||=!!definition.exhaust||c.mod==='fleeting';(exhaust?d.exhaust:d.discard).push(c.uid);
   for(const e of events.filter(e=>e.kind==='traitTriggered'||e.kind==='followupUnlocked'))s.log.push(e.reason);
   s.log.push(`${definition.name} → 집중 ${s.resolve} · 신뢰 ${s.trust} · 부담 ${n.burden}/${n.burdenLimit}${exhaust?' · 소멸':''}`);

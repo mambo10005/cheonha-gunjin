@@ -4,7 +4,7 @@ import {build} from 'vite';
 import {JSDOM} from 'jsdom';
 import {loadCampaign,CAMPAIGN_KEY} from '../src/core/campaign-save.ts';
 import {explorationOf} from '../src/core/city-exploration.ts';
-import {deckPolicyAction} from '../src/sim/debate-deck-policy.ts';
+import {debateAction} from '../src/sim/card-engine-play.ts';
 test('inn public DOM: portraits, owner conversation, real city quest debate, conclusion, return report and reload',{timeout:180000},async()=>{
  const built=await build({logLevel:'silent',build:{write:false}}),out=Array.isArray(built)?built[0]:built;assert.ok('output' in out);const js=out.output.find(x=>x.type==='chunk');assert.ok(js&&js.type==='chunk');const errors:string[]=[];
  const boot=(raw?:string)=>{const next=new JSDOM('<main id="app"></main>',{url:'http://localhost/',runScripts:'outside-only',beforeParse(w){w.structuredClone=structuredClone;w.matchMedia=(()=>({matches:true})) as unknown as typeof w.matchMedia;w.addEventListener('error',e=>errors.push(String(e.error)));}});if(raw)next.window.localStorage.setItem(CAMPAIGN_KEY,raw);next.window.eval(js.code);return next;};let dom=boot(),doc=dom.window.document;
@@ -18,7 +18,7 @@ test('inn public DOM: portraits, owner conversation, real city quest debate, con
  const hasClues=()=>{const q=state().campaign!.world!.raising!;return q.cards.some(c=>c.id==='clues'&&q.hand.includes(c.uid));};
  if(!hasClues())act('engine:mulligan');act('scene:zone:stacks');act('scene:inspect:ledger');assert.match(doc.querySelector('.engine-marks')!.textContent!,/장부\s*2/);act('engine:focus:record_gap');assert.ok(playCard('clues'),'investigation card in hand');
  assert.equal(doc.querySelector<HTMLButtonElement>('[data-explore-action="engine:resolve:debate"]')!.disabled,false);act('engine:resolve:debate');assert.ok(explorationOf(state())!.debate!.deck);assert.ok(doc.querySelector('.exploration-social-portrait img[src="/assets/inn/traveler-v1.webp"]'));assert.equal(doc.querySelector('.exploration-social-silhouette'),null);
- for(let i=0;i<100&&explorationOf(state())!.debate!.result==='ongoing';i++){const a=deckPolicyAction(explorationOf(state())!.debate!,'stable');if(a.startsWith('card:'))click(`[data-explore-social-card="${a}"]`);act('social:'+a);}
+ for(let i=0;i<100&&explorationOf(state())!.debate!.result==='ongoing';i++){const a=debateAction(explorationOf(state())!.debate!);if(a.startsWith('card:'))click(`[data-explore-social-card="${a.split(':').slice(0,2).join(':')}"]`);act('social:'+a);}
  act('finish-social');if(explorationOf(state())!.inn!.quests.recommendation.result==='failure')act('inn:quest:recommendation:retry-investigate');act('inn:quest:recommendation:conditional');if(doc.querySelector('.engine-reward'))act('engine:reward:skip');assert.equal(state().campaign!.personnel!.officers.xunyu.task,false);act('leave');for(const id of ['inn']){click(`[data-city-location="${id}"]`);act('move:'+id);}act('enter');act('inn:quest:recommendation:report');assert.equal(state().campaign!.personnel!.officers.xunyu.task,true);assert.equal(explorationOf(state())!.inn!.quests.recommendation.reported,true);const before=state(),raw=dom.window.localStorage.getItem(CAMPAIGN_KEY)!;assert.ok(raw.includes('questReported'));dom.window.close();dom=boot(raw);doc=dom.window.document;click('[data-a="world-continue"]');assert.deepEqual(state(),before);assert.deepEqual(errors,[]);
  }finally{dom.window.close();}
  // Public DOM checks controls/state. No browser rendering or human play is claimed.

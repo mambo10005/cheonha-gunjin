@@ -1,520 +1,1481 @@
 {
  "debate": {
   "A": {
-   "label": "A · 순욱 빌드(문서 정리·정론 제기·공론의 조항)",
-   "start": {
-    "needs": {
-     "safety": 5,
-     "honor": 2
+   "label": "A · 순욱 빌드(문서 정리·정론 제기·탐색 증거)",
+   "rounds": [
+    {
+     "round": 1,
+     "hand": [
+      "공적 근거",
+      "보급 경로",
+      "증거 제시·구휼 장부 대조",
+      "증거 제시·책임자의 증언",
+      "증거 제시·조항 초안"
+     ],
+     "plays": [
+      "보급 경로",
+      "공적 근거",
+      "증거 제시·책임자의 증언",
+      "라운드 종료"
+     ],
+     "intent": "조항 잠금 · 문서 보존",
+     "events": [
+      "내 논거 「보급 경로」 배치(내구 2)",
+      "내 논거 「공적 근거」 배치(내구 2)",
+      "내 논거 「책임자의 증언」 배치(내구 2)",
+      "조항 잠금 · records",
+      "「보급 경로」 · safety +1"
+     ]
     },
-    "trust": 2,
-    "resolve": 3,
-    "args": {
-     "initial": 5,
-     "record": 1,
-     "context": ""
+    {
+     "round": 2,
+     "hand": [
+      "조항 정리",
+      "조항을 추리다",
+      "불리함을 받다",
+      "문서 정리",
+      "상황 조사"
+     ],
+     "plays": [
+      "문서 정리(교체)",
+      "상황 조사",
+      "조항을 추리다",
+      "불리함을 받다",
+      "정론 제기",
+      "라운드 종료"
+     ],
+     "intent": "핵심 입장 공격 → 추천서의 정당성 2",
+     "events": [
+      "「보급 경로」을 내리고 교체",
+      "내 논거 「정리된 문서」 배치(내구 3)",
+      "숨은 논거 「서리의 책임 회피」 공개 · 모순이 드러남 · 관청의 절차 −3",
+      "조항 잠금 해제 · records",
+      "「공식 권한」 논박 2 → 내구 1",
+      "「추천서의 정당성」 공격 2 → 내구 3"
+     ]
+    },
+    {
+     "round": 3,
+     "hand": [
+      "상황 조사",
+      "증거 제시·조항 초안",
+      "문서 정리",
+      "증거 제시·구휼 장부 대조",
+      "공적 근거"
+     ],
+     "plays": [
+      "증거 제시·조항 초안(즉시)",
+      "문서 정리(교체)",
+      "증거 제시·구휼 장부 대조(교체)",
+      "상황 조사",
+      "라운드 종료"
+     ],
+     "intent": "논거 공격 → 공적 근거 2",
+     "events": [
+      "「조항 초안」 즉시 효과 · 즉시 신뢰 +1",
+      "「공적 근거」을 내리고 교체",
+      "내 논거 「정리된 문서」 배치(내구 3)",
+      "「책임자의 증언」을 내리고 교체",
+      "내 논거 「구휼 장부 대조」 배치(내구 3)",
+      "공개할 숨은 논거가 없음",
+      "「정리된 문서」 공격 2 → 내구 1"
+     ]
+    },
+    {
+     "round": 4,
+     "hand": [
+      "보급 경로",
+      "조항을 추리다",
+      "불리함을 받다",
+      "정론 제기",
+      "조건 돌려쓰기"
+     ],
+     "plays": [
+      "보급 경로(즉시)",
+      "조항을 추리다",
+      "정론 제기",
+      "최종 제안"
+     ],
+     "intent": "청중의 의심 생성",
+     "events": [
+      "「보급 경로」 즉시 효과 · 즉시 안전 +1",
+      "「공식 권한」 논박 2 → 내구 0",
+      "상대 논거 「공식 권한」 제거(논박)"
+     ]
     }
-   },
-   "order": [
-    "보급 경로",
-    "공적 근거",
-    "대책 문서",
-    "/",
-    "조항 정리",
-    "조항을 추리다",
-    "/",
-    "조건 돌려쓰기",
-    "작은 보증",
-    "합의 제안"
    ],
-   "rounds": 3,
-   "trust": 7,
-   "burden": "0/3",
-   "arguments": "3/5 보존",
-   "counters": "막음 0 · 맞음 2",
+   "result": "success",
+   "grade": "탁월한 합의",
    "clauses": [
     "문서 보존"
    ],
-   "missing": [
-    "주민 부담 제한: 지킬 약속(서약·약속 표식)이 하나는 있어야 함 — 약속을 줄이면 주민 부담이 늘어납니다"
+   "trust": "6/3",
+   "burden": "0/3",
+   "field": {
+    "placed": 6,
+    "lost": 0,
+    "destroyedOpp": 1,
+    "exposed": 1,
+    "protectedHits": 0,
+    "blocked": 0,
+    "instant": 2,
+    "replaced": 3,
+    "converted": 0,
+    "coreBroken": false,
+    "oppCoreBroken": false,
+    "alive": [
+     "정리된 문서",
+     "정리된 문서",
+     "구휼 장부 대조"
+    ],
+    "opponentLeft": [
+     "문서 절차"
+    ],
+    "audience": [],
+    "hiddenLeft": [],
+    "evidence": [
+     "구휼 장부 대조",
+     "책임자의 증언",
+     "조항 초안"
+    ],
+    "officers": []
+   },
+   "links": [
+    "「정리된 문서」·「정리된 문서」·「구휼 장부 대조」 생존 → 문서 보존 조항",
+    "주민 부담 제한 불성립 ← 지킬 약속(서약·약속 표식) 또는 「짐꾼의 증언」·「조항 초안」·드러난 「징발의 기억」이 필요 — 약속을 줄이면 주민 부담이 늘어납니다"
    ],
-   "grade": "탁월한 합의",
    "failed": [],
    "afterUprising": [
     "조항 「문서 보존」 · 호적·구휼 장부를 그대로 보존하고 서리의 책임을 묻지 않습니다."
    ]
   },
   "B": {
-   "label": "B · 빌드·책략·원칙 제거(공통 카드 복원)",
-   "start": {
-    "needs": {
-     "safety": 5,
-     "honor": 2
+   "label": "B · 빌드·책략·탐색 증거 제거",
+   "rounds": [
+    {
+     "round": 1,
+     "hand": [
+      "공적 근거",
+      "조항 정리",
+      "보급 경로",
+      "증거 제시·구휼 장부 대조",
+      "증거 제시·책임자의 증언"
+     ],
+     "plays": [
+      "보급 경로",
+      "공적 근거",
+      "증거 제시·책임자의 증언",
+      "라운드 종료"
+     ],
+     "intent": "조항 잠금 · 문서 보존",
+     "events": [
+      "내 논거 「보급 경로」 배치(내구 2)",
+      "내 논거 「공적 근거」 배치(내구 2)",
+      "내 논거 「책임자의 증언」 배치(내구 2)",
+      "조항 잠금 · records",
+      "「보급 경로」 · safety +1"
+     ]
     },
-    "trust": 2,
-    "resolve": 3,
-    "args": {
-     "initial": 3,
-     "record": 1,
-     "context": ""
+    {
+     "round": 2,
+     "hand": [
+      "증거 제시·피난민 명부 동의",
+      "상황 조사",
+      "조건 돌려쓰기",
+      "조항을 추리다",
+      "공적 근거"
+     ],
+     "plays": [
+      "조건 돌려쓰기",
+      "상황 조사",
+      "조항을 추리다",
+      "불리함을 받다",
+      "권한 문서",
+      "라운드 종료"
+     ],
+     "intent": "핵심 입장 공격 → 추천서의 정당성 2",
+     "events": [
+      "상대 논거 「문서 절차」 제거(전환)",
+      "숨은 논거 「서리의 책임 회피」 공개 · 모순이 드러남 · 관청의 절차 −3",
+      "조항 잠금 해제 · records",
+      "「추천서의 정당성」 보호 +1",
+      "「추천서의 정당성」 공격 2 (보호 1) → 내구 4",
+      "「보급 경로」 · safety +1"
+     ]
+    },
+    {
+     "round": 3,
+     "hand": [
+      "상황 조사",
+      "조항을 추리다",
+      "증거 제시·구휼 장부 대조",
+      "조항 정리",
+      "공적 근거"
+     ],
+     "plays": [
+      "조항 정리",
+      "증거 제시·구휼 장부 대조(교체)",
+      "상황 조사",
+      "라운드 종료"
+     ],
+     "intent": "청중의 의심 생성",
+     "events": [
+      "내 논거 모두 보호 +1",
+      "「보급 경로」을 내리고 교체",
+      "내 논거 「구휼 장부 대조」 배치(내구 3)",
+      "공개할 숨은 논거가 없음",
+      "청중 · 청중의 의심 생김(상대 의도)"
+     ]
+    },
+    {
+     "round": 4,
+     "hand": [
+      "보급 경로",
+      "공적 근거",
+      "조건 돌려쓰기",
+      "불리함을 받다",
+      "권한 문서"
+     ],
+     "plays": [
+      "최종 제안"
+     ],
+     "intent": "논거 공격 → 공적 근거 2",
+     "events": []
     }
-   },
-   "order": [
-    "보급 경로",
-    "공적 근거",
-    "대책 문서",
-    "/",
-    "조건 돌려쓰기",
-    "합의 제안"
    ],
-   "rounds": 2,
-   "trust": 3,
+   "result": "success",
+   "grade": "유리한 합의",
+   "clauses": [
+    "문서 보존"
+   ],
+   "trust": "5/3",
    "burden": "0/3",
-   "arguments": "2/3 보존",
-   "counters": "막음 0 · 맞음 1",
-   "clauses": [],
-   "missing": [
-    "문서 보존: 문서 계열 논거(공적 근거·권한 문서·상황 조사·조항 정리) 2회 필요(1)",
-    "주민 부담 제한: 지킬 약속(서약·약속 표식)이 하나는 있어야 함 — 약속을 줄이면 주민 부담이 늘어납니다"
+   "field": {
+    "placed": 4,
+    "lost": 0,
+    "destroyedOpp": 1,
+    "exposed": 1,
+    "protectedHits": 1,
+    "blocked": 0,
+    "instant": 0,
+    "replaced": 1,
+    "converted": 1,
+    "coreBroken": false,
+    "oppCoreBroken": false,
+    "alive": [
+     "공적 근거",
+     "책임자의 증언",
+     "구휼 장부 대조"
+    ],
+    "opponentLeft": [
+     "공식 권한"
+    ],
+    "audience": [
+     "청중의 의심"
+    ],
+    "hiddenLeft": [],
+    "evidence": [
+     "구휼 장부 대조",
+     "책임자의 증언",
+     "피난민 명부 동의"
+    ],
+    "officers": []
+   },
+   "links": [
+    "「공적 근거」·「구휼 장부 대조」 생존 → 문서 보존 조항",
+    "주민 부담 제한 불성립 ← 지킬 약속(서약·약속 표식) 또는 「짐꾼의 증언」·「조항 초안」·드러난 「징발의 기억」이 필요 — 약속을 줄이면 주민 부담이 늘어납니다",
+    "위험 상대 논거 잔존(공식 권한) → 탁월한 합의 불가",
+    "청중의 의심 잔존 → 탁월한 합의·공동 통치 불가"
    ],
-   "grade": "일반 합의",
    "failed": [
-    "비용 아닌 조항 1개 이상 (0)",
-    "최종 신뢰 4 이상 (3)",
-    "고급 조항 1개 이상 (0)",
-    "특별 목표 · 문서 보존 조항 확보"
+    "위험 상대 논거 제거 (공식 권한)",
+    "청중의 의심 없음 (1)"
    ],
-   "afterUprising": []
+   "afterUprising": [
+    "조항 「문서 보존」 · 호적·구휼 장부를 그대로 보존하고 서리의 책임을 묻지 않습니다."
+   ]
+  }
+ },
+ "assembly": {
+  "A": {
+   "label": "A · 순욱 빌드(민회)",
+   "rounds": [
+    {
+     "round": 1,
+     "hand": [
+      "보급 경로",
+      "정론 제기",
+      "증거 제시·구휼 장부 대조",
+      "증거 제시·책임자의 증언",
+      "추천의 보증"
+     ],
+     "plays": [
+      "보급 경로",
+      "겨눔→문서 절차",
+      "정론 제기",
+      "증거 제시·책임자의 증언",
+      "추천의 보증",
+      "증거 제시·구휼 장부 대조",
+      "라운드 종료"
+     ],
+     "intent": "논점 이동 · 안전 요구 +1, 내 보호 −1",
+     "events": [
+      "순욱 원칙 · 라운드 첫 논거 보호 +1",
+      "내 논거 「보급 경로」 배치(내구 2)",
+      "「문서 절차」 논박 2 → 내구 0",
+      "상대 논거 「문서 절차」 제거(논박)",
+      "내 논거 「책임자의 증언」 배치(내구 2)",
+      "내 논거 모두 보호 +1",
+      "숨은 논거 「징발의 기억」 공개 · 징발의 기억이 드러남 · 주민 부담 제한 개방",
+      "내 논거 「구휼 장부 대조」 배치(내구 3)",
+      "논점 이동 · safety 요구 +1, 내 보호 −1",
+      "「보급 경로」 · safety +1"
+     ]
+    },
+    {
+     "round": 2,
+     "hand": [
+      "증거 제시·조항 초안",
+      "공적 근거",
+      "조항 정리",
+      "조항 정리",
+      "공적 근거"
+     ],
+     "plays": [
+      "공적 근거(즉시)",
+      "조항 정리",
+      "조항 정리",
+      "라운드 종료"
+     ],
+     "intent": "논거 공격 → 책임자의 증언 2",
+     "events": [
+      "「공적 근거」 즉시 효과 · 즉시 명분 +1",
+      "내 논거 모두 보호 +1",
+      "내 논거 모두 보호 +1",
+      "「책임자의 증언」 공격 2 (보호 2) → 내구 2",
+      "「보급 경로」 · safety +1"
+     ]
+    },
+    {
+     "round": 3,
+     "hand": [
+      "문서 정리",
+      "상황 조사",
+      "보급 경로",
+      "공적 근거",
+      "증거 제시·조항 초안"
+     ],
+     "plays": [
+      "문서 정리(교체)",
+      "상황 조사",
+      "정론 제기",
+      "라운드 종료"
+     ],
+     "intent": "논거 공격 → 책임자의 증언 2",
+     "events": [
+      "「책임자의 증언」을 내리고 교체",
+      "순욱 원칙 · 라운드 첫 논거 보호 +1",
+      "내 논거 「정리된 문서」 배치(내구 3)",
+      "공개할 숨은 논거가 없음",
+      "「주민 안전」 논박 2 → 내구 1",
+      "「보급 경로」 공격 2 (보호 2) → 내구 2"
+     ]
+    },
+    {
+     "round": 4,
+     "hand": [
+      "조항 정리",
+      "공적 근거",
+      "조항 정리",
+      "정론 제기",
+      "보급 경로"
+     ],
+     "plays": [
+      "조항 정리",
+      "공적 근거(즉시)",
+      "정론 제기",
+      "최종 제안"
+     ],
+     "intent": "조항 잠금 · 문서 보존",
+     "events": [
+      "내 논거 모두 보호 +1",
+      "「공적 근거」 즉시 효과 · 즉시 명분 +1",
+      "「주민 안전」 논박 2 → 내구 0",
+      "상대 논거 「주민 안전」 제거(논박)"
+     ]
+    }
+   ],
+   "result": "success",
+   "grade": "탁월한 합의",
+   "clauses": [
+    "문서 보존",
+    "주민 부담 제한",
+    "창고 공개"
+   ],
+   "trust": "9/3",
+   "burden": "0/3",
+   "field": {
+    "placed": 4,
+    "lost": 0,
+    "destroyedOpp": 2,
+    "exposed": 1,
+    "protectedHits": 2,
+    "blocked": 0,
+    "instant": 2,
+    "replaced": 1,
+    "converted": 0,
+    "coreBroken": false,
+    "oppCoreBroken": false,
+    "alive": [
+     "보급 경로",
+     "구휼 장부 대조",
+     "정리된 문서"
+    ],
+    "opponentLeft": [],
+    "audience": [],
+    "hiddenLeft": [],
+    "evidence": [
+     "구휼 장부 대조",
+     "책임자의 증언",
+     "조항 초안"
+    ],
+    "officers": [
+     "xunyu"
+    ]
+   },
+   "links": [
+    "「구휼 장부 대조」·「정리된 문서」 생존 → 문서 보존 조항",
+    "「징발의 기억」 공개 → 주민 부담 제한 조항"
+   ],
+   "failed": [],
+   "campaign": "great",
+   "afterUprising": [
+    "관문 · 조항 「문서 보존」 · 호적·구휼 장부를 그대로 보존하고 서리의 책임을 묻지 않습니다.",
+    "의무 · 조항 「주민 부담 제한」 · 징발과 노역의 상한을 문서로 정합니다.",
+    "정책 · 조항 「창고 공개」 · 창고 장부를 공개하고 구휼 몫을 따로 둡니다."
+   ]
+  },
+  "B": {
+   "label": "B · 빌드·순욱 원칙·지원 제거(민회)",
+   "rounds": [
+    {
+     "round": 1,
+     "hand": [
+      "작은 보증",
+      "권한 문서",
+      "권한 문서",
+      "대책 문서",
+      "조항 정리"
+     ],
+     "plays": [
+      "대책 문서",
+      "작은 보증",
+      "권한 문서",
+      "라운드 종료"
+     ],
+     "intent": "논점 이동 · 안전 요구 +1, 내 보호 −1",
+     "events": [
+      "내 논거 「대책 문서」 배치(내구 2)",
+      "「대책 문서」 보호 +1",
+      "「대책 문서」 보호 +1",
+      "논점 이동 · safety 요구 +1, 내 보호 −1"
+     ]
+    },
+    {
+     "round": 2,
+     "hand": [
+      "공적 근거",
+      "조항 정리",
+      "비용 떠안기",
+      "상황 조사",
+      "조항 정리"
+     ],
+     "plays": [
+      "공적 근거",
+      "상황 조사",
+      "공적 근거",
+      "비용 떠안기",
+      "보급 경로(즉시)",
+      "라운드 종료"
+     ],
+     "intent": "압박에 반응 · 청중의 의심",
+     "events": [
+      "내 논거 「공적 근거」 배치(내구 2)",
+      "숨은 논거 「징발의 기억」 공개 · 징발의 기억이 드러남 · 주민 부담 제한 개방",
+      "내 논거 「공적 근거」 배치(내구 2)",
+      "「보급 경로」 즉시 효과 · 즉시 안전 +1",
+      "반응할 카드가 없어 의도가 빗나감"
+     ]
+    },
+    {
+     "round": 3,
+     "hand": [
+      "권한 문서",
+      "조항 정리",
+      "작은 보증",
+      "보급 경로",
+      "비용 떠안기"
+     ],
+     "plays": [
+      "조항 정리",
+      "권한 문서",
+      "작은 보증",
+      "비용 떠안기",
+      "보급 경로(즉시)",
+      "라운드 종료"
+     ],
+     "intent": "논거 공격 → 공적 근거 2",
+     "events": [
+      "내 논거 모두 보호 +1",
+      "「공적 근거」 보호 +1",
+      "「공적 근거」 보호 +1",
+      "「보급 경로」 즉시 효과 · 즉시 안전 +1",
+      "「공적 근거」 공격 2 (보호 2) → 내구 2"
+     ]
+    },
+    {
+     "round": 4,
+     "hand": [
+      "상황 조사",
+      "공적 근거",
+      "조항 정리",
+      "권한 문서",
+      "대책 문서"
+     ],
+     "plays": [
+      "최종 제안"
+     ],
+     "intent": "숨은 주장 생성(?)",
+     "events": []
+    }
+   ],
+   "result": "success",
+   "grade": "유리한 합의",
+   "clauses": [
+    "문서 보존",
+    "주민 부담 제한",
+    "창고 공개"
+   ],
+   "trust": "8/3",
+   "burden": "1/3",
+   "field": {
+    "placed": 3,
+    "lost": 0,
+    "destroyedOpp": 0,
+    "exposed": 1,
+    "protectedHits": 1,
+    "blocked": 0,
+    "instant": 2,
+    "replaced": 0,
+    "converted": 0,
+    "coreBroken": false,
+    "oppCoreBroken": false,
+    "alive": [
+     "대책 문서",
+     "공적 근거",
+     "공적 근거"
+    ],
+    "opponentLeft": [
+     "주민 안전",
+     "문서 절차"
+    ],
+    "audience": [],
+    "hiddenLeft": [],
+    "evidence": [],
+    "officers": []
+   },
+   "links": [
+    "「공적 근거」·「공적 근거」 생존 → 문서 보존 조항",
+    "「징발의 기억」 공개 → 주민 부담 제한 조항",
+    "「대책 문서」 생존 → 창고 공개 조항",
+    "위험 상대 논거 잔존(주민 안전) → 탁월한 합의 불가"
+   ],
+   "failed": [
+    "특별 목표 · 공론이 사적 이해의 두 배 이상, 서로 다른 인재 1명 이상",
+    "위험 상대 논거 제거 (주민 안전)"
+   ],
+   "campaign": "great",
+   "afterUprising": [
+    "관문 · 조항 「문서 보존」 · 호적·구휼 장부를 그대로 보존하고 서리의 책임을 묻지 않습니다.",
+    "의무 · 조항 「주민 부담 제한」 · 징발과 노역의 상한을 문서로 정합니다.",
+    "정책 · 조항 「창고 공개」 · 창고 장부를 공개하고 구휼 몫을 따로 둡니다."
+   ]
   }
  },
  "duel": {
   "A": {
    "label": "A · 전위 빌드",
    "policy": "smart",
-   "start": {
-    "enemyHp": 21,
-    "hp": 22,
-    "momentum": 5,
-    "protection": 10,
-    "support": 3,
-    "distance": "중거리",
-    "counterBonus": 3,
-    "loadout": [
-     "press",
-     "counter",
-     "all_in"
+   "deck": [
+    "간을 보다",
+    "거리 좁히기",
+    "한 걸음 내주기",
+    "수세 전환",
+    "받아 흘리기",
+    "베기",
+    "공세 전환",
+    "파고들기",
+    "선제 돌격",
+    "반격 태세",
+    "결사 일격",
+    "철위의 결집",
+    "맞받아치기"
+   ],
+   "opponent": {
+    "archetype": "command",
+    "deck": [
+     "강공",
+     "강공",
+     "지휘",
+     "방비",
+     "필살"
     ]
    },
-   "rounds": [
+   "prepared": [
+    "병영 퍼즐 → 상대 병사 지원 카드 2장(수비대 경계·군기 해이 남음)",
+    "방비 생산 4 → 시작 방비 +4",
+    "반격 3회 → 반격 피해 +3",
+    "기세 생산 → 시작 기세 +3",
+    "대결 전술 → 선제 돌격·반격 태세·결사 일격 카드",
+    "군사 카드가 많음 → 「방비 깨기」",
+    "전위 참여 · 철위: 처음 상대 방비를 깨거나 받아 흘리기에 성공하면 「맞받아치기」 카드 생성 / 「철위의 결집」",
+    "수비 교대 조사 → 상대 첫 의도 공개",
+    "짐꾼의 증언 → 하역장 지형 우위(첫 피해 −3)"
+   ],
+   "exchanges": [
     {
-     "round": 1,
-     "action": "간보기",
-     "enemy": "강공",
-     "distance": "중거리",
-     "stance": "-",
-     "opening": false,
-     "momentum": 5,
-     "protection": 6,
-     "support": 2,
-     "dealt": 0,
-     "taken": 0,
-     "hp": 22,
-     "enemyHp": 21
+     "exchange": 1,
+     "intent": "강공 피해 7",
+     "plays": [
+      "선제 돌격",
+      "수세 전환",
+      "받아 흘리기",
+      "합 마치기"
+     ],
+     "after": "근거리·수세 · 체력 22/22 · 상대 14/24(방비 0) · 기세 5/0 · 빈틈 내 · 지원 1"
     },
     {
-     "round": 2,
-     "action": "간보기",
-     "enemy": "견제",
-     "distance": "중거리",
-     "stance": "-",
-     "opening": false,
-     "momentum": 5,
-     "protection": 6,
-     "support": 1,
-     "dealt": 2,
-     "taken": 0,
-     "hp": 22,
-     "enemyHp": 19
-    },
-    {
-     "round": 3,
-     "action": "수세",
-     "enemy": "강공",
-     "distance": "중거리",
-     "stance": "수세",
-     "opening": true,
-     "momentum": 5,
-     "protection": 5,
-     "support": 0,
-     "dealt": 11,
-     "taken": 0,
-     "hp": 22,
-     "enemyHp": 8
-    },
-    {
-     "round": 4,
-     "action": "공세",
-     "enemy": "승부수",
-     "distance": "근거리",
-     "stance": "공세",
-     "opening": true,
-     "momentum": 5,
-     "protection": 5,
-     "support": 0,
-     "dealt": 8,
-     "taken": 0,
-     "hp": 22,
-     "enemyHp": 0
+     "exchange": 2,
+     "intent": "병사 지원 +3",
+     "plays": [
+      "간을 보다",
+      "파고들기"
+     ],
+     "after": "근거리·수세 · 체력 22/22 · 상대 0/24(방비 0) · 기세 3/0 · 빈틈 없음 · 지원 0"
     }
    ],
    "result": "win",
    "grade": "완전 장악",
+   "adjust": [],
    "failed": [],
    "injury": {
     "player": "none",
     "enemyGrave": false
    },
+   "injuries": [],
    "excessive": false,
-   "maxHit": 11,
    "counters": 1,
-   "openingsUsed": 0,
+   "openingsUsed": 1,
+   "guardBreaks": 0,
    "blind": 0,
-   "repeats": 1,
+   "maxHit": 13,
    "hp": "22/22",
+   "sequences": [
+    "공세→수세→수세"
+   ],
    "campaign": "great",
    "afterUprising": [
     "관문 · 호위 대표의 인정 · 군영 장악 대결에서 기세 +1",
+    "관문 · 호위 대표의 완벽한 인정 · 군영 장악 대결 병사 지원 −1",
     "관문 · 대결로 얻은 지휘권 · 군영 장악 관문 상대 체력 −3",
     "정책 · 군영 완전 장악 · 병사 지지 · 훈련 정책"
-   ],
-   "injuries": {}
+   ]
   },
   "B": {
-   "label": "B · 빌드·지원·책략·전술 제거",
+   "label": "B · 전위 원칙·지원·전술 제거",
    "policy": "smart",
-   "start": {
-    "enemyHp": 24,
-    "hp": 22,
-    "momentum": 4,
-    "protection": 6,
-    "support": 3,
-    "distance": "중거리",
-    "counterBonus": 0,
-    "loadout": null
+   "deck": [
+    "간을 보다",
+    "거리 좁히기",
+    "한 걸음 내주기",
+    "수세 전환",
+    "받아 흘리기",
+    "베기",
+    "공세 전환",
+    "파고들기",
+    "허실 살피기"
+   ],
+   "opponent": {
+    "archetype": "command",
+    "deck": [
+     "강공",
+     "강공",
+     "지휘",
+     "방비",
+     "필살",
+     "병사 지원"
+    ]
    },
-   "rounds": [
+   "prepared": [
+    "병영 퍼즐 → 상대 병사 지원 카드 3장(수비대 경계·군기 해이 남음)",
+    "방비 생산 0 → 시작 방비 +0",
+    "반격 0회 → 반격 피해 +0",
+    "물자 카드가 많음 → 「허실 살피기」",
+    "전위 참여 · 철위: 처음 상대 방비를 깨거나 받아 흘리기에 성공하면 「맞받아치기」 카드 생성 / 「철위의 결집」",
+    "수비 교대 조사 → 상대 첫 의도 공개"
+   ],
+   "exchanges": [
     {
-     "round": 1,
-     "action": "간보기",
-     "enemy": "강공",
-     "distance": "중거리",
-     "stance": "-",
-     "opening": false,
-     "momentum": 5,
-     "protection": 2,
-     "support": 2,
-     "dealt": 0,
-     "taken": 0,
-     "hp": 22,
-     "enemyHp": 24
+     "exchange": 1,
+     "intent": "방비 +5",
+     "plays": [
+      "허실 살피기",
+      "수세 전환",
+      "간을 보다",
+      "합 마치기"
+     ],
+     "after": "중거리·수세 · 체력 22/22 · 상대 22/24(방비 5) · 기세 5/0 · 빈틈 없음 · 지원 2"
     },
     {
-     "round": 2,
-     "action": "간보기",
-     "enemy": "견제",
-     "distance": "중거리",
-     "stance": "-",
-     "opening": false,
-     "momentum": 5,
-     "protection": 2,
-     "support": 1,
-     "dealt": 2,
-     "taken": 0,
-     "hp": 22,
-     "enemyHp": 22
+     "exchange": 2,
+     "intent": "병사 지원 +3",
+     "plays": [
+      "받아 흘리기",
+      "거리 좁히기",
+      "공세 전환",
+      "베기",
+      "합 마치기"
+     ],
+     "after": "근거리·공세 · 체력 22/22 · 상대 19/24(방비 3) · 기세 4/0 · 빈틈 상대 · 지원 2"
     },
     {
-     "round": 3,
-     "action": "수세",
-     "enemy": "강공",
-     "distance": "중거리",
-     "stance": "수세",
-     "opening": true,
-     "momentum": 5,
-     "protection": 1,
-     "support": 1,
-     "dealt": 3,
-     "taken": 0,
-     "hp": 22,
-     "enemyHp": 19
+     "exchange": 3,
+     "intent": "강공 피해 7",
+     "plays": [
+      "파고들기",
+      "베기",
+      "합 마치기"
+     ],
+     "after": "근거리·공세 · 체력 14/22 · 상대 1/24(방비 0) · 기세 3/0 · 빈틈 상대 · 지원 2"
     },
     {
-     "round": 4,
-     "action": "공세",
-     "enemy": "승부수",
-     "distance": "근거리",
-     "stance": "공세",
-     "opening": true,
-     "momentum": 5,
-     "protection": 1,
-     "support": 1,
-     "dealt": 9,
-     "taken": 0,
-     "hp": 22,
-     "enemyHp": 10
-    },
-    {
-     "round": 5,
-     "action": "간보기",
-     "enemy": "강공",
-     "distance": "근거리",
-     "stance": "공세",
-     "opening": true,
-     "momentum": 5,
-     "protection": 0,
-     "support": 0,
-     "dealt": 4,
-     "taken": 4,
-     "hp": 18,
-     "enemyHp": 6
+     "exchange": 4,
+     "intent": "병사 지원 +3",
+     "plays": [
+      "간을 보다"
+     ],
+     "after": "근거리·공세 · 체력 14/22 · 상대 0/24(방비 0) · 기세 4/0 · 빈틈 상대 · 지원 1"
     }
    ],
    "result": "win",
    "grade": "장악",
+   "adjust": [],
    "failed": [
-    "4합 이내 (5합)"
+    "병사 지원 모두 제거 (남은 1)",
+    "3합 이내 (4합)"
    ],
    "injury": {
     "player": "none",
     "enemyGrave": false
    },
+   "injuries": [],
    "excessive": false,
-   "maxHit": 9,
-   "counters": 1,
-   "openingsUsed": 0,
+   "counters": 0,
+   "openingsUsed": 1,
+   "guardBreaks": 2,
    "blind": 0,
-   "repeats": 1,
-   "hp": "18/22",
+   "maxHit": 13,
+   "hp": "14/22",
+   "sequences": [
+    "간보기→수세→간보기",
+    "수세→보법→공세→공세",
+    "승부수→공세"
+   ],
    "campaign": "success",
    "afterUprising": [
     "관문 · 군영 장악 · 지휘권 인정"
-   ],
-   "injuries": {}
+   ]
   },
   "Agreedy": {
-   "label": "A · 전위 빌드(탐욕 정책)",
+   "label": "A · 전위 빌드(탐욕)",
    "policy": "greedy",
-   "start": {
-    "enemyHp": 21,
-    "hp": 22,
-    "momentum": 5,
-    "protection": 10,
-    "support": 3,
-    "distance": "중거리",
-    "counterBonus": 3,
-    "loadout": [
-     "press",
-     "counter",
-     "all_in"
+   "deck": [
+    "간을 보다",
+    "거리 좁히기",
+    "한 걸음 내주기",
+    "수세 전환",
+    "받아 흘리기",
+    "베기",
+    "공세 전환",
+    "파고들기",
+    "선제 돌격",
+    "반격 태세",
+    "결사 일격",
+    "철위의 결집"
+   ],
+   "opponent": {
+    "archetype": "command",
+    "deck": [
+     "강공",
+     "강공",
+     "지휘",
+     "방비",
+     "필살",
+     "병사 지원",
+     "병사 지원"
     ]
    },
-   "rounds": [
+   "prepared": [
+    "병영 퍼즐 → 상대 병사 지원 카드 2장(수비대 경계·군기 해이 남음)",
+    "방비 생산 4 → 시작 방비 +4",
+    "반격 3회 → 반격 피해 +3",
+    "기세 생산 → 시작 기세 +3",
+    "대결 전술 → 선제 돌격·반격 태세·결사 일격 카드",
+    "군사 카드가 많음 → 「방비 깨기」",
+    "전위 참여 · 철위: 처음 상대 방비를 깨거나 받아 흘리기에 성공하면 「맞받아치기」 카드 생성 / 「철위의 결집」",
+    "수비 교대 조사 → 상대 첫 의도 공개",
+    "짐꾼의 증언 → 하역장 지형 우위(첫 피해 −3)"
+   ],
+   "exchanges": [
     {
-     "round": 1,
-     "action": "수세",
-     "enemy": "강공",
-     "distance": "중거리",
-     "stance": "수세",
-     "opening": true,
-     "momentum": 5,
-     "protection": 9,
-     "support": 2,
-     "dealt": 5,
-     "taken": 0,
-     "hp": 22,
-     "enemyHp": 16
-    },
-    {
-     "round": 2,
-     "action": "공세",
-     "enemy": "견제",
-     "distance": "중거리",
-     "stance": "공세",
-     "opening": false,
-     "momentum": 5,
-     "protection": 6,
-     "support": 2,
-     "dealt": 7,
-     "taken": 0,
-     "hp": 22,
-     "enemyHp": 9
-    },
-    {
-     "round": 3,
-     "action": "수세",
-     "enemy": "강공",
-     "distance": "중거리",
-     "stance": "수세",
-     "opening": true,
-     "momentum": 5,
-     "protection": 5,
-     "support": 1,
-     "dealt": 6,
-     "taken": 0,
-     "hp": 22,
-     "enemyHp": 3
-    },
-    {
-     "round": 4,
-     "action": "간보기",
-     "enemy": "승부수",
-     "distance": "근거리",
-     "stance": "수세",
-     "opening": true,
-     "momentum": 5,
-     "protection": 5,
-     "support": 0,
-     "dealt": 3,
-     "taken": 0,
-     "hp": 22,
-     "enemyHp": 0
+     "exchange": 1,
+     "intent": "강공 피해 7",
+     "plays": [
+      "선제 돌격",
+      "결사 일격"
+     ],
+     "after": "근거리·- · 체력 22/22 · 상대 0/24(방비 0) · 기세 0/0 · 빈틈 없음 · 지원 2"
     }
    ],
    "result": "win",
-   "grade": "완전 장악",
+   "grade": "명목상 장악",
+   "adjust": [],
+   "failed": [
+    "병사 지원 모두 제거 (남은 2)",
+    "방비 반격 또는 빈틈 제압",
+    "과잉 무력 없음"
+   ],
+   "injury": {
+    "player": "none",
+    "enemyGrave": true
+   },
+   "injuries": [],
+   "excessive": true,
+   "counters": 0,
+   "openingsUsed": 0,
+   "guardBreaks": 0,
+   "blind": 1,
+   "maxHit": 20,
+   "hp": "22/22",
+   "sequences": [],
+   "campaign": "conditional",
+   "afterUprising": [
+    "관문 · 호위 대표의 인정 · 군영 장악 대결에서 기세 +1",
+    "관문 · 호위 대표의 완벽한 인정 · 군영 장악 대결 병사 지원 −1",
+    "관문 · 대결로 얻은 지휘권 · 군영 장악 관문 상대 체력 −3",
+    "의무 · 명목상 장악 · 병영 피해와 병사 불만 현안"
+   ]
+  },
+  "Bgreedy": {
+   "label": "B · 제거(탐욕)",
+   "policy": "greedy",
+   "deck": [
+    "간을 보다",
+    "거리 좁히기",
+    "한 걸음 내주기",
+    "수세 전환",
+    "받아 흘리기",
+    "베기",
+    "공세 전환",
+    "파고들기",
+    "허실 살피기"
+   ],
+   "opponent": {
+    "archetype": "command",
+    "deck": [
+     "강공",
+     "강공",
+     "지휘",
+     "방비",
+     "필살",
+     "병사 지원",
+     "병사 지원",
+     "병사 지원"
+    ]
+   },
+   "prepared": [
+    "병영 퍼즐 → 상대 병사 지원 카드 3장(수비대 경계·군기 해이 남음)",
+    "방비 생산 0 → 시작 방비 +0",
+    "반격 0회 → 반격 피해 +0",
+    "물자 카드가 많음 → 「허실 살피기」",
+    "전위 참여 · 철위: 처음 상대 방비를 깨거나 받아 흘리기에 성공하면 「맞받아치기」 카드 생성 / 「철위의 결집」",
+    "수비 교대 조사 → 상대 첫 의도 공개"
+   ],
+   "exchanges": [
+    {
+     "exchange": 1,
+     "intent": "방비 +5",
+     "plays": [
+      "합 마치기"
+     ],
+     "after": "중거리·- · 체력 22/22 · 상대 24/24(방비 5) · 기세 4/0 · 빈틈 없음 · 지원 3"
+    },
+    {
+     "exchange": 2,
+     "intent": "병사 지원 +3",
+     "plays": [
+      "합 마치기"
+     ],
+     "after": "중거리·- · 체력 22/22 · 상대 24/24(방비 8) · 기세 3/0 · 빈틈 없음 · 지원 3"
+    },
+    {
+     "exchange": 3,
+     "intent": "강공 피해 7",
+     "plays": [
+      "합 마치기"
+     ],
+     "after": "중거리·- · 체력 15/22 · 상대 24/24(방비 8) · 기세 3/0 · 빈틈 없음 · 지원 3"
+    },
+    {
+     "exchange": 4,
+     "intent": "병사 지원 +3",
+     "plays": [
+      "합 마치기"
+     ],
+     "after": "중거리·- · 체력 15/22 · 상대 24/24(방비 11) · 기세 2/0 · 빈틈 없음 · 지원 3"
+    },
+    {
+     "exchange": 5,
+     "intent": "병사 지원 +3",
+     "plays": [
+      "합 마치기"
+     ],
+     "after": "중거리·- · 체력 15/22 · 상대 24/24(방비 14) · 기세 1/0 · 빈틈 없음 · 지원 3"
+    }
+   ],
+   "result": "draw",
+   "grade": "실패",
+   "adjust": [],
+   "failed": [
+    "승리",
+    "병사 지원 모두 제거 (남은 3)",
+    "방비 반격 또는 빈틈 제압",
+    "3합 이내 (5합)"
+   ],
+   "injury": {
+    "player": "none",
+    "enemyGrave": false
+   },
+   "injuries": [],
+   "excessive": false,
+   "counters": 0,
+   "openingsUsed": 0,
+   "guardBreaks": 0,
+   "blind": 0,
+   "maxHit": 0,
+   "hp": "15/22",
+   "sequences": [],
+   "campaign": "conditional",
+   "afterUprising": []
+  }
+ },
+ "escortYard": {
+  "escortA": {
+   "label": "A · 전위 빌드(호위 대표)",
+   "policy": "smart",
+   "deck": [
+    "간을 보다",
+    "거리 좁히기",
+    "한 걸음 내주기",
+    "수세 전환",
+    "받아 흘리기",
+    "베기",
+    "공세 전환",
+    "파고들기",
+    "허실 살피기",
+    "선제 돌격",
+    "반격 태세",
+    "결사 일격"
+   ],
+   "opponent": {
+    "archetype": "assault",
+    "deck": [
+     "강공",
+     "강공",
+     "강공",
+     "돌진",
+     "기세 모으기",
+     "필살",
+     "견제"
+    ]
+   },
+   "prepared": [
+    "대결 전술 → 선제 돌격·반격 태세·결사 일격 카드",
+    "물자 카드가 많음 → 「허실 살피기」",
+    "수비 교대 조사 → 상대 첫 의도 공개",
+    "짐꾼의 증언 → 하역장 지형 우위(첫 피해 −3)"
+   ],
+   "exchanges": [
+    {
+     "exchange": 1,
+     "intent": "견제 피해 3",
+     "plays": [
+      "반격 태세",
+      "거리 좁히기",
+      "간을 보다",
+      "합 마치기"
+     ],
+     "after": "근거리·- · 체력 13/20 · 상대 12/19(방비 0) · 기세 2/1 · 빈틈 내 · 지원 0"
+    },
+    {
+     "exchange": 2,
+     "intent": "강공 피해 7",
+     "plays": [
+      "수세 전환",
+      "받아 흘리기",
+      "베기",
+      "한 걸음 내주기",
+      "합 마치기"
+     ],
+     "after": "중거리·수세 · 체력 13/20 · 상대 4/19(방비 0) · 기세 3/1 · 빈틈 내 · 지원 0"
+    },
+    {
+     "exchange": 3,
+     "intent": "강공 피해 7",
+     "plays": [
+      "공세 전환",
+      "선제 돌격",
+      "결사 일격"
+     ],
+     "after": "근거리·공세 · 체력 13/20 · 상대 0/19(방비 0) · 기세 0/1 · 빈틈 없음 · 지원 0"
+    }
+   ],
+   "result": "win",
+   "grade": "완벽한 인정",
+   "adjust": [],
    "failed": [],
    "injury": {
     "player": "none",
     "enemyGrave": false
    },
+   "injuries": [],
    "excessive": false,
-   "maxHit": 7,
    "counters": 2,
-   "openingsUsed": 0,
+   "openingsUsed": 1,
+   "guardBreaks": 0,
    "blind": 0,
-   "repeats": 0,
-   "hp": "22/22",
-   "campaign": "great",
-   "afterUprising": [
-    "관문 · 호위 대표의 인정 · 군영 장악 대결에서 기세 +1",
-    "관문 · 대결로 얻은 지휘권 · 군영 장악 관문 상대 체력 −3",
-    "정책 · 군영 완전 장악 · 병사 지지 · 훈련 정책"
+   "maxHit": 23,
+   "hp": "13/20",
+   "sequences": [
+    "수세→보법→간보기",
+    "수세→수세→공세→보법"
    ],
-   "injuries": {}
+   "relation": 36,
+   "carry": [
+    "호위 대표의 인정(위신)"
+   ]
   },
-  "Bgreedy": {
-   "label": "B · 빌드 제거(탐욕 정책)",
-   "policy": "greedy",
-   "start": {
-    "enemyHp": 24,
-    "hp": 22,
-    "momentum": 4,
-    "protection": 6,
-    "support": 3,
-    "distance": "중거리",
-    "counterBonus": 0,
-    "loadout": null
+  "escortB": {
+   "label": "B · 빌드 제거(호위 대표)",
+   "policy": "smart",
+   "deck": [
+    "간을 보다",
+    "거리 좁히기",
+    "한 걸음 내주기",
+    "수세 전환",
+    "받아 흘리기",
+    "베기",
+    "공세 전환",
+    "파고들기",
+    "허실 살피기",
+    "욱신거리는 상처"
+   ],
+   "opponent": {
+    "archetype": "assault",
+    "deck": [
+     "강공",
+     "강공",
+     "강공",
+     "돌진",
+     "기세 모으기",
+     "필살",
+     "견제"
+    ]
    },
-   "rounds": [
+   "prepared": [
+    "물자 카드가 많음 → 「허실 살피기」",
+    "수비 교대 조사 → 상대 첫 의도 공개",
+    "짐꾼의 증언 → 하역장 지형 우위(첫 피해 −3)"
+   ],
+   "exchanges": [
     {
-     "round": 1,
-     "action": "간보기",
-     "enemy": "강공",
-     "distance": "중거리",
-     "stance": "-",
-     "opening": false,
-     "momentum": 5,
-     "protection": 2,
-     "support": 2,
-     "dealt": 0,
-     "taken": 0,
-     "hp": 22,
-     "enemyHp": 24
+     "exchange": 1,
+     "intent": "견제 피해 3",
+     "plays": [
+      "간을 보다",
+      "허실 살피기",
+      "베기",
+      "한 걸음 내주기",
+      "합 마치기"
+     ],
+     "after": "원거리·- · 체력 13/20 · 상대 13/19(방비 0) · 기세 2/0 · 빈틈 없음 · 지원 0"
     },
     {
-     "round": 2,
-     "action": "공세",
-     "enemy": "견제",
-     "distance": "중거리",
-     "stance": "공세",
-     "opening": false,
-     "momentum": 5,
-     "protection": 0,
-     "support": 2,
-     "dealt": 5,
-     "taken": 1,
-     "hp": 21,
-     "enemyHp": 19
+     "exchange": 2,
+     "intent": "돌진 피해 4",
+     "plays": [
+      "공세 전환",
+      "수세 전환",
+      "거리 좁히기",
+      "받아 흘리기",
+      "합 마치기"
+     ],
+     "after": "근거리·수세 · 체력 13/20 · 상대 10/19(방비 0) · 기세 4/0 · 빈틈 내 · 지원 0"
     },
     {
-     "round": 3,
-     "action": "보법 · 물러서기",
-     "enemy": "강공",
-     "distance": "중거리",
-     "stance": "공세",
-     "opening": false,
-     "momentum": 5,
-     "protection": 0,
-     "support": 2,
-     "dealt": 0,
-     "taken": 0,
-     "hp": 21,
-     "enemyHp": 19
+     "exchange": 3,
+     "intent": "강공 피해 7",
+     "plays": [
+      "받아 흘리기",
+      "공세 전환",
+      "베기",
+      "간을 보다",
+      "합 마치기"
+     ],
+     "after": "근거리·공세 · 체력 10/20 · 상대 1/19(방비 0) · 기세 5/0 · 빈틈 없음 · 지원 0"
     },
     {
-     "round": 4,
-     "action": "공세",
-     "enemy": "승부수",
-     "distance": "근거리",
-     "stance": "공세",
-     "opening": false,
-     "momentum": 5,
-     "protection": 0,
-     "support": 2,
-     "dealt": 9,
-     "taken": 0,
-     "hp": 21,
-     "enemyHp": 10
-    },
-    {
-     "round": 5,
-     "action": "간보기",
-     "enemy": "강공",
-     "distance": "근거리",
-     "stance": "공세",
-     "opening": false,
-     "momentum": 5,
-     "protection": 0,
-     "support": 1,
-     "dealt": 4,
-     "taken": 5,
-     "hp": 16,
-     "enemyHp": 6
+     "exchange": 4,
+     "intent": "필살 (기세 부족 → 기세 모으기)",
+     "plays": [
+      "파고들기"
+     ],
+     "after": "근거리·공세 · 체력 10/20 · 상대 0/19(방비 0) · 기세 3/0 · 빈틈 없음 · 지원 0"
     }
    ],
    "result": "win",
-   "grade": "장악",
+   "grade": "인정",
+   "adjust": [],
    "failed": [
-    "병사 지원 모두 제거 (남은 1)",
+    "3합 이내 (4합)"
+   ],
+   "injury": {
+    "player": "minor",
+    "enemyGrave": false
+   },
+   "injuries": [
+    "minor"
+   ],
+   "excessive": false,
+   "counters": 1,
+   "openingsUsed": 0,
+   "guardBreaks": 0,
+   "blind": 1,
+   "maxHit": 8,
+   "hp": "10/20",
+   "sequences": [
+    "간보기→간보기→공세→보법",
+    "공세→수세→보법→수세",
+    "수세→공세→공세→간보기"
+   ],
+   "relation": 33,
+   "carry": [
+    "호위 대표의 인정(위신)"
+   ]
+  },
+  "escortGreedy": {
+   "label": "A · 탐욕(호위 대표)",
+   "policy": "greedy",
+   "deck": [
+    "간을 보다",
+    "거리 좁히기",
+    "한 걸음 내주기",
+    "수세 전환",
+    "받아 흘리기",
+    "베기",
+    "공세 전환",
+    "파고들기",
+    "허실 살피기",
+    "선제 돌격",
+    "반격 태세",
+    "결사 일격",
+    "욱신거리는 상처"
+   ],
+   "opponent": {
+    "archetype": "assault",
+    "deck": [
+     "강공",
+     "강공",
+     "강공",
+     "돌진",
+     "기세 모으기",
+     "필살",
+     "견제"
+    ]
+   },
+   "prepared": [
+    "대결 전술 → 선제 돌격·반격 태세·결사 일격 카드",
+    "물자 카드가 많음 → 「허실 살피기」",
+    "수비 교대 조사 → 상대 첫 의도 공개",
+    "짐꾼의 증언 → 하역장 지형 우위(첫 피해 −3)"
+   ],
+   "exchanges": [
+    {
+     "exchange": 1,
+     "intent": "견제 피해 3",
+     "plays": [
+      "간을 보다",
+      "합 마치기"
+     ],
+     "after": "중거리·- · 체력 13/20 · 상대 17/19(방비 0) · 기세 1/1 · 빈틈 없음 · 지원 0"
+    },
+    {
+     "exchange": 2,
+     "intent": "강공 피해 7",
+     "plays": [
+      "베기",
+      "합 마치기"
+     ],
+     "after": "중거리·- · 체력 6/20 · 상대 13/19(방비 0) · 기세 2/1 · 빈틈 없음 · 지원 0"
+    },
+    {
+     "exchange": 3,
+     "intent": "강공 피해 7",
+     "plays": [
+      "선제 돌격",
+      "결사 일격"
+     ],
+     "after": "근거리·- · 체력 6/20 · 상대 0/19(방비 0) · 기세 0/1 · 빈틈 없음 · 지원 0"
+    }
+   ],
+   "result": "win",
+   "grade": "인정",
+   "adjust": [],
+   "failed": [
+    "방비 반격 또는 빈틈 제압 1회 이상"
+   ],
+   "injury": {
+    "player": "minor",
+    "enemyGrave": false
+   },
+   "injuries": [
+    "minor"
+   ],
+   "excessive": false,
+   "counters": 0,
+   "openingsUsed": 0,
+   "guardBreaks": 0,
+   "blind": 1,
+   "maxHit": 16,
+   "hp": "6/20",
+   "sequences": [
+    "간보기",
+    "공세"
+   ],
+   "relation": 33,
+   "carry": [
+    "호위 대표의 인정(위신)"
+   ]
+  },
+  "yardA": {
+   "label": "A · 전위 빌드(뒤뜰)",
+   "policy": "smart",
+   "deck": [
+    "간을 보다",
+    "거리 좁히기",
+    "한 걸음 내주기",
+    "수세 전환",
+    "받아 흘리기",
+    "베기",
+    "공세 전환",
+    "파고들기",
+    "허실 살피기",
+    "선제 돌격",
+    "반격 태세",
+    "결사 일격"
+   ],
+   "opponent": {
+    "archetype": "counter",
+    "deck": [
+     "방비",
+     "방비",
+     "반격 태세",
+     "반격 태세",
+     "강공",
+     "견제",
+     "필살"
+    ]
+   },
+   "prepared": [
+    "대결 전술 → 선제 돌격·반격 태세·결사 일격 카드",
+    "물자 카드가 많음 → 「허실 살피기」",
+    "수비 교대 조사 → 상대 첫 의도 공개"
+   ],
+   "exchanges": [
+    {
+     "exchange": 1,
+     "intent": "필살 (기세 부족 → 기세 모으기)",
+     "plays": [
+      "반격 태세",
+      "거리 좁히기",
+      "간을 보다",
+      "허실 살피기",
+      "합 마치기"
+     ],
+     "after": "근거리·- · 체력 12/20 · 상대 17/19(방비 0) · 기세 2/2 · 빈틈 없음 · 지원 0"
+    },
+    {
+     "exchange": 2,
+     "intent": "방비 +5",
+     "plays": [
+      "공세 전환",
+      "베기",
+      "수세 전환",
+      "한 걸음 내주기",
+      "합 마치기"
+     ],
+     "after": "중거리·수세 · 체력 12/20 · 상대 10/19(방비 5) · 기세 4/2 · 빈틈 없음 · 지원 0"
+    },
+    {
+     "exchange": 3,
+     "intent": "방비 +5",
+     "plays": [
+      "선제 돌격",
+      "결사 일격"
+     ],
+     "after": "근거리·수세 · 체력 12/20 · 상대 0/19(방비 0) · 기세 0/2 · 빈틈 상대 · 지원 0"
+    }
+   ],
+   "result": "win",
+   "grade": "성실",
+   "adjust": [],
+   "failed": [
     "방비 반격 또는 빈틈 제압",
-    "4합 이내 (5합)"
+    "자세 2가지 이상 사용"
    ],
    "injury": {
     "player": "none",
     "enemyGrave": false
    },
+   "injuries": [],
    "excessive": false,
-   "maxHit": 9,
    "counters": 0,
    "openingsUsed": 0,
+   "guardBreaks": 1,
    "blind": 0,
-   "repeats": 0,
-   "hp": "16/22",
-   "campaign": "success",
-   "afterUprising": [
-    "관문 · 군영 장악 · 지휘권 인정"
+   "maxHit": 17,
+   "hp": "12/20",
+   "sequences": [
+    "수세→보법→간보기→간보기",
+    "공세→공세→수세→보법"
    ],
-   "injuries": {}
+   "relation": 31,
+   "carry": []
+  },
+  "yardB": {
+   "label": "B · 빌드 제거(뒤뜰)",
+   "policy": "smart",
+   "deck": [
+    "간을 보다",
+    "거리 좁히기",
+    "한 걸음 내주기",
+    "수세 전환",
+    "받아 흘리기",
+    "베기",
+    "공세 전환",
+    "파고들기",
+    "허실 살피기"
+   ],
+   "opponent": {
+    "archetype": "counter",
+    "deck": [
+     "방비",
+     "방비",
+     "반격 태세",
+     "반격 태세",
+     "강공",
+     "견제",
+     "필살"
+    ]
+   },
+   "prepared": [
+    "물자 카드가 많음 → 「허실 살피기」",
+    "수비 교대 조사 → 상대 첫 의도 공개"
+   ],
+   "exchanges": [
+    {
+     "exchange": 1,
+     "intent": "필살 (기세 부족 → 기세 모으기)",
+     "plays": [
+      "간을 보다",
+      "허실 살피기",
+      "베기",
+      "한 걸음 내주기",
+      "합 마치기"
+     ],
+     "after": "원거리·- · 체력 12/20 · 상대 13/19(방비 0) · 기세 2/2 · 빈틈 없음 · 지원 0"
+    },
+    {
+     "exchange": 2,
+     "intent": "반격 태세",
+     "plays": [
+      "공세 전환",
+      "수세 전환",
+      "거리 좁히기",
+      "받아 흘리기",
+      "합 마치기"
+     ],
+     "after": "중거리·수세 · 체력 12/20 · 상대 13/19(방비 2) · 기세 4/2 · 빈틈 없음 · 지원 0"
+    },
+    {
+     "exchange": 3,
+     "intent": "반격 태세",
+     "plays": [
+      "받아 흘리기",
+      "공세 전환",
+      "베기",
+      "간을 보다",
+      "합 마치기"
+     ],
+     "after": "중거리·공세 · 체력 12/20 · 상대 7/19(방비 2) · 기세 5/2 · 빈틈 상대 · 지원 0"
+    },
+    {
+     "exchange": 4,
+     "intent": "반격 태세",
+     "plays": [
+      "거리 좁히기",
+      "허실 살피기",
+      "수세 전환",
+      "파고들기"
+     ],
+     "after": "근거리·수세 · 체력 11/20 · 상대 0/19(방비 2) · 기세 3/2 · 빈틈 없음 · 지원 0"
+    }
+   ],
+   "result": "win",
+   "grade": "기술 인정",
+   "adjust": [],
+   "failed": [],
+   "injury": {
+    "player": "none",
+    "enemyGrave": false
+   },
+   "injuries": [],
+   "excessive": false,
+   "counters": 0,
+   "openingsUsed": 1,
+   "guardBreaks": 1,
+   "blind": 0,
+   "maxHit": 12,
+   "hp": "11/20",
+   "sequences": [
+    "간보기→간보기→공세→보법",
+    "공세→수세→보법→수세",
+    "수세→공세→공세→간보기"
+   ],
+   "relation": 33,
+   "carry": [
+    "전위의 보증(뒤뜰 시험)"
+   ]
   }
  },
  "inside": [
@@ -524,12 +1485,15 @@
    "cause": 0,
    "passage": false,
    "debate": "success",
+   "resolved": 1,
    "skip": false,
    "obstacles": "감시 남음 · 지휘관 해결 · 병사 일부",
-   "start": "상대 26 · 지원 2 · 중거리 · 기세 1 · 기습 아니오 · 상대 순서 guard/strike/probe/strike",
-   "result": "win",
-   "grade": "개방",
-   "campaign": "success",
+   "oppDeck": "trick: 속임수·속임수·거리 벌리기·견제·견제·강공·감시·감시·병사 지원",
+   "firstIntent": "숨겨진 의도(감시)",
+   "start": "상대 26 · 방비 0 · 지원 1 · 중거리 · 기세 2",
+   "result": "draw",
+   "grade": "조용한 개방",
+   "campaign": "conditional",
    "issues": [
     "감시 미해결 · 거병 후 치안 현안",
     "성문 병사 일부가 내부 협력 없이 남음 · 거병 후 충성 현안"
@@ -541,12 +1505,15 @@
    "cause": 0,
    "passage": false,
    "debate": "success",
+   "resolved": 2,
    "skip": false,
    "obstacles": "감시 남음 · 지휘관 해결 · 병사 해결",
-   "start": "상대 26 · 지원 0 · 중거리 · 기세 1 · 기습 아니오 · 상대 순서 guard/strike/probe/strike",
-   "result": "win",
+   "oppDeck": "trick: 속임수·속임수·거리 벌리기·견제·견제·강공·감시·감시",
+   "firstIntent": "숨겨진 의도(감시)",
+   "start": "상대 26 · 방비 0 · 지원 0 · 중거리 · 기세 2",
+   "result": "draw",
    "grade": "조용한 개방",
-   "campaign": "success",
+   "campaign": "conditional",
    "issues": [
     "감시 미해결 · 거병 후 치안 현안"
    ]
@@ -557,12 +1524,15 @@
    "cause": 0,
    "passage": false,
    "debate": "success",
+   "resolved": 2,
    "skip": false,
    "obstacles": "감시 남음 · 지휘관 해결 · 병사 해결",
-   "start": "상대 26 · 지원 0 · 중거리 · 기세 3 · 기습 아니오 · 상대 순서 guard/strike/probe/strike",
-   "result": "win",
+   "oppDeck": "trick: 속임수·속임수·거리 벌리기·견제·견제·강공·감시·감시",
+   "firstIntent": "숨겨진 의도(감시)",
+   "start": "상대 26 · 방비 0 · 지원 0 · 중거리 · 기세 4",
+   "result": "draw",
    "grade": "조용한 개방",
-   "campaign": "success",
+   "campaign": "conditional",
    "issues": [
     "감시 미해결 · 거병 후 치안 현안"
    ]
@@ -573,12 +1543,15 @@
    "cause": 4,
    "passage": false,
    "debate": "success",
+   "resolved": 1,
    "skip": false,
    "obstacles": "감시 남음 · 지휘관 해결 · 병사 일부",
-   "start": "상대 26 · 지원 2 · 중거리 · 기세 1 · 기습 아니오 · 상대 순서 guard/strike/probe/strike",
-   "result": "win",
-   "grade": "개방",
-   "campaign": "success",
+   "oppDeck": "trick: 속임수·속임수·거리 벌리기·견제·견제·강공·감시·감시·병사 지원",
+   "firstIntent": "숨겨진 의도(감시)",
+   "start": "상대 26 · 방비 0 · 지원 1 · 중거리 · 기세 2",
+   "result": "draw",
+   "grade": "조용한 개방",
+   "campaign": "conditional",
    "issues": [
     "감시 미해결 · 거병 후 치안 현안",
     "성문 병사 일부가 내부 협력 없이 남음 · 거병 후 충성 현안"
@@ -590,12 +1563,15 @@
    "cause": 4,
    "passage": false,
    "debate": "success",
+   "resolved": 2,
    "skip": false,
    "obstacles": "감시 남음 · 지휘관 해결 · 병사 해결",
-   "start": "상대 26 · 지원 0 · 중거리 · 기세 1 · 기습 아니오 · 상대 순서 guard/strike/probe/strike",
-   "result": "win",
+   "oppDeck": "trick: 속임수·속임수·거리 벌리기·견제·견제·강공·감시·감시",
+   "firstIntent": "숨겨진 의도(감시)",
+   "start": "상대 26 · 방비 0 · 지원 0 · 중거리 · 기세 2",
+   "result": "draw",
    "grade": "조용한 개방",
-   "campaign": "success",
+   "campaign": "conditional",
    "issues": [
     "감시 미해결 · 거병 후 치안 현안"
    ]
@@ -606,12 +1582,15 @@
    "cause": 4,
    "passage": false,
    "debate": "success",
+   "resolved": 2,
    "skip": false,
    "obstacles": "감시 남음 · 지휘관 해결 · 병사 해결",
-   "start": "상대 26 · 지원 0 · 중거리 · 기세 3 · 기습 아니오 · 상대 순서 guard/strike/probe/strike",
-   "result": "win",
+   "oppDeck": "trick: 속임수·속임수·거리 벌리기·견제·견제·강공·감시·감시",
+   "firstIntent": "숨겨진 의도(감시)",
+   "start": "상대 26 · 방비 0 · 지원 0 · 중거리 · 기세 4",
+   "result": "draw",
    "grade": "조용한 개방",
-   "campaign": "success",
+   "campaign": "conditional",
    "issues": [
     "감시 미해결 · 거병 후 치안 현안"
    ]
@@ -622,100 +1601,121 @@
    "cause": 0,
    "passage": false,
    "debate": "success",
+   "resolved": 2,
    "skip": false,
    "obstacles": "감시 해결 · 지휘관 해결 · 병사 일부",
-   "start": "상대 26 · 지원 2 · 중거리 · 기세 1 · 기습 예 · 상대 순서 guard/strike/probe/strike",
-   "result": "win",
-   "grade": "개방",
-   "campaign": "success",
-   "issues": [
-    "성문 병사 일부가 내부 협력 없이 남음 · 거병 후 충성 현안"
-   ]
-  },
-  {
-   "inside": 2,
-   "clue": 5,
-   "cause": 0,
-   "passage": false,
-   "debate": "success",
-   "skip": true,
-   "obstacles": "감시 해결 · 지휘관 해결 · 병사 해결",
-   "start": "대결 없음",
-   "result": "-",
-   "grade": "-",
-   "campaign": "success",
-   "issues": []
-  },
-  {
-   "inside": 4,
-   "clue": 5,
-   "cause": 0,
-   "passage": false,
-   "debate": "success",
-   "skip": true,
-   "obstacles": "감시 해결 · 지휘관 해결 · 병사 해결",
-   "start": "대결 없음",
-   "result": "-",
-   "grade": "-",
-   "campaign": "success",
-   "issues": []
-  },
-  {
-   "inside": 0,
-   "clue": 5,
-   "cause": 4,
-   "passage": false,
-   "debate": "success",
-   "skip": false,
-   "obstacles": "감시 해결 · 지휘관 해결 · 병사 일부",
-   "start": "상대 26 · 지원 2 · 중거리 · 기세 1 · 기습 예 · 상대 순서 guard/strike/probe/strike",
-   "result": "win",
-   "grade": "개방",
-   "campaign": "success",
-   "issues": [
-    "성문 병사 일부가 내부 협력 없이 남음 · 거병 후 충성 현안"
-   ]
-  },
-  {
-   "inside": 2,
-   "clue": 5,
-   "cause": 4,
-   "passage": false,
-   "debate": "success",
-   "skip": true,
-   "obstacles": "감시 해결 · 지휘관 해결 · 병사 해결",
-   "start": "대결 없음",
-   "result": "-",
-   "grade": "-",
-   "campaign": "success",
-   "issues": []
-  },
-  {
-   "inside": 4,
-   "clue": 5,
-   "cause": 4,
-   "passage": false,
-   "debate": "success",
-   "skip": true,
-   "obstacles": "감시 해결 · 지휘관 해결 · 병사 해결",
-   "start": "대결 없음",
-   "result": "-",
-   "grade": "-",
-   "campaign": "success",
-   "issues": []
-  },
-  {
-   "inside": 0,
-   "clue": 0,
-   "cause": 0,
-   "passage": true,
-   "debate": "success",
-   "skip": false,
-   "obstacles": "감시 해결 · 지휘관 해결 · 병사 일부",
-   "start": "상대 26 · 지원 2 · 근거리 · 기세 1 · 기습 예 · 상대 순서 guard/strike/probe/strike",
-   "result": "win",
+   "oppDeck": "endure: 방비·방비·숨 고르기·숨 고르기·강공·기세 모으기·병사 지원",
+   "firstIntent": "방비 +5",
+   "start": "상대 26 · 방비 0 · 지원 1 · 중거리 · 기세 2",
+   "result": "draw",
    "grade": "조용한 개방",
+   "campaign": "conditional",
+   "issues": [
+    "성문 병사 일부가 내부 협력 없이 남음 · 거병 후 충성 현안"
+   ]
+  },
+  {
+   "inside": 2,
+   "clue": 5,
+   "cause": 0,
+   "passage": false,
+   "debate": "success",
+   "resolved": 3,
+   "skip": true,
+   "obstacles": "감시 해결 · 지휘관 해결 · 병사 해결",
+   "oppDeck": "-",
+   "firstIntent": "-",
+   "start": "대결 없음",
+   "result": "-",
+   "grade": "-",
    "campaign": "success",
+   "issues": []
+  },
+  {
+   "inside": 4,
+   "clue": 5,
+   "cause": 0,
+   "passage": false,
+   "debate": "success",
+   "resolved": 3,
+   "skip": true,
+   "obstacles": "감시 해결 · 지휘관 해결 · 병사 해결",
+   "oppDeck": "-",
+   "firstIntent": "-",
+   "start": "대결 없음",
+   "result": "-",
+   "grade": "-",
+   "campaign": "success",
+   "issues": []
+  },
+  {
+   "inside": 0,
+   "clue": 5,
+   "cause": 4,
+   "passage": false,
+   "debate": "success",
+   "resolved": 2,
+   "skip": false,
+   "obstacles": "감시 해결 · 지휘관 해결 · 병사 일부",
+   "oppDeck": "endure: 방비·방비·숨 고르기·숨 고르기·강공·기세 모으기·병사 지원",
+   "firstIntent": "방비 +5",
+   "start": "상대 26 · 방비 0 · 지원 1 · 중거리 · 기세 2",
+   "result": "draw",
+   "grade": "조용한 개방",
+   "campaign": "conditional",
+   "issues": [
+    "성문 병사 일부가 내부 협력 없이 남음 · 거병 후 충성 현안"
+   ]
+  },
+  {
+   "inside": 2,
+   "clue": 5,
+   "cause": 4,
+   "passage": false,
+   "debate": "success",
+   "resolved": 3,
+   "skip": true,
+   "obstacles": "감시 해결 · 지휘관 해결 · 병사 해결",
+   "oppDeck": "-",
+   "firstIntent": "-",
+   "start": "대결 없음",
+   "result": "-",
+   "grade": "-",
+   "campaign": "success",
+   "issues": []
+  },
+  {
+   "inside": 4,
+   "clue": 5,
+   "cause": 4,
+   "passage": false,
+   "debate": "success",
+   "resolved": 3,
+   "skip": true,
+   "obstacles": "감시 해결 · 지휘관 해결 · 병사 해결",
+   "oppDeck": "-",
+   "firstIntent": "-",
+   "start": "대결 없음",
+   "result": "-",
+   "grade": "-",
+   "campaign": "success",
+   "issues": []
+  },
+  {
+   "inside": 0,
+   "clue": 0,
+   "cause": 0,
+   "passage": true,
+   "debate": "success",
+   "resolved": 2,
+   "skip": false,
+   "obstacles": "감시 해결 · 지휘관 해결 · 병사 일부",
+   "oppDeck": "endure: 방비·방비·숨 고르기·숨 고르기·강공·기세 모으기·병사 지원",
+   "firstIntent": "방비 +5",
+   "start": "상대 26 · 방비 0 · 지원 1 · 근거리 · 기세 2",
+   "result": "draw",
+   "grade": "조용한 개방",
+   "campaign": "conditional",
    "issues": [
     "성문 병사 일부가 내부 협력 없이 남음 · 거병 후 충성 현안"
    ]
@@ -726,8 +1726,11 @@
    "cause": 0,
    "passage": true,
    "debate": "success",
+   "resolved": 3,
    "skip": true,
    "obstacles": "감시 해결 · 지휘관 해결 · 병사 해결",
+   "oppDeck": "-",
+   "firstIntent": "-",
    "start": "대결 없음",
    "result": "-",
    "grade": "-",
@@ -740,8 +1743,11 @@
    "cause": 0,
    "passage": true,
    "debate": "success",
+   "resolved": 3,
    "skip": true,
    "obstacles": "감시 해결 · 지휘관 해결 · 병사 해결",
+   "oppDeck": "-",
+   "firstIntent": "-",
    "start": "대결 없음",
    "result": "-",
    "grade": "-",
@@ -754,12 +1760,15 @@
    "cause": 4,
    "passage": true,
    "debate": "success",
+   "resolved": 2,
    "skip": false,
    "obstacles": "감시 해결 · 지휘관 해결 · 병사 일부",
-   "start": "상대 26 · 지원 2 · 근거리 · 기세 1 · 기습 예 · 상대 순서 guard/strike/probe/strike",
-   "result": "win",
+   "oppDeck": "endure: 방비·방비·숨 고르기·숨 고르기·강공·기세 모으기·병사 지원",
+   "firstIntent": "방비 +5",
+   "start": "상대 26 · 방비 0 · 지원 1 · 근거리 · 기세 2",
+   "result": "draw",
    "grade": "조용한 개방",
-   "campaign": "success",
+   "campaign": "conditional",
    "issues": [
     "성문 병사 일부가 내부 협력 없이 남음 · 거병 후 충성 현안"
    ]
@@ -770,8 +1779,11 @@
    "cause": 4,
    "passage": true,
    "debate": "success",
+   "resolved": 3,
    "skip": true,
    "obstacles": "감시 해결 · 지휘관 해결 · 병사 해결",
+   "oppDeck": "-",
+   "firstIntent": "-",
    "start": "대결 없음",
    "result": "-",
    "grade": "-",
@@ -784,8 +1796,11 @@
    "cause": 4,
    "passage": true,
    "debate": "success",
+   "resolved": 3,
    "skip": true,
    "obstacles": "감시 해결 · 지휘관 해결 · 병사 해결",
+   "oppDeck": "-",
+   "firstIntent": "-",
    "start": "대결 없음",
    "result": "-",
    "grade": "-",
@@ -798,12 +1813,15 @@
    "cause": 0,
    "passage": true,
    "debate": "success",
+   "resolved": 2,
    "skip": false,
    "obstacles": "감시 해결 · 지휘관 해결 · 병사 일부",
-   "start": "상대 26 · 지원 2 · 근거리 · 기세 1 · 기습 예 · 상대 순서 guard/strike/probe/strike",
-   "result": "win",
+   "oppDeck": "endure: 방비·방비·숨 고르기·숨 고르기·강공·기세 모으기·병사 지원",
+   "firstIntent": "방비 +5",
+   "start": "상대 26 · 방비 0 · 지원 1 · 근거리 · 기세 2",
+   "result": "draw",
    "grade": "조용한 개방",
-   "campaign": "success",
+   "campaign": "conditional",
    "issues": [
     "성문 병사 일부가 내부 협력 없이 남음 · 거병 후 충성 현안"
    ]
@@ -814,8 +1832,11 @@
    "cause": 0,
    "passage": true,
    "debate": "success",
+   "resolved": 3,
    "skip": true,
    "obstacles": "감시 해결 · 지휘관 해결 · 병사 해결",
+   "oppDeck": "-",
+   "firstIntent": "-",
    "start": "대결 없음",
    "result": "-",
    "grade": "-",
@@ -828,8 +1849,11 @@
    "cause": 0,
    "passage": true,
    "debate": "success",
+   "resolved": 3,
    "skip": true,
    "obstacles": "감시 해결 · 지휘관 해결 · 병사 해결",
+   "oppDeck": "-",
+   "firstIntent": "-",
    "start": "대결 없음",
    "result": "-",
    "grade": "-",
@@ -842,12 +1866,15 @@
    "cause": 4,
    "passage": true,
    "debate": "success",
+   "resolved": 2,
    "skip": false,
    "obstacles": "감시 해결 · 지휘관 해결 · 병사 일부",
-   "start": "상대 26 · 지원 2 · 근거리 · 기세 1 · 기습 예 · 상대 순서 guard/strike/probe/strike",
-   "result": "win",
+   "oppDeck": "endure: 방비·방비·숨 고르기·숨 고르기·강공·기세 모으기·병사 지원",
+   "firstIntent": "방비 +5",
+   "start": "상대 26 · 방비 0 · 지원 1 · 근거리 · 기세 2",
+   "result": "draw",
    "grade": "조용한 개방",
-   "campaign": "success",
+   "campaign": "conditional",
    "issues": [
     "성문 병사 일부가 내부 협력 없이 남음 · 거병 후 충성 현안"
    ]
@@ -858,8 +1885,11 @@
    "cause": 4,
    "passage": true,
    "debate": "success",
+   "resolved": 3,
    "skip": true,
    "obstacles": "감시 해결 · 지휘관 해결 · 병사 해결",
+   "oppDeck": "-",
+   "firstIntent": "-",
    "start": "대결 없음",
    "result": "-",
    "grade": "-",
@@ -872,8 +1902,11 @@
    "cause": 4,
    "passage": true,
    "debate": "success",
+   "resolved": 3,
    "skip": true,
    "obstacles": "감시 해결 · 지휘관 해결 · 병사 해결",
+   "oppDeck": "-",
+   "firstIntent": "-",
    "start": "대결 없음",
    "result": "-",
    "grade": "-",
@@ -886,9 +1919,12 @@
    "cause": 0,
    "passage": false,
    "debate": "partial",
+   "resolved": 0,
    "skip": false,
    "obstacles": "감시 남음 · 지휘관 약화 · 병사 남음",
-   "start": "상대 30 · 지원 2 · 중거리 · 기세 1 · 기습 아니오 · 상대 순서 guard/strike/probe/strike",
+   "oppDeck": "trick: 속임수·속임수·거리 벌리기·견제·견제·강공·감시·감시·병사 지원·병사 지원",
+   "firstIntent": "숨겨진 의도(감시)",
+   "start": "상대 26 · 방비 2 · 지원 2 · 중거리 · 기세 2",
    "result": "win",
    "grade": "개방",
    "campaign": "conditional",
@@ -903,11 +1939,14 @@
    "cause": 0,
    "passage": false,
    "debate": "partial",
+   "resolved": 0,
    "skip": false,
    "obstacles": "감시 남음 · 지휘관 약화 · 병사 일부",
-   "start": "상대 26 · 지원 0 · 중거리 · 기세 1 · 기습 아니오 · 상대 순서 guard/strike/probe/strike",
+   "oppDeck": "trick: 속임수·속임수·거리 벌리기·견제·견제·강공·감시·감시",
+   "firstIntent": "숨겨진 의도(감시)",
+   "start": "상대 26 · 방비 2 · 지원 0 · 중거리 · 기세 2",
    "result": "win",
-   "grade": "조용한 개방",
+   "grade": "개방",
    "campaign": "conditional",
    "issues": [
     "감시 미해결 · 거병 후 치안 현안",
@@ -920,11 +1959,14 @@
    "cause": 0,
    "passage": false,
    "debate": "partial",
+   "resolved": 0,
    "skip": false,
    "obstacles": "감시 남음 · 지휘관 약화 · 병사 일부",
-   "start": "상대 26 · 지원 0 · 중거리 · 기세 3 · 기습 아니오 · 상대 순서 guard/strike/probe/strike",
+   "oppDeck": "trick: 속임수·속임수·거리 벌리기·견제·견제·강공·감시·감시",
+   "firstIntent": "숨겨진 의도(감시)",
+   "start": "상대 26 · 방비 2 · 지원 0 · 중거리 · 기세 4",
    "result": "win",
-   "grade": "조용한 개방",
+   "grade": "개방",
    "campaign": "conditional",
    "issues": [
     "감시 미해결 · 거병 후 치안 현안",
@@ -937,11 +1979,14 @@
    "cause": 4,
    "passage": false,
    "debate": "partial",
+   "resolved": 0,
    "skip": false,
    "obstacles": "감시 남음 · 지휘관 약화 · 병사 일부",
-   "start": "상대 26 · 지원 2 · 중거리 · 기세 1 · 기습 아니오 · 상대 순서 guard/strike/probe/strike",
-   "result": "win",
-   "grade": "개방",
+   "oppDeck": "trick: 속임수·속임수·거리 벌리기·견제·견제·강공·감시·감시·병사 지원",
+   "firstIntent": "숨겨진 의도(감시)",
+   "start": "상대 26 · 방비 2 · 지원 1 · 중거리 · 기세 2",
+   "result": "draw",
+   "grade": "조용한 개방",
    "campaign": "conditional",
    "issues": [
     "감시 미해결 · 거병 후 치안 현안",
@@ -954,10 +1999,13 @@
    "cause": 4,
    "passage": false,
    "debate": "partial",
+   "resolved": 1,
    "skip": false,
    "obstacles": "감시 남음 · 지휘관 약화 · 병사 해결",
-   "start": "상대 26 · 지원 0 · 중거리 · 기세 1 · 기습 아니오 · 상대 순서 guard/strike/probe/strike",
-   "result": "win",
+   "oppDeck": "trick: 속임수·속임수·거리 벌리기·견제·견제·강공·감시·감시",
+   "firstIntent": "숨겨진 의도(감시)",
+   "start": "상대 26 · 방비 2 · 지원 0 · 중거리 · 기세 2",
+   "result": "draw",
    "grade": "조용한 개방",
    "campaign": "conditional",
    "issues": [
@@ -970,10 +2018,13 @@
    "cause": 4,
    "passage": false,
    "debate": "partial",
+   "resolved": 1,
    "skip": false,
    "obstacles": "감시 남음 · 지휘관 약화 · 병사 해결",
-   "start": "상대 26 · 지원 0 · 중거리 · 기세 3 · 기습 아니오 · 상대 순서 guard/strike/probe/strike",
-   "result": "win",
+   "oppDeck": "trick: 속임수·속임수·거리 벌리기·견제·견제·강공·감시·감시",
+   "firstIntent": "숨겨진 의도(감시)",
+   "start": "상대 26 · 방비 2 · 지원 0 · 중거리 · 기세 4",
+   "result": "draw",
    "grade": "조용한 개방",
    "campaign": "conditional",
    "issues": [
@@ -986,9 +2037,141 @@
    "cause": 0,
    "passage": false,
    "debate": "partial",
+   "resolved": 1,
    "skip": false,
    "obstacles": "감시 해결 · 지휘관 약화 · 병사 남음",
-   "start": "상대 30 · 지원 2 · 중거리 · 기세 1 · 기습 예 · 상대 순서 guard/strike/probe/strike",
+   "oppDeck": "endure: 방비·방비·숨 고르기·숨 고르기·강공·기세 모으기·필살·병사 지원·병사 지원",
+   "firstIntent": "숨 고르기 +3",
+   "start": "상대 26 · 방비 2 · 지원 2 · 중거리 · 기세 2",
+   "result": "draw",
+   "grade": "실패",
+   "campaign": "conditional",
+   "issues": [
+    "병사 지지 미확보 · 거병 후 충성 현안"
+   ]
+  },
+  {
+   "inside": 2,
+   "clue": 5,
+   "cause": 0,
+   "passage": false,
+   "debate": "partial",
+   "resolved": 1,
+   "skip": false,
+   "obstacles": "감시 해결 · 지휘관 약화 · 병사 일부",
+   "oppDeck": "endure: 방비·방비·숨 고르기·숨 고르기·강공·기세 모으기·필살",
+   "firstIntent": "방비 +5",
+   "start": "상대 26 · 방비 2 · 지원 0 · 중거리 · 기세 2",
+   "result": "draw",
+   "grade": "실패",
+   "campaign": "conditional",
+   "issues": [
+    "병사 지지 미확보 · 거병 후 충성 현안"
+   ]
+  },
+  {
+   "inside": 4,
+   "clue": 5,
+   "cause": 0,
+   "passage": false,
+   "debate": "partial",
+   "resolved": 1,
+   "skip": false,
+   "obstacles": "감시 해결 · 지휘관 약화 · 병사 일부",
+   "oppDeck": "endure: 방비·방비·숨 고르기·숨 고르기·강공·기세 모으기·필살",
+   "firstIntent": "방비 +5",
+   "start": "상대 26 · 방비 2 · 지원 0 · 중거리 · 기세 4",
+   "result": "draw",
+   "grade": "실패",
+   "campaign": "conditional",
+   "issues": [
+    "병사 지지 미확보 · 거병 후 충성 현안"
+   ]
+  },
+  {
+   "inside": 0,
+   "clue": 5,
+   "cause": 4,
+   "passage": false,
+   "debate": "partial",
+   "resolved": 1,
+   "skip": false,
+   "obstacles": "감시 해결 · 지휘관 약화 · 병사 일부",
+   "oppDeck": "endure: 방비·방비·숨 고르기·숨 고르기·강공·기세 모으기·필살·병사 지원",
+   "firstIntent": "숨 고르기 +3",
+   "start": "상대 26 · 방비 2 · 지원 1 · 중거리 · 기세 2",
+   "result": "draw",
+   "grade": "조용한 개방",
+   "campaign": "conditional",
+   "issues": [
+    "성문 병사 일부가 내부 협력 없이 남음 · 거병 후 충성 현안"
+   ]
+  },
+  {
+   "inside": 2,
+   "clue": 5,
+   "cause": 4,
+   "passage": false,
+   "debate": "partial",
+   "resolved": 2,
+   "skip": false,
+   "obstacles": "감시 해결 · 지휘관 약화 · 병사 해결",
+   "oppDeck": "endure: 방비·방비·숨 고르기·숨 고르기·강공·기세 모으기·필살",
+   "firstIntent": "방비 +5",
+   "start": "상대 26 · 방비 2 · 지원 0 · 중거리 · 기세 2",
+   "result": "draw",
+   "grade": "조용한 개방",
+   "campaign": "conditional",
+   "issues": []
+  },
+  {
+   "inside": 4,
+   "clue": 5,
+   "cause": 4,
+   "passage": false,
+   "debate": "partial",
+   "resolved": 2,
+   "skip": false,
+   "obstacles": "감시 해결 · 지휘관 약화 · 병사 해결",
+   "oppDeck": "endure: 방비·방비·숨 고르기·숨 고르기·강공·기세 모으기·필살",
+   "firstIntent": "방비 +5",
+   "start": "상대 26 · 방비 2 · 지원 0 · 중거리 · 기세 4",
+   "result": "draw",
+   "grade": "조용한 개방",
+   "campaign": "conditional",
+   "issues": []
+  },
+  {
+   "inside": 0,
+   "clue": 0,
+   "cause": 0,
+   "passage": true,
+   "debate": "partial",
+   "resolved": 1,
+   "skip": false,
+   "obstacles": "감시 해결 · 지휘관 약화 · 병사 남음",
+   "oppDeck": "endure: 방비·방비·숨 고르기·숨 고르기·강공·기세 모으기·필살·병사 지원·병사 지원",
+   "firstIntent": "숨 고르기 +3",
+   "start": "상대 26 · 방비 2 · 지원 2 · 근거리 · 기세 2",
+   "result": "win",
+   "grade": "조용한 개방",
+   "campaign": "conditional",
+   "issues": [
+    "병사 지지 미확보 · 거병 후 충성 현안"
+   ]
+  },
+  {
+   "inside": 2,
+   "clue": 0,
+   "cause": 0,
+   "passage": true,
+   "debate": "partial",
+   "resolved": 1,
+   "skip": false,
+   "obstacles": "감시 해결 · 지휘관 약화 · 병사 일부",
+   "oppDeck": "endure: 방비·방비·숨 고르기·숨 고르기·강공·기세 모으기·필살",
+   "firstIntent": "방비 +5",
+   "start": "상대 26 · 방비 2 · 지원 0 · 근거리 · 기세 2",
    "result": "win",
    "grade": "개방",
    "campaign": "conditional",
@@ -997,182 +2180,89 @@
    ]
   },
   {
-   "inside": 2,
-   "clue": 5,
-   "cause": 0,
-   "passage": false,
-   "debate": "partial",
-   "skip": false,
-   "obstacles": "감시 해결 · 지휘관 약화 · 병사 일부",
-   "start": "상대 26 · 지원 0 · 중거리 · 기세 1 · 기습 예 · 상대 순서 guard/strike/probe/strike",
-   "result": "win",
-   "grade": "조용한 개방",
-   "campaign": "conditional",
-   "issues": [
-    "병사 지지 미확보 · 거병 후 충성 현안"
-   ]
-  },
-  {
    "inside": 4,
-   "clue": 5,
+   "clue": 0,
    "cause": 0,
-   "passage": false,
+   "passage": true,
    "debate": "partial",
+   "resolved": 1,
    "skip": false,
    "obstacles": "감시 해결 · 지휘관 약화 · 병사 일부",
-   "start": "상대 26 · 지원 0 · 중거리 · 기세 3 · 기습 예 · 상대 순서 guard/strike/probe/strike",
-   "result": "win",
-   "grade": "조용한 개방",
-   "campaign": "conditional",
-   "issues": [
-    "병사 지지 미확보 · 거병 후 충성 현안"
-   ]
-  },
-  {
-   "inside": 0,
-   "clue": 5,
-   "cause": 4,
-   "passage": false,
-   "debate": "partial",
-   "skip": false,
-   "obstacles": "감시 해결 · 지휘관 약화 · 병사 일부",
-   "start": "상대 26 · 지원 2 · 중거리 · 기세 1 · 기습 예 · 상대 순서 guard/strike/probe/strike",
+   "oppDeck": "endure: 방비·방비·숨 고르기·숨 고르기·강공·기세 모으기·필살",
+   "firstIntent": "방비 +5",
+   "start": "상대 26 · 방비 2 · 지원 0 · 근거리 · 기세 4",
    "result": "win",
    "grade": "개방",
    "campaign": "conditional",
    "issues": [
+    "병사 지지 미확보 · 거병 후 충성 현안"
+   ]
+  },
+  {
+   "inside": 0,
+   "clue": 0,
+   "cause": 4,
+   "passage": true,
+   "debate": "partial",
+   "resolved": 1,
+   "skip": false,
+   "obstacles": "감시 해결 · 지휘관 약화 · 병사 일부",
+   "oppDeck": "endure: 방비·방비·숨 고르기·숨 고르기·강공·기세 모으기·필살·병사 지원",
+   "firstIntent": "숨 고르기 +3",
+   "start": "상대 26 · 방비 2 · 지원 1 · 근거리 · 기세 2",
+   "result": "win",
+   "grade": "조용한 개방",
+   "campaign": "conditional",
+   "issues": [
     "성문 병사 일부가 내부 협력 없이 남음 · 거병 후 충성 현안"
    ]
   },
   {
    "inside": 2,
-   "clue": 5,
+   "clue": 0,
    "cause": 4,
-   "passage": false,
+   "passage": true,
    "debate": "partial",
+   "resolved": 2,
    "skip": false,
    "obstacles": "감시 해결 · 지휘관 약화 · 병사 해결",
-   "start": "상대 26 · 지원 0 · 중거리 · 기세 1 · 기습 예 · 상대 순서 guard/strike/probe/strike",
-   "result": "win",
+   "oppDeck": "endure: 방비·방비·숨 고르기·숨 고르기·강공·기세 모으기·필살",
+   "firstIntent": "방비 +5",
+   "start": "상대 26 · 방비 2 · 지원 0 · 근거리 · 기세 2",
+   "result": "draw",
    "grade": "조용한 개방",
    "campaign": "conditional",
    "issues": []
   },
   {
    "inside": 4,
-   "clue": 5,
+   "clue": 0,
    "cause": 4,
-   "passage": false,
+   "passage": true,
    "debate": "partial",
+   "resolved": 2,
    "skip": false,
    "obstacles": "감시 해결 · 지휘관 약화 · 병사 해결",
-   "start": "상대 26 · 지원 0 · 중거리 · 기세 3 · 기습 예 · 상대 순서 guard/strike/probe/strike",
-   "result": "win",
+   "oppDeck": "endure: 방비·방비·숨 고르기·숨 고르기·강공·기세 모으기·필살",
+   "firstIntent": "방비 +5",
+   "start": "상대 26 · 방비 2 · 지원 0 · 근거리 · 기세 4",
+   "result": "draw",
    "grade": "조용한 개방",
    "campaign": "conditional",
    "issues": []
   },
   {
    "inside": 0,
-   "clue": 0,
+   "clue": 5,
    "cause": 0,
    "passage": true,
    "debate": "partial",
+   "resolved": 1,
    "skip": false,
    "obstacles": "감시 해결 · 지휘관 약화 · 병사 남음",
-   "start": "상대 30 · 지원 2 · 근거리 · 기세 1 · 기습 예 · 상대 순서 guard/strike/probe/strike",
-   "result": "win",
-   "grade": "조용한 개방",
-   "campaign": "conditional",
-   "issues": [
-    "병사 지지 미확보 · 거병 후 충성 현안"
-   ]
-  },
-  {
-   "inside": 2,
-   "clue": 0,
-   "cause": 0,
-   "passage": true,
-   "debate": "partial",
-   "skip": false,
-   "obstacles": "감시 해결 · 지휘관 약화 · 병사 일부",
-   "start": "상대 26 · 지원 0 · 근거리 · 기세 1 · 기습 예 · 상대 순서 guard/strike/probe/strike",
-   "result": "win",
-   "grade": "조용한 개방",
-   "campaign": "conditional",
-   "issues": [
-    "병사 지지 미확보 · 거병 후 충성 현안"
-   ]
-  },
-  {
-   "inside": 4,
-   "clue": 0,
-   "cause": 0,
-   "passage": true,
-   "debate": "partial",
-   "skip": false,
-   "obstacles": "감시 해결 · 지휘관 약화 · 병사 일부",
-   "start": "상대 26 · 지원 0 · 근거리 · 기세 3 · 기습 예 · 상대 순서 guard/strike/probe/strike",
-   "result": "win",
-   "grade": "조용한 개방",
-   "campaign": "conditional",
-   "issues": [
-    "병사 지지 미확보 · 거병 후 충성 현안"
-   ]
-  },
-  {
-   "inside": 0,
-   "clue": 0,
-   "cause": 4,
-   "passage": true,
-   "debate": "partial",
-   "skip": false,
-   "obstacles": "감시 해결 · 지휘관 약화 · 병사 일부",
-   "start": "상대 26 · 지원 2 · 근거리 · 기세 1 · 기습 예 · 상대 순서 guard/strike/probe/strike",
-   "result": "win",
-   "grade": "조용한 개방",
-   "campaign": "conditional",
-   "issues": [
-    "성문 병사 일부가 내부 협력 없이 남음 · 거병 후 충성 현안"
-   ]
-  },
-  {
-   "inside": 2,
-   "clue": 0,
-   "cause": 4,
-   "passage": true,
-   "debate": "partial",
-   "skip": false,
-   "obstacles": "감시 해결 · 지휘관 약화 · 병사 해결",
-   "start": "상대 26 · 지원 0 · 근거리 · 기세 1 · 기습 예 · 상대 순서 guard/strike/probe/strike",
-   "result": "win",
-   "grade": "조용한 개방",
-   "campaign": "conditional",
-   "issues": []
-  },
-  {
-   "inside": 4,
-   "clue": 0,
-   "cause": 4,
-   "passage": true,
-   "debate": "partial",
-   "skip": false,
-   "obstacles": "감시 해결 · 지휘관 약화 · 병사 해결",
-   "start": "상대 26 · 지원 0 · 근거리 · 기세 3 · 기습 예 · 상대 순서 guard/strike/probe/strike",
-   "result": "win",
-   "grade": "조용한 개방",
-   "campaign": "conditional",
-   "issues": []
-  },
-  {
-   "inside": 0,
-   "clue": 5,
-   "cause": 0,
-   "passage": true,
-   "debate": "partial",
-   "skip": false,
-   "obstacles": "감시 해결 · 지휘관 약화 · 병사 남음",
-   "start": "상대 30 · 지원 2 · 근거리 · 기세 1 · 기습 예 · 상대 순서 guard/strike/probe/strike",
+   "oppDeck": "endure: 방비·방비·숨 고르기·숨 고르기·강공·기세 모으기·필살·병사 지원·병사 지원",
+   "firstIntent": "숨 고르기 +3",
+   "start": "상대 26 · 방비 2 · 지원 2 · 근거리 · 기세 2",
    "result": "win",
    "grade": "조용한 개방",
    "campaign": "conditional",
@@ -1186,11 +2276,14 @@
    "cause": 0,
    "passage": true,
    "debate": "partial",
+   "resolved": 1,
    "skip": false,
    "obstacles": "감시 해결 · 지휘관 약화 · 병사 일부",
-   "start": "상대 26 · 지원 0 · 근거리 · 기세 1 · 기습 예 · 상대 순서 guard/strike/probe/strike",
+   "oppDeck": "endure: 방비·방비·숨 고르기·숨 고르기·강공·기세 모으기·필살",
+   "firstIntent": "방비 +5",
+   "start": "상대 26 · 방비 2 · 지원 0 · 근거리 · 기세 2",
    "result": "win",
-   "grade": "조용한 개방",
+   "grade": "개방",
    "campaign": "conditional",
    "issues": [
     "병사 지지 미확보 · 거병 후 충성 현안"
@@ -1202,11 +2295,14 @@
    "cause": 0,
    "passage": true,
    "debate": "partial",
+   "resolved": 1,
    "skip": false,
    "obstacles": "감시 해결 · 지휘관 약화 · 병사 일부",
-   "start": "상대 26 · 지원 0 · 근거리 · 기세 3 · 기습 예 · 상대 순서 guard/strike/probe/strike",
+   "oppDeck": "endure: 방비·방비·숨 고르기·숨 고르기·강공·기세 모으기·필살",
+   "firstIntent": "방비 +5",
+   "start": "상대 26 · 방비 2 · 지원 0 · 근거리 · 기세 4",
    "result": "win",
-   "grade": "조용한 개방",
+   "grade": "개방",
    "campaign": "conditional",
    "issues": [
     "병사 지지 미확보 · 거병 후 충성 현안"
@@ -1218,9 +2314,12 @@
    "cause": 4,
    "passage": true,
    "debate": "partial",
+   "resolved": 1,
    "skip": false,
    "obstacles": "감시 해결 · 지휘관 약화 · 병사 일부",
-   "start": "상대 26 · 지원 2 · 근거리 · 기세 1 · 기습 예 · 상대 순서 guard/strike/probe/strike",
+   "oppDeck": "endure: 방비·방비·숨 고르기·숨 고르기·강공·기세 모으기·필살·병사 지원",
+   "firstIntent": "숨 고르기 +3",
+   "start": "상대 26 · 방비 2 · 지원 1 · 근거리 · 기세 2",
    "result": "win",
    "grade": "조용한 개방",
    "campaign": "conditional",
@@ -1234,10 +2333,13 @@
    "cause": 4,
    "passage": true,
    "debate": "partial",
+   "resolved": 2,
    "skip": false,
    "obstacles": "감시 해결 · 지휘관 약화 · 병사 해결",
-   "start": "상대 26 · 지원 0 · 근거리 · 기세 1 · 기습 예 · 상대 순서 guard/strike/probe/strike",
-   "result": "win",
+   "oppDeck": "endure: 방비·방비·숨 고르기·숨 고르기·강공·기세 모으기·필살",
+   "firstIntent": "방비 +5",
+   "start": "상대 26 · 방비 2 · 지원 0 · 근거리 · 기세 2",
+   "result": "draw",
    "grade": "조용한 개방",
    "campaign": "conditional",
    "issues": []
@@ -1248,10 +2350,13 @@
    "cause": 4,
    "passage": true,
    "debate": "partial",
+   "resolved": 2,
    "skip": false,
    "obstacles": "감시 해결 · 지휘관 약화 · 병사 해결",
-   "start": "상대 26 · 지원 0 · 근거리 · 기세 3 · 기습 예 · 상대 순서 guard/strike/probe/strike",
-   "result": "win",
+   "oppDeck": "endure: 방비·방비·숨 고르기·숨 고르기·강공·기세 모으기·필살",
+   "firstIntent": "방비 +5",
+   "start": "상대 26 · 방비 2 · 지원 0 · 근거리 · 기세 4",
+   "result": "draw",
    "grade": "조용한 개방",
    "campaign": "conditional",
    "issues": []

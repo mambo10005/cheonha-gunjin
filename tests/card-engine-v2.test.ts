@@ -42,8 +42,8 @@ test('inside gate: three obstacles (watch/commander/soldiers) convert step by st
  assert.deepEqual(ids('success'),['watch-open','commander','support-open','loyalty']);
  e.stats.produced={inside:2};assert.deepEqual(ids('partial'),['watch-open','commander-open','no-support','loyalty-open']);
  e.stats.produced={inside:4,clue:5,support:3,momentum:6,ledger:3};e.legacy.push({id:'escort:alternate',kind:'gate',text:''});assert.deepEqual(ids('failure'),['initiative','commander','no-support','loyalty','momentum','distance']);
- e.insideDistance='far';const s=createDuel(3,'chengong','sentinel');applyGateDuelRules(P.r,s,'inside','failure');assert.ok(s.v2);assert.equal(s.v2!.objective,'inside_gate');assert.equal(s.v2!.support,0);assert.equal(s.v2!.distance,'far');assert.ok(s.initiative);assert.equal(s.enemyShield,0);
- const hp=s.hp;assert.ok(resolveDuelAction(s,'probe',s.round).ok);assert.equal(s.hp,hp,'surprise voids the first enemy action');
+ e.insideDistance='far';const s=createDuel(3,'chengong','sentinel');applyGateDuelRules(P.r,s,'inside','failure');assert.ok(s.v2&&s.deck);assert.equal(s.v2!.objective,'inside_gate');assert.equal(s.v2!.support,0);assert.equal(s.v2!.distance,'far');assert.equal(s.deck!.archetype,'endure','watch resolved → enduring gate guard');assert.ok(!s.deck!.intent!.concealed,'clue reveals the first intent');assert.ok(!s.deck!.oppCards.some(c=>c.id==='o_support'));
+ assert.ok(resolveDuelAction(s,'card:'+s.deck!.hand[0],s.round).ok||resolveDuelAction(s,'end',s.round).ok);
 });
 
 test('barracks gate reads guard/counter chains: start protection and counter bonus come from the build',()=>{

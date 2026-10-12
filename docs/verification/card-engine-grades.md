@@ -1,5 +1,7 @@
 # 시드 141001 결과 등급 검증 (카드 엔진 3차 조정)
 
+> 4차(논박진·대결 덱) 이후 결과는 `debate-duel.md`·`debate-duel-ab-log.md`에 있습니다. 아래는 3차 시점 기록입니다.
+
 자동 스크립트 결과입니다(`node src/sim/card-engine-ab.ts`, `node src/sim/card-engine-builds.ts`, `node src/sim/escort-battle-analysis.ts current`).
 원자료: `card-engine-ab.json`, `card-engine-builds.json`, `escort-battle-analysis.json`, `burden-build.json`.
 **자동 정책 결과는 재미의 증거가 아닙니다.** 아래 표는 규칙이 빌드·준비·순서에 따라 다른 결과를 낸다는 것만 보여 줍니다. 사람 플레이 계측은 아직 없습니다.

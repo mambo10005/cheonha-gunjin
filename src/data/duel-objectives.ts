@@ -35,11 +35,11 @@ export const DUEL_OBJECTIVES:Record<string,DuelObjectiveDefinition>={
    {grade:'미숙',rank:1,checks:()=>[{text:'참여',ok:true}]},
   ]},
  barracks_gate:{id:'barracks_gate',name:'군영 장악',objectiveType:'command',minimumResult:'win',
-  safeVictoryConditions:['병사 지원 제거(간보기·폭로·준비된 반격)','방비 반격 또는 빈틈 제압','과잉 무력 없음','4합 이내'],excessiveForceConditions:['빈틈 없이 한 번에 18 이상 피해','빈틈 없는 마무리가 남은 체력보다 8 이상 넘침'],
+  safeVictoryConditions:['병사 지원 제거(간보기·폭로·준비된 반격)','방비 반격 또는 빈틈 제압','과잉 무력 없음','3합 이내'],excessiveForceConditions:['빈틈 없이 한 번에 18 이상 피해','빈틈 없는 마무리가 남은 체력보다 8 이상 넘침'],
   roundLimit:4,injuryTolerance:'minor',relationshipEffects:{'완전 장악':0,'장악':0,'명목상 장악':0,'실패':0},
   partialSuccessRules:'이겨도 과잉 무력·지원 미제거·긴 대결은 명목상 장악: 병영 피해와 병사 불만이 남습니다.',followupRules:'패배하면 거병 실패 처리(도피·재기).',
   grades:[
-   {grade:'완전 장악',rank:3,checks:s=>[{text:'승리',ok:won(s)},{text:`병사 지원 모두 제거 (남은 ${v(s).support})`,ok:v(s).support===0},{text:'방비 반격 또는 빈틈 제압',ok:safeTechnique(s)},{text:'과잉 무력 없음',ok:!excessive(s)},{text:`4합 이내 (${v(s).stats.rounds}합)`,ok:v(s).stats.rounds<=4},{text:`내 부상 경미 이하 (${playerInjury(s)})`,ok:playerInjury(s)!=='major'}]},
+   {grade:'완전 장악',rank:3,checks:s=>[{text:'승리',ok:won(s)},{text:`병사 지원 모두 제거 (남은 ${v(s).support})`,ok:v(s).support===0},{text:'방비 반격 또는 빈틈 제압',ok:safeTechnique(s)},{text:'과잉 무력 없음',ok:!excessive(s)},{text:`3합 이내 (${v(s).stats.rounds}합)`,ok:v(s).stats.rounds<=3},{text:`내 부상 경미 이하 (${playerInjury(s)})`,ok:playerInjury(s)!=='major'}]},
    {grade:'장악',rank:2,checks:s=>[{text:'승리',ok:won(s)},{text:'과잉 무력 없음',ok:!excessive(s)},{text:`병사 지원 1 이하 (${v(s).support})`,ok:v(s).support<=1}]},
    {grade:'명목상 장악',rank:1,checks:s=>[{text:'승리',ok:won(s)}]},
   ]},
@@ -52,4 +52,8 @@ export const DUEL_OBJECTIVES:Record<string,DuelObjectiveDefinition>={
    {grade:'강제 개방',rank:1,checks:s=>[{text:'승리',ok:won(s)}]},
   ]},
 };
-export function evaluateDuel(s:DuelState){const def=DUEL_OBJECTIVES[s.v2!.objective];const checks=def.grades.map(g=>({grade:g.grade,rank:g.rank,items:g.checks(s)}));const hit=checks.find(c=>c.items.every(i=>i.ok));return {objective:def.id,name:def.name,grade:hit?.grade??'실패',rank:hit?.rank??0,checks,injury:{player:playerInjury(s),enemyGrave:enemyGrave(s)},excessive:excessive(s),rounds:s.v2!.stats.rounds};}
+export function evaluateDuel(s:DuelState){const def=DUEL_OBJECTIVES[s.v2!.objective];const checks=def.grades.map(g=>({grade:g.grade,rank:g.rank,items:g.checks(s)}));let hit=checks.find(c=>c.items.every(i=>i.ok));const adjust:string[]=[];
+ // 순욱 「정식 조건」: 무승부를 한 등급 높게. 노숙 원칙: 계약 대결 패배를 조건부로.
+ if(s.result==='draw'&&s.deck){let rank=hit?.rank??0;if(s.deck.formalized){rank+=1;adjust.push('정식 조건 · 무승부를 한 등급 높게 인정');}if(s.deck.drawRank>rank){rank=s.deck.drawRank;adjust.push('명분·신뢰 · 무승부를 조용한 개방으로 인정');}const up=checks.find(c=>c.rank===Math.min(3,rank));if(up&&rank>(hit?.rank??0))hit=up;}
+ if(!hit&&s.result==='lose'&&def.id==='escort_captain'&&(s.deck?.officers.includes('lusu')||s.generalId==='lusu')){hit=checks.find(c=>c.rank===1);adjust.push('노숙의 계산 · 패배를 조건부 인정으로');}
+ return {adjust,objective:def.id,name:def.name,grade:hit?.grade??'실패',rank:hit?.rank??0,checks,injury:{player:playerInjury(s),enemyGrave:enemyGrave(s)},excessive:excessive(s),rounds:s.v2!.stats.rounds};}

@@ -4,6 +4,7 @@ import { DUEL_OPPONENTS } from '../data/social.ts';
 import { GENERALS } from '../data/generals.ts';
 import { randInt } from './rng.ts';
 import type { Check, DuelAction, DuelState } from './social-types.ts';
+import { canDuelDeckAction, resolveDuelDeckAction, duelDeckActions } from './duel-deck.ts';
 
 export function createDuel(rng: number, generalId: string, opponentId: string, build?: ExpeditionBuild, tactics: TacticId[] = []): DuelState {
   const opponent = DUEL_OPPONENTS[opponentId];
@@ -39,7 +40,7 @@ export function enableDuelV2(s: DuelState, objective: string, opts: { distance?:
   if (opts.maxRounds) s.maxRounds = opts.maxRounds; if (opts.pattern) s.pattern = [...opts.pattern];
   return s;
 }
-export function duelActionList(s: DuelState): string[] { if (s.v2) return [...Object.keys(DUEL_V2_ACTIONS), ...(s.loadout?.gambit ? ['gambit'] : []), 'surrender']; return ['strike', 'probe', 'guard', 'finisher', ...(s.tactics ?? []), ...(s.loadout?.gambit ? ['gambit'] : []), 'surrender']; }
+export function duelActionList(s: DuelState): string[] { if (s.deck) return duelDeckActions(s); if (s.v2) return [...Object.keys(DUEL_V2_ACTIONS), ...(s.loadout?.gambit ? ['gambit'] : []), 'surrender']; return ['strike', 'probe', 'guard', 'finisher', ...(s.tactics ?? []), ...(s.loadout?.gambit ? ['gambit'] : []), 'surrender']; }
 function canDuelV2(s: DuelState, action: string): Check {
   const v = s.v2!;
   if (action === 'surrender') return { ok: true };
@@ -103,6 +104,7 @@ function resolveDuelV2(s: DuelState, action: string): Check {
 
 export function canDuelAction(s: DuelState, action: string, round: number): Check {
   if (s.result !== 'ongoing' || round !== s.round) return { ok: false, reason: '이미 처리한 행동이거나 종료된 대결입니다.' };
+  if (s.deck) return canDuelDeckAction(s, action);
   if (s.v2) return canDuelV2(s, action);
   if (Object.hasOwn(TACTICS, action)) {
     if (!s.tactics?.includes(action as TacticId) || s.usedTactics?.includes(action as TacticId)) return { ok: false, reason: '장착하지 않았거나 이미 사용한 전술입니다.' };
@@ -118,6 +120,7 @@ export function canDuelAction(s: DuelState, action: string, round: number): Chec
 export function resolveDuelAction(s: DuelState, action: string, round: number): Check {
   const check = canDuelAction(s, action, round);
   if (!check.ok) return check;
+  if (s.deck) return resolveDuelDeckAction(s, action);
   if (s.v2) return resolveDuelV2(s, action);
   if (action === 'surrender') { s.result = 'surrender'; s.log.push('기권: 이번 전투 첫 턴 지휘력 -1.'); return check; }
   const tactic = Object.hasOwn(TACTICS, action) ? action as TacticId : null;

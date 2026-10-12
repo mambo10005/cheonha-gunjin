@@ -87,7 +87,7 @@ test('puzzle clues, managers, items and talents become persistent debate argumen
  const P=new Player(freshRun());P.act('enter');P.act('inn:offer:recommendation');P.act('inn:accept:recommendation');P.act('inn:quest:recommendation:public-records');P.visit('archive');
  forceHand(P,['clues','manifesto','recommend']);P.act('scene:inspect:ledger');P.act('engine:focus:record_gap');P.play('clues');P.act('engine:focus:clerk_guard');P.play('manifesto');P.play('recommend');
  P.act('engine:resolve:debate');const args=debateArguments(P.r);assert.ok(args.some(a=>a.source==='책임자 관계'));assert.ok(args.some(a=>a.source==='조사 단서'));
- const s=P.x.debate!;assert.ok(s.log.some(t=>t.startsWith('지속 논거')),'applied at debate start');
+ const s=P.x.debate!;assert.ok(s.field,'engine debates use the argument field');assert.ok(s.field!.preparedEvidence.length>=1,'clues become evidence cards');assert.ok(s.log.some(t=>t.startsWith('탐색 성과 → 증거 카드')),'shown at debate start');assert.ok(s.deck!.cards.some(c=>c.id==='evidence'&&c.argDef));
  const d=createDebate(5,'chengong','elder',{kind:'supply'});prepareNegotiation(d,5,0,0);const trust=d.trust;applyDebateArguments(P.r,d);assert.ok(d.trust>trust);
 });
 
@@ -109,7 +109,7 @@ test('burden cards are usable but weak alone: they never reduce obstacles, yet f
 });
 
 test('gate rules test the build: barracks support tracks the barracks puzzle (not enemy hp); inside skips only when all three obstacles are resolved',()=>{
- const P=atStore();const e=P.e;const s=createDuel(3,'chengong','champion');const base=s.enemyHp;applyGateDuelRules(P.r,s,'barracks',null);assert.equal(s.enemyHp,base,'difficulty is not raised through hp');assert.equal(s.v2!.support,3,'standard 1 + garrison alert + discipline left');assert.equal(s.enemyShield,9);
+ const P=atStore();const e=P.e;const s=createDuel(3,'chengong','champion');const base=s.enemyHp;applyGateDuelRules(P.r,s,'barracks',null);assert.equal(s.enemyHp,base,'difficulty is not raised through hp');assert.equal(s.v2!.support,3,'standard 1 + garrison alert + discipline left');assert.equal(s.deck!.oppCards.filter(c=>c.id==='o_support').length,3,'support becomes soldier cards in the opponent deck');assert.equal(s.deck!.archetype,'command');
  e.puzzles.barracks={id:'barracks',status:'resolved',focus:null,obstacles:PUZZLES.barracks.obstacles.map(o=>({id:o.id,hp:0,max:o.hp})),marks:{},alert:0,resolution:'drill',plays:3,inspected:[],items:[],log:[]};const s2=createDuel(3,'chengong','champion');applyGateDuelRules(P.r,s2,'barracks',null);assert.equal(s2.v2!.support,1);assert.equal(s2.enemyHp,base);
  assert.equal(insideSkipsDuel(P.r,'success'),false);e.legacy.push({id:'escort:alternate',kind:'gate',text:''});assert.equal(insideSkipsDuel(P.r,'success'),false,'alternate alone is not enough');e.stats.produced.inside=4;e.stats.produced.ledger=3;assert.equal(insideSkipsDuel(P.r,'success'),true);assert.equal(insideSkipsDuel(P.r,'partial'),false,'a partial debate leaves the commander');
 });

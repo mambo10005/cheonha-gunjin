@@ -33,7 +33,54 @@ export const DEBATE_CARDS:Record<string,DebateCardDef>=Object.fromEntries([
  card('delay','장황함','information',1,'처리 시 카드 1장, 소멸.',[{kind:'draw',amount:1}],{hindrance:true,exhaust:true,mods:[]}),
  card('quibble','말꼬리','pressure',1,'손에 있으면 같은 계열 반복에 부담 +1. 처리 시 소멸.',[],{hindrance:true,exhaust:true,mods:[]}),
  card('unsettled','미결 조항','honor',1,'소멸하지 않으면 완전 합의를 조건부로 제한.',[],{hindrance:true,exhaust:true,mods:[]}),
+ // ── 인재 개인 카드의 설전 변환(논박진 문법) ──
+ card('x_doc','문서 정리','honor',1,'명분 +2.',[score('honor',2)]),
+ card('x_orth','정론 제기','honor',1,'명분 +1, 권한 +1.',[score('honor',1),score('authority',1)]),
+ card('x_guard','논거 보호','honor',1,'반론 방어 +1, 신뢰 +1.',[{kind:'guard',amount:1},{kind:'trust',amount:1}]),
+ card('d_vouch','전위의 보증','pressure',1,'안전 +1, 신뢰 +1.',[score('safety',1),{kind:'trust',amount:1}]),
+ card('l_med','중재','trust',1,'부담 −1, 신뢰 +1.',[{kind:'burden',amount:-1},{kind:'trust',amount:1}]),
+ card('l_audit','장부 대조','information',1,'정보 +1, 반론 추가 공개.',[{kind:'reports',amount:1},{kind:'reveal',amount:1}]),
+ // ── 인재 지원 카드(설전당 1회, 실제 참여할 때만) ──
+ card('s_xunyu','추천의 보증','trust',0,'신뢰 +1.',[{kind:'trust',amount:1}],{exhaust:true,support:true,mods:[]}),
+ card('s_lusu','양측의 계산','scheme',0,'부담 −1, 반론 2개 공개.',[{kind:'burden',amount:-1},{kind:'reveal',amount:2}],{exhaust:true,support:true,mods:[]}),
+ // ── 탐색 성과의 변환: 증거 제시(카드마다 놓을 논거가 정해짐) ──
+ card('evidence','증거 제시','honor',1,'준비한 증거 논거를 놓습니다.',[],{exhaust:true,mods:[]}),
 ].map(c=>[c.id,c]));
+/** 논박진 효과: 같은 카드가 전장이 있는 설전에서 추가로 하는 일. 계열마다 다르게 작동한다. */
+const FIELD:Record<string,{ops:Operation[];text:string}>={
+ // 정론: 증거 배치·보호·모순 제거·신뢰·조항 개방
+ grounds:{ops:[{kind:'argument',def:'a_grounds'}],text:'정론 · 「공적 근거」 배치(증거·문서 2)'},
+ petition:{ops:[{kind:'unlock'},{kind:'protect',amount:1,scope:'one'}],text:'정론 · 조항 잠금 해제, 노려진 내 논거 보호 +1'},
+ x_doc:{ops:[{kind:'argument',def:'a_doc'}],text:'정론 · 「정리된 문서」 배치(증거·문서 3, 정론 비용 −1)'},
+ x_orth:{ops:[{kind:'attack',amount:2},{kind:'unlock'}],text:'정론 · 겨눈 상대 논거 논박 2, 조항 잠금 해제'},
+ x_guard:{ops:[{kind:'protect',amount:1,scope:'all'}],text:'정론 · 내 모든 논거 보호 +1, 다음 의도 1 경감'},
+ answer:{ops:[{kind:'exact'}],text:'정론 · 다음 의도 2 경감, 숨긴 의도·수치 공개'},
+ evidence:{ops:[{kind:'argument',def:'$card'}],text:'정론 · 준비한 증거 논거 배치'},
+ // 압박: 높은 논박 피해·의도 지연·강제 조항·압박 증가·부담/경계
+ challenge:{ops:[{kind:'attack',amount:3},{kind:'pressure',amount:1}],text:'압박 · 겨눈 상대 논거 논박 3(무너뜨리면 이번 의도 지연), 압박 +1'},
+ authority:{ops:[{kind:'attack',amount:2,core:true},{kind:'pressure',amount:1}],text:'압박 · 상대 핵심 주장 논박 2(강제 조항), 압박 +1'},
+ d_vouch:{ops:[{kind:'argument',def:'a_vouch'},{kind:'pressure',amount:1}],text:'압박 · 「전위의 보증」 배치(압박 피해 +1·부담 증가), 압박 +1'},
+ // 계책: 숨은 논거 공개·공격 대상 변경·효과 전환·의도 조작
+ inspect:{ops:[{kind:'expose'}],text:'계책 · 숨은 논거 1개 공개'},
+ g_read:{ops:[{kind:'expose'}],text:'계책 · 숨은 논거 1개 공개'},
+ l_audit:{ops:[{kind:'expose'},{kind:'attack',amount:2}],text:'계책 · 숨은 논거 공개 후 겨눈 논거 논박 2'},
+ bridge:{ops:[{kind:'redirect'}],text:'계책 · 이번 공격을 가장 단단한 내 논거로 돌리거나 다음 의도와 순서를 바꿈'},
+ c_turn:{ops:[{kind:'convert'}],text:'계책 · 내구 2 이하 상대 논거를 비틀어 「돌려쓴 조건」으로 전환'},
+ c_cut:{ops:[{kind:'unlock'}],text:'계책 · 조항 잠금 해제'},
+ // 중재: 양측 보호·부담 감소·청중 상태·조급함
+ assurance:{ops:[{kind:'protect',amount:1,scope:'one'}],text:'중재 · 노려진 내 논거 보호 +1'},
+ bond:{ops:[{kind:'audience',amount:-1}],text:'중재 · 청중의 의심 −1'},
+ redress:{ops:[{kind:'protect',amount:1,scope:'all'}],text:'중재 · 내 모든 논거 보호 +1'},
+ yield:{ops:[{kind:'impatience',amount:-1}],text:'중재 · 상대 조급함 −1'},
+ l_med:{ops:[{kind:'protect',amount:1,scope:'both'},{kind:'impatience',amount:-1},{kind:'audience',amount:-1}],text:'중재 · 양측 논거 보호, 조급함 −1, 청중의 의심 −1'},
+ plan:{ops:[{kind:'argument',def:'a_plan'}],text:'중재 · 「대책 문서」 배치(조급함 억제, 창고 공개 조항)'},
+ supplies:{ops:[{kind:'argument',def:'a_route'}],text:'중재 · 「보급 경로」 배치(안전 요구 −1)'},
+ ration:{ops:[{kind:'impatience',amount:-2}],text:'중재 · 상대 조급함 −2'},
+ s_xunyu:{ops:[{kind:'protect',amount:1,scope:'all'},{kind:'expose'}],text:'순욱 지원 · 내 모든 논거 보호 +1, 숨은 논거 공개'},
+ s_lusu:{ops:[{kind:'exact'},{kind:'impatience',amount:-1}],text:'노숙 지원 · 의도 수치 공개, 조급함 −1'},
+};
+for(const [id,f] of Object.entries(FIELD)){const c=DEBATE_CARDS[id];if(!c)continue;c.effects=[...c.effects,effect('논박진',f.ops)];c.fieldText=f.text;for(const u of Object.values(c.upgrades??{}))u.effects=[...u.effects,effect('논박진',f.ops)];}
+export const FIELD_FAMILY:Record<string,'정론'|'압박'|'계책'|'중재'>={honor:'정론',information:'정론',pressure:'압박',scheme:'계책',trust:'중재',profit:'중재'};
 export const COMMON_START=['grounds','plan','assurance','yield','petition','supplies'];
 export const DEBATE_ARCHETYPES={
  guojia:{name:'선견',text:'매 라운드 추가 반론 공개. 라운드 첫 정보→계책에 카드 1장.',families:['information','scheme'] as Method[],unique:['g_read','g_trap','g_dispatch'],principles:[{...effect('선견',[{kind:'draw',amount:1}],{previous:'information',family:'scheme'}),timing:'after' as const}]},

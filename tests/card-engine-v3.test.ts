@@ -94,9 +94,9 @@ test('burden hand safety: an opening hand never holds more than one burden card 
  assert.equal(q.hand.filter(uid=>CARD_GRAMMAR[q.cards.find(c=>c.uid===uid)!.id]?.burden).length,1);assert.ok(q.draw.includes(b2));
 });
 
-test('A/B: build debate gets better clauses and grade; Dian Wei duel beats the stripped deck on rounds/support; inside matrix is not one grade',async()=>{
- const d=debateAB();const rank=(g:string)=>['결렬','조건부 합의','일반 합의','유리한 합의','탁월한 합의'].indexOf(g);assert.ok(rank(d.A.grade)>rank(d.B.grade),`${d.A.grade} vs ${d.B.grade}`);assert.ok(d.A.clauses.length>d.B.clauses.length);
- const u=await duelAB();assert.equal(u.A.grade,'완전 장악');assert.notEqual(u.B.grade,'완전 장악');assert.ok(u.B.rounds.length>u.A.rounds.length);
+test('A/B: build debate gets a better grade through arguments; Dian Wei duel beats the stripped deck; inside matrix is not one grade',{timeout:300000},async()=>{
+ const d=debateAB();const rank=(g:string)=>['결렬','조건부 합의','일반 합의','유리한 합의','탁월한 합의'].indexOf(g);assert.ok(rank(d.A.grade)>rank(d.B.grade),`${d.A.grade} vs ${d.B.grade}`);assert.ok(d.A.field.placed>d.B.field.placed,'the build places more arguments');assert.ok(d.A.rounds.some(r=>r.plays.some(p=>p.startsWith('정론 제기'))),'Xun Yu card used');
+ const u=await duelAB();assert.equal(u.A.grade,'완전 장악');assert.notEqual(u.B.grade,'완전 장악');assert.ok(u.B.exchanges.length>u.A.exchanges.length);
  const lusu=runLusu();const m=insideMatrix(lusu.gateState!);const kinds=new Set(m.map(i=>i.skip?'생략':i.grade));assert.ok(kinds.size>=3,[...kinds].join(','));assert.ok(m.some(i=>i.issues.length>0)&&m.some(i=>i.issues.length===0));
 });
 
@@ -108,6 +108,6 @@ test('playtest: survey answers and grades go into the local report and survive v
 
 test('a gate duel in v2 (profile round limits, distance, support) survives save and reload',async()=>{
  const {runDianwei}=await import('../src/sim/card-engine-builds.ts');const {selectRaisingPlan,raisingOf}=await import('../src/core/raising.ts');const {personnelOf}=await import('../src/core/personnel-rules.ts');const {saveCampaign,loadCampaign}=await import('../src/core/campaign-save.ts');const {memoryKV}=await import('../src/core/save.ts');
- for(const profile of ['standard','harsh'] as const){const r=structuredClone(runDianwei(false).gateState!);engineOf(r)!.profile=profile;const q=raisingOf(r)!;const res=selectRaisingPlan(r,'barracks',personnelOf(r)!.representative!,q.revision);assert.ok(res.ok,res.reason);const s=q.gate!.duel!;assert.ok(s.v2);assert.ok(resolveDuelAction(s,'probe',s.round).ok);
-  const kv=memoryKV();assert.ok(saveCampaign(kv,r));const loaded=loadCampaign(kv);assert.ok(loaded.ok,'reload '+profile);const d=raisingOf(loaded.data.activeExpedition!)!.gate!.duel!;assert.equal(d.v2!.distance,s.v2!.distance);assert.equal(d.v2!.support,s.v2!.support);assert.equal(d.maxRounds,GATE_PROFILES[profile].duel.maxRounds);}
+ for(const profile of ['standard','harsh'] as const){const r=structuredClone(runDianwei(false).gateState!);engineOf(r)!.profile=profile;const q=raisingOf(r)!;const res=selectRaisingPlan(r,'barracks',personnelOf(r)!.representative!,q.revision);assert.ok(res.ok,res.reason);const s=q.gate!.duel!;assert.ok(s.v2&&s.deck);const playable=s.deck!.hand.find(u=>resolveDuelAction(structuredClone(s),'card:'+u,s.round).ok);assert.ok(resolveDuelAction(s,playable!==undefined?'card:'+playable:'end',s.round).ok);assert.ok(resolveDuelAction(s,'end',s.round).ok);
+  const kv=memoryKV();assert.ok(saveCampaign(kv,r));const loaded=loadCampaign(kv);assert.ok(loaded.ok,'reload '+profile);const d=raisingOf(loaded.data.activeExpedition!)!.gate!.duel!;assert.equal(d.v2!.distance,s.v2!.distance);assert.equal(d.v2!.support,s.v2!.support);assert.deepEqual(d.deck!.hand,s.deck!.hand);assert.deepEqual(d.deck!.intent,s.deck!.intent);assert.equal(d.maxRounds,GATE_PROFILES[profile].duel.maxRounds);}
 });

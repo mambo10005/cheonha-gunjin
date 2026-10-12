@@ -10,7 +10,10 @@ import {TALENTS} from '../data/talents.ts';
 import {CLAUSES} from '../data/clauses.ts';
 import {GATE_PROFILES} from '../data/gate-profiles.ts';
 import {evaluateDuel,DUEL_OBJECTIVES} from '../data/duel-objectives.ts';
-import {enableDuelV2} from './duel.ts';
+import {setupField,type FieldSetup} from './debate-field.ts';
+import {enableDuelDeck,type DuelDeckSetup} from './duel-deck.ts';
+import {DUEL_CARDS,DUEL_SUPPORT,DUEL_FAMILY_CARD,TACTIC_CARD,OBJECTIVE_ARCHETYPE} from '../data/duel-cards.ts';
+import {ARGUMENT_DEFS,DEBATE_CONTEXTS,evidenceFor} from '../data/debate-field.ts';
 import {deckPreview} from './debate-deck.ts';
 import {clauseContext,evaluateDebate,type DebateEvaluation} from './debate-grade.ts';
 import {RAISING_CARDS,ORIGINS} from '../data/raising.ts';
@@ -195,7 +198,7 @@ export function resolutionCheck(r:RunState,res:ResolutionDef):string|null {
  for(const [m,n] of Object.entries(req.marks??{}))if((e.scene?.marks[m as Mark]??0)<n!)return `${MARK_NAMES[m as Mark]} ${n}이(가) 필요합니다.`;
  const funds=(res.cost?.funds??0)+(pz.def.id==='escort'&&res.id==='contract'&&x.inn?.quests.escort.evidence.includes('blocked')?1:0);
  if(w.preparation.funds<funds||w.preparation.food<(res.cost?.food??0))return '표시된 자금·군량이 부족합니다.';
- if(res.quality==='duel'&&!loadoutComplete(e.loadout))return '대결 전에 선제·대응·승부수 전술 3장을 고르세요.';
+ // 대결 덱: 전술 3장은 덱에 더해지는 카드라 고르지 않아도 기본 덱 8장으로 싸운다.
  if(x.tick+1>x.budget)return '준비 시간이 부족합니다.';
  return null;
 }
@@ -322,8 +325,20 @@ export function debateArguments(r:RunState):ArgumentView[] {
  return out;
 }
 /** 설전 시작 직후 지속 논거를 적용한다. 요구는 1 아래로 내려가지 않는다. */
+/** 설전 맥락: 객사 활동 사건 → 도시 사건 → 관문. */
+export function debateContextOf(r:RunState,s:DebateState){const x=explorationOf(r);return s.engineArgs?.context||x?.inn?.activity?.event||x?.event?.id||'';}
+/** 논박진 준비: 실제로 참여한 인재, 탐색 성과의 증거, 이전 대결이 남긴 청중 논거, 민회 참석 세력. */
+export function engineFieldSetup(r:RunState,context:string):FieldSetup{const e=engineOf(r)!,x=explorationOf(r),q=raisingOf(r)!;
+ const officers=(context.startsWith('gate:')?activeTalents(r):(x?.companions??[]).filter(id=>TALENTS[id]));
+ const ids=[...e.arguments.map(a=>a.id),...(x?.items??[]).map(i=>'item:'+i.id)];const prio=(d:string)=>ARGUMENT_DEFS[d].tags.includes('doc')?0:ARGUMENT_DEFS[d].tags.includes('witness')?1:ARGUMENT_DEFS[d].tags.includes('guarantee')?2:3;
+ const evidence=[...new Set(ids.map(evidenceFor).filter((d):d is string=>!!d))].sort((a,b)=>prio(a)-prio(b));
+ const audience=e.arguments.filter(a=>a.id.startsWith('aud:')).map(a=>a.id.slice(4)).filter(id=>ARGUMENT_DEFS[id]?.owner==='audience');
+ const factions=context==='gate:assembly'&&e.puzzles.escort&&e.puzzles.escort.status!=='resolved'?['village','official','merchant']:['village','official'];void q;
+ const b=gateBuildSummary(r)!;const ctx={opinion:e.stats.produced.opinion??0,privateInterest:e.stats.privateInterest??0,talents:b.talents,pledges:q.pledges.length,promiseMarks:e.stats.produced.promise??0,profile:e.profile??'standard'};
+ return {context,officers,evidence,audience,factions,ctx,profile:e.profile??'standard',archetype:x?.location==='market'&&!DEBATE_CONTEXTS[context]?'merchant':undefined};}
 export function applyDebateArguments(r:RunState,s:DebateState){
- const n=s.negotiation;if(!n)return [];const args=debateArguments(r);s.engineArgs={initial:args.length,record:args.filter(a=>/장부|기록|문서|공백/.test(a.label)).length,context:s.engineArgs?.context??''};
+ const n=s.negotiation;if(!n)return [];
+ const context=debateContextOf(r,s);if(engineOf(r)&&s.deck&&!s.field&&context){const f=setupField(s,engineFieldSetup(r,context));if(f){const e=engineOf(r)!;e.arguments=e.arguments.filter(a=>!a.id.startsWith('aud:'));s.engineArgs={initial:f.preparedEvidence.length,record:f.preparedEvidence.filter(d=>ARGUMENT_DEFS[d].tags.includes('doc')).length,context};s.log.push(`탐색 성과 → 증거 카드 ${f.preparedEvidence.map(d=>ARGUMENT_DEFS[d].name).join('·')||'없음'} · 참여 인재 ${f.officers.map(o=>OFFICERS[o].name).join('·')||'없음'}`);return debateArguments(r);}}const args=debateArguments(r);s.engineArgs={initial:args.length,record:args.filter(a=>/장부|기록|문서|공백/.test(a.label)).length,context:s.engineArgs?.context??''};
  for(const a of args){const m=a.text.match(/^(이익|명예|안전|권한) 요구 −(\d)/);if(m){const axis=({이익:'profit',명예:'honor',안전:'safety',권한:'authority'} as const)[m[1] as '이익'];if(n.needs[axis]!==undefined)n.needs[axis]=Math.max(1,n.needs[axis]!-Number(m[2]));}
   else if(a.text.startsWith('신뢰'))s.trust=Math.min(10,s.trust+1);else if(a.text.startsWith('부담 한도'))n.burdenLimit+=1;}
  const clauses=args.filter(a=>a.id.startsWith('clause:')).length;if(s.deck&&clauses){for(let i=0;i<Math.min(2,clauses);i++){const uid=s.deck.nextUid++;s.deck.cards.push({uid,id:'redress',temporary:true});s.deck.draw.unshift(uid);}s.log.push(`조항 초안 ${clauses}건 → 「조항 정리」 ${Math.min(2,clauses)}장`);}
@@ -368,14 +383,43 @@ export function insideObstacles(r:RunState,debateGrade:string|null){const b=gate
  return {watch,commander,soldiers,passage,all:watch&&commander==='resolved'&&soldiers==='resolved',conversions:conv};}
 export function insideConversions(r:RunState,debateGrade:string|null){return insideObstacles(r,debateGrade)?.conversions??[];}
 /** 대결 2판 설정: 사건 목표·프로필·준비 결과를 거리·지원·의도·시작 자원으로 바꾼다. */
-export function setupEngineDuel(r:RunState,s:DuelState,objective:string,extra:{support?:number;distance?:'near'|'mid'|'far'}={}){const pf=profileOf(r);enableDuelV2(s,objective,{distance:extra.distance??pf.duel.startDistance,support:Math.max(0,extra.support??pf.duel.support),profile:pf.id,maxRounds:pf.duel.maxRounds,pattern:pf.duel.patterns[s.opponentId]});applyDuelLoadout(r,s);}
+/** 대결 덱 준비: 사건 목표·난도·탐색 성과·전술 3장·실제 참여 인재를 상대 원형 덱과 내 덱으로 바꾼다. */
+export function engineDuelSetup(r:RunState,s:DuelState,objective:string,extra:Partial<DuelDeckSetup>={}):DuelDeckSetup{const e=engineOf(r)!,pf=profileOf(r),q=raisingOf(r)!,x=explorationOf(r);
+ const conv:{text:string}[]=[...(extra.conversions??[])];const has=(id:string)=>q.cards.some(c=>c.id===id);const arg=(id:string)=>e.arguments.some(a=>a.id===id);
+ const tactics=(['opening','response','gambit'] as const).map(k=>e.loadout[k]).filter((id):id is string=>!!id).map(id=>TACTIC_CARD[id]).filter(Boolean);if(tactics.length)conv.push({text:`대결 전술 → ${tactics.map(t=>DUEL_CARDS[t].name).join('·')} 카드`});
+ const fam:Record<string,number>={};for(const c of q.cards){const f=CARD_GRAMMAR[c.id]?.family;if(f)fam[f]=(fam[f]??0)+1;}const top=Object.entries(fam).sort((a,b)=>b[1]-a[1])[0]?.[0];const familyCard=top&&DUEL_FAMILY_CARD[top]?DUEL_FAMILY_CARD[top].add:null;if(familyCard)conv.push({text:DUEL_FAMILY_CARD[top!].text});
+ const participating=[...new Set([s.generalId,...(objective.endsWith('_gate')?activeTalents(r):(x?.companions??[]))])].filter(id=>DUEL_SUPPORT[id]);for(const o of participating)conv.push({text:`${OFFICERS[o]?.name??o} 참여 · ${DUEL_SUPPORT[o].principle} / 「${DUEL_CARDS[DUEL_SUPPORT[o].card].name}」`});
+ const o:DuelDeckSetup={objective,archetype:OBJECTIVE_ARCHETYPE[objective]??'assault',distance:pf.duel.startDistance,support:pf.duel.support,profile:pf.id,maxRounds:pf.duel.maxRounds,tactics,familyCard,officers:participating,...extra,conversions:conv};
+ if(has('clues')||arg('clue:barracks:garrison_alert')){o.revealFirst=true;conv.push({text:'수비 교대 조사 → 상대 첫 의도 공개'});}
+ if(arg('clue:escort:blocked')){o.firstHitReduce=(o.firstHitReduce??0)+3;conv.push({text:'짐꾼의 증언 → 하역장 지형 우위(첫 피해 −3)'});}
+ if(has('medicine')||x?.flags.includes('treated')){o.medicine=(o.medicine??0)+1;conv.push({text:'치료 물자 → 최초 부상 제거'});}
+ if(arg('duel:dianwei-vouch')&&s.generalId!=='dianwei'){o.startGuard=(o.startGuard??0)+3;conv.push({text:'전위의 보증 → 시작 방비 +3'});}
+ if((has('tunnel')||e.legacy.some(l=>l.id==='escort:alternate'))&&e.insideDistance&&extra.distance===undefined){o.distance=e.insideDistance;conv.push({text:`비밀 통로 → 시작 거리 ${({near:'근거리',mid:'중거리',far:'원거리'})[e.insideDistance]} 선택`});}
+ if((e.stats.produced.support??0)>=3&&(o.support??0)>0){o.weakSupport=true;}
+ return o;}
+export function setupEngineDuel(r:RunState,s:DuelState,objective:string,extra:Partial<DuelDeckSetup>={}){enableDuelDeck(s,engineDuelSetup(r,s,objective,extra));}
 export function applyGateDuelRules(r:RunState,s:DuelState,plan:string,debateGrade:string|null){const e=engineOf(r);if(!e)return;const b=gateBuildSummary(r)!;
  if(plan==='barracks'){const pz=b.barracks,left=(id:string)=>!pz||pz.obstacles.find(o=>o.id===id)!.hp>0;const support=Math.max(0,profileOf(r).duel.support+(left('garrison_alert')?1:0)+(left('discipline')?1:0)-(b.legacy.includes('duel:escort-perfect')?1:0));
-  setupEngineDuel(r,s,'barracks_gate',{support});s.momentum=Math.min(5,s.momentum+Math.min(3,Math.floor(b.momentum/3)));s.protection=(s.protection??0)+Math.min(6,b.guard);s.counterBonus=Math.min(2,Math.floor(b.counters/2))*3;if(b.legacy.includes('escort:duel'))s.momentum=Math.min(5,s.momentum+1);
-  s.log.push(`군영 규칙: 병사 지원 ${support}(수비대 경계·군기 해이 ${left('garrison_alert')||left('discipline')?'남음':'해결'})·방비 생산 ${b.guard}·기세 생산 ${b.momentum}·반격 ${b.counters}회 → 시작 방비 ${s.protection}·기세 ${s.momentum}·반격 추가 ${s.counterBonus}`);return;}
- if(plan==='inside'){const o=insideObstacles(r,debateGrade)!;const distance=o.passage?(e.insideDistance??'near'):undefined;setupEngineDuel(r,s,'inside_gate',{support:o.soldiers==='resolved'||o.conversions.some(c=>c.id==='no-support')?0:2,distance});
-  if(o.watch)s.initiative=true;if(o.commander!=='unresolved')s.pattern=s.pattern.map(a=>a==='finisher'?'strike':a);if(o.conversions.some(c=>c.id==='momentum'))s.momentum=Math.min(5,s.momentum+2);if(o.soldiers==='unresolved')s.enemyMaxHp=s.enemyHp=s.enemyHp+4;
-  s.log.push('성문 내응 전환: '+o.conversions.map(c=>c.text).join(' / '));return;}
+  s.counterBonus=Math.min(2,Math.floor(b.counters/2))*3;const conv=[{text:`병영 퍼즐 → 상대 병사 지원 카드 ${support}장(수비대 경계·군기 해이 ${left('garrison_alert')||left('discipline')?'남음':'해결'})`},{text:`방비 생산 ${b.guard} → 시작 방비 +${Math.min(6,b.guard)}`},{text:`반격 ${b.counters}회 → 반격 피해 +${s.counterBonus}`}];
+  const mom=Math.min(3,Math.floor(b.momentum/3))+(b.legacy.includes('escort:duel')?1:0);if(mom)conv.push({text:`기세 생산 → 시작 기세 +${mom}`});
+  setupEngineDuel(r,s,'barracks_gate',{support,startGuard:Math.min(6,b.guard),startMomentum:mom,conversions:conv});return;}
+ if(plan==='inside'){const o=insideObstacles(r,debateGrade)!;const f=raisingOf(r)?.gate?.debate?.field;const conv:{text:string}[]=[];const ex:Partial<DuelDeckSetup>={addOpp:[],removeOpp:[]};
+  // 감시
+  if(!o.watch){ex.addOpp!.push('o_watch');ex.concealFirst=true;conv.push({text:'감시 미해결 → 상대 첫 의도 숨김·감시 카드 추가'});if(b.clue>=2){ex.voidFirstWatch=true;conv.push({text:`단서 ${b.clue} → 첫 감시 카드 무효`});}}else{ex.revealFirst=true;s.initiative=false;conv.push({text:'감시 해결 → 상대 첫 의도 공개'});}
+  // 지휘관
+  if(o.commander==='unresolved'){ex.addOpp!.push('o_command');ex.oppStartGuard=4;conv.push({text:'지휘관 미해결 → 지휘 카드 유지·상대 시작 방비 4'});}else if(o.commander==='weakened'){ex.oppStartGuard=2;conv.push({text:'지휘관 약화 → 상대 시작 방비 2'});}else{ex.removeOpp!.push('o_finisher');conv.push({text:'지휘관 무력화 → 상대 필살 카드 제거'});}
+  // 병사 지지
+  const support=o.soldiers==='resolved'||o.conversions.some(c=>c.id==='no-support')?0:o.soldiers==='weakened'?1:2;conv.push({text:support?`병사 지지 ${o.soldiers==='weakened'?'일부':'미해결'} → 병사 지원 카드 ${support}장`:'내부 협력 → 병사 지원 카드 제거'});
+  if(o.conversions.some(c=>c.id==='loyalty')){ex.drawRank=3;conv.push({text:'명분·신뢰 → 무승부도 조용한 개방으로 인정'});}
+  if(o.conversions.some(c=>c.id==='momentum')){ex.startMomentum=2;conv.push({text:'기세 → 시작 기세 +2'});}
+  if(o.passage){ex.distance=e.insideDistance??'near';conv.push({text:`비밀 통로 → 시작 거리 ${({near:'근거리',mid:'중거리',far:'원거리'})[ex.distance]}`});}
+  // 군사형 설전 결과 → 대결 조건(이중 보상 없이 조건으로만)
+  let sup=support;if(f&&f.archetype==='military'){if(f.stats.oppCoreBroken){ex.removeOpp!.push('o_command');conv.push({text:'설전에서 「성문의 지휘권」 논파 → 상대 지휘 카드 제거'});}
+   if(!f.opponent.some(a=>a.definitionId==='o_soldiers')&&sup>0){sup--;conv.push({text:'설전에서 「병사 안전」 제거 → 병사 지원 카드 1장 제거'});}
+   if(f.exposedDefs.includes('h_order')){ex.revealFirst=true;ex.concealFirst=false;conv.push({text:'설전에서 「숨은 지시」 공개 → 상대 첫 의도 공개'});}
+   if(f.playerCore.durability>0){ex.startMomentum=(ex.startMomentum??0)+1;conv.push({text:'핵심 입장 「피 흘리지 않는 개방」 유지 → 시작 기세 +1'});}
+   if(f.pressure>=3){ex.oppStartMomentum=1;conv.push({text:'강한 압박 → 상대가 격앙(상대 기세 +1)'});}}
+  setupEngineDuel(r,s,'inside_gate',{...ex,support:sup,archetype:o.watch?'endure':'trick',conversions:conv});s.log.push('성문 내응 전환: '+conv.map(c=>c.text).join(' / '));return;}
  applyDuelLoadout(r,s);
 }
 export function insideSkipsDuel(r:RunState,debateGrade:string|null){return insideObstacles(r,debateGrade)?.all??false;}
@@ -474,6 +518,12 @@ export function engineDuelFinished(r:RunState,s:DuelState,context:string){const 
  e.duels!.push({context,grade:ev.grade,result:s.result,rounds:ev.rounds,reasons:ev.checks.flatMap(c=>c.items.filter(i=>!i.ok).map(i=>`${c.grade}: ${i.text}`)).slice(0,8)});e.duels=e.duels!.slice(-10);e.telemetry.results.push(`${context}:duel:${ev.grade}`);
  const trust=def.relationshipEffects[ev.grade]??0,o=p.officers.dianwei;if(trust&&o){o.trust=Math.max(0,Math.min(100,o.trust+trust));o.events.push(`${def.name} · ${ev.grade} · 신뢰 ${trust>0?'+':''}${trust}`);p.revision++;}
  if(def.id==='escort_captain'){const q=x.inn?.quests.escort;if(q){q.evidence.push('duel-grade:'+ev.grade);if(ev.grade==='조건부 인정'){q.evidence.push('contract:conditional');}}if(ev.grade==='완벽한 인정'&&!e.legacy.some(l=>l.id==='duel:escort-perfect'))e.legacy.push({id:'duel:escort-perfect',kind:'gate',text:'호위 대표의 완벽한 인정 · 군영 장악 대결 병사 지원 −1'});if(ev.injury.enemyGrave&&!e.legacy.some(l=>l.id==='issue:escort-injury'))e.legacy.push({id:'issue:escort-injury',kind:'obligation',text:'호위 대표 중상 · 호위대 반감 현안'});}
+ // 대결 결과 → 이후 설전의 조건(보상이 아니라 논거·청중으로): 위신·군사 보증·청중 경계·부상 책임
+ const conv=(id:string,label:string,text:string)=>{if(!e.arguments.some(a=>a.id===id)){addArgument(e,{id,source:'puzzle',label,text});log(e,`대결 → 설전 · ${label}`);}};
+ if(def.id==='practice'&&ev.rank>=3)conv('duel:dianwei-vouch','전위의 보증(뒤뜰 시험)','설전에 「전위의 보증」 증거 카드');
+ if(def.id==='escort_captain'&&ev.rank>=2)conv('duel:prestige','호위 대표의 인정(위신)','설전에 「위신」 증거 카드');
+ if(ev.excessive)conv('aud:au_watch','청중의 경계(과잉 무력)','다음 설전 청중에 「청중의 경계」');
+ if(ev.injury.player==='major')conv('aud:au_injury','부상 책임','다음 설전 청중에 「부상 책임」');
  log(e,`대결 목표 「${def.name}」 · ${ev.grade}`);return ev;}
 /** 첫 손 부담 과다 안전장치: 장소 첫 손패에 부담 카드가 2장 이상이면 1장만 남기고 나머지는 덱 맨 아래로 보낸 뒤 다른 카드를 뽑는다. */
 export function burdenHandSafety(r:RunState){const e=engineOf(r),q=raisingOf(r)!;if(!e)return;const burden=(uid:number)=>!!CARD_GRAMMAR[q.cards.find(c=>c.uid===uid)!.id]?.burden;const extra=q.hand.filter(burden).slice(1);for(const uid of extra){const next=[...q.draw].reverse().find(v=>!burden(v));if(next===undefined)break;q.hand=q.hand.map(v=>v===uid?next:v);q.draw=q.draw.filter(v=>v!==next);q.draw.unshift(uid);log(e,'첫 손 부담 과다 · 부담 카드 1장을 덱 아래로 돌림');}}

@@ -86,3 +86,47 @@
 .engine-playtest-guide ol{padding-left:22px}
 .engine-playtest details{margin:8px 0}
 @media (max-width:640px){.engine-duel-state span{flex:1 1 40%}.engine-survey-row div{width:100%}.engine-survey-row button{flex:1}}
+/* 논박진 */
+.debate-field,.duel-deck{margin:12px 0;color:#efe5cf;font-size:16px;line-height:1.5}
+.field-status,.duel-sides{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+.field-status span{padding:5px 10px;border:1px solid #6f6a52;border-radius:4px;background:#26342d}
+.field-status b{color:#f3dca6;margin-left:3px}
+.field-status .field-grade{border-color:#c9a45c}
+.field-board{display:grid;grid-template-columns:1fr 0.9fr 1fr;gap:12px}
+.field-side{padding:12px;border:1px solid #6f6a52;border-radius:6px;background:#1c2a26}
+.field-side.mine{border-color:#5f8a6a}.field-side.theirs{border-color:#a8774d}
+.field-side h4{margin:4px 0 8px;font-size:17px}
+.field-slots{display:grid;gap:6px}
+.field-arg{display:flex;flex-wrap:wrap;gap:6px;align-items:center;width:100%;min-height:44px;padding:7px 10px;border:1px solid #6c6a51;border-radius:5px;background:#24352d;color:#efe5cf;font-size:16px;text-align:left}
+.field-arg.core{border-width:2px;background:#2b3b2f}
+.field-arg.opponent,.field-arg.hidden{background:#33281e}
+.field-arg.audience{background:#2c2833}
+.field-arg.empty{border-style:dashed;opacity:.4;min-height:34px}
+button.field-arg{cursor:pointer}button.field-arg.focused{border-color:#f1cf86;box-shadow:0 0 0 2px #f1cf8655}
+.field-pips{display:inline-flex;gap:3px}.field-pips i{width:12px;height:8px;border-radius:2px;background:#4a4a3a}.field-pips i.on{background:#d88a57}
+.field-arg.player .field-pips i.on{background:#7fb07a}
+.field-prot{color:#9fc7e0}.field-threat{color:#f0a487;font-weight:700}
+.field-intents{margin:0;padding-left:18px}.field-intents li.now{color:#f6d9a0;font-weight:700}
+.field-hint{font-size:15px;color:#d9d2bd}
+.field-hand,.duel-hand{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px;margin:10px 0}
+.field-card,.duel-card{display:flex;flex-direction:column;gap:4px;padding:10px 12px;border:1px solid #807250;border-radius:6px;background:#2a3a2b;color:#efe5cf;text-align:left;font-size:15px}
+.field-card h4,.duel-card h4{margin:0;font-size:18px}
+.field-card.selected,.duel-card.selected{border-color:#f1cf86;box-shadow:0 0 0 2px #f1cf8655}
+.field-card[aria-disabled="true"],.duel-card[aria-disabled="true"]{opacity:.7}
+.field-card.fam-정론{border-left:5px solid #c9a45c}.field-card.fam-압박{border-left:5px solid #c86b4f}.field-card.fam-계책{border-left:5px solid #7d8fc9}.field-card.fam-중재{border-left:5px solid #6fae84}
+.field-delta,.duel-delta{font-size:15px;color:#e6dcbf}
+.field-preview,.duel-preview{padding:12px;border:1px solid #c9a45c;border-radius:6px;background:#2b2a1e;margin:8px 0}
+.field-clauses ul{margin:4px 0;padding-left:18px}.field-clauses li.ok{color:#9fd59a}.field-clauses li.no{color:#e6c6a6}
+.field-log p,.duel-meta p{margin:3px 0;font-size:15px}
+/* 대결 덱 */
+.duel-side,.duel-mid{flex:1 1 220px;padding:10px 12px;border:1px solid #6f6a52;border-radius:6px;background:#1c2a26}
+.duel-side p,.duel-mid p{margin:3px 0}.duel-side b{color:#f3dca6}
+.duel-mid{flex:0 1 140px;text-align:center}.duel-distance{font-size:22px;font-weight:700;color:#f6d9a0}
+.duel-intent{padding:8px 12px;border:1px solid #a8774d;border-radius:6px;background:#33281e}
+.duel-card.fam-간보기{border-left:5px solid #7d8fc9}.duel-card.fam-보법{border-left:5px solid #8fb0a0}.duel-card.fam-공세{border-left:5px solid #c86b4f}.duel-card.fam-수세{border-left:5px solid #6fae84}.duel-card.fam-유인{border-left:5px solid #b08fc9}.duel-card.fam-승부수{border-left:5px solid #e0b04f}.duel-card.fam-지원{border-left:5px solid #c9a45c}.duel-card.fam-부담{border-left:5px solid #777}
+.duel-controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+@media (max-width:760px){.field-board{grid-template-columns:1fr}.field-hand,.duel-hand{grid-template-columns:1fr 1fr}}
+@media (max-width:420px){.field-hand,.duel-hand{grid-template-columns:1fr}}
+.exploration-social-stage.compact{max-height:200px;overflow:hidden}
+.exploration-social-stage.compact img{max-height:180px;object-fit:contain}
+.duel-meta h5{font-size:16px;margin:8px 0 2px}

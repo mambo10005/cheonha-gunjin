@@ -1,4 +1,5 @@
 import {validDebateBuild,validDeckNegotiation,validDeckReward} from './debate-deck-validation.ts';
+import {validDuelDeck} from './duel-deck-validation.ts';
 import {validGeography} from './geography.ts';
 import {validCampaign} from './city-validation.ts';
 import {validWorld} from './world-validation.ts';
@@ -49,6 +50,7 @@ export function activity(x: unknown, kind: 'duel' | 'debate'): boolean {
   if (!obj(x) || !known(x.generalId, GENERALS) || !integer(x.rng, -2147483648, 4294967295) || !(kind === 'duel' && x.v2 !== undefined ? integer(x.maxRounds, 3, 6) && integer(x.round, 0, x.maxRounds as number) : integer(x.round, 0, 4) && x.maxRounds === 4) || !strings(x.log) || !integer(x.aptitude, 1, 3) || !strings(x.traits) || !x.traits.every(t => traits.includes(t))) return false;
   if (kind === 'duel' && x.build !== undefined && (!runtime(x.build) || !strings(x.tactics) || x.tactics.length > 2 || new Set(x.tactics).size !== x.tactics.length || !x.tactics.every(t => known(t, TACTICS)) || !strings(x.usedTactics) || !x.usedTactics.every(t => (x.tactics as string[]).includes(t)) || new Set(x.usedTactics).size !== x.usedTactics.length || !integer(x.protection) || !integer(x.enemyShield))) return false;
   if (kind === 'duel' && x.v2 !== undefined) { const v = x.v2 as Record<string, unknown>; if (!v || typeof v !== 'object' || typeof v.objective !== 'string' || !enumOf(v.distance, ['near', 'mid', 'far']) || !(v.stance === null || enumOf(v.stance, ['offense', 'defense', 'lure'])) || typeof v.opening !== 'boolean' || !integer(v.support, 0, 6) || !integer(v.revealed, 0, 4) || !v.stats || typeof v.stats !== 'object') return false; }
+  if (kind === 'duel' && x.deck !== undefined && (x.v2 === undefined || !validDuelDeck(x.deck))) return false;
   if (kind === 'duel' && x.rewardClaimed !== undefined && (typeof x.rewardClaimed !== 'boolean' || x.rewardClaimed && x.result !== 'win')) return false;
   if (kind === 'duel') return known(x.opponentId, DUEL_OPPONENTS) && integer(x.hp) && integer(x.maxHp, 1) && x.hp <= x.maxHp && integer(x.enemyHp) && integer(x.enemyMaxHp, 1) && x.enemyHp <= x.enemyMaxHp && integer(x.momentum, 0, 5) && strings(x.pattern) && x.pattern.length === 4 && x.pattern.every(a => enumOf(a, ['strike', 'probe', 'guard', 'finisher'])) && integer(x.patternOffset, 0, 3) && (x.lastAction === null || enumOf(x.lastAction, ['strike', 'probe', 'guard', 'finisher'])) && enumOf(x.result, ['ongoing', 'win', 'lose', 'draw', 'surrender']) && (x.result !== 'ongoing' || (x.round as number) < (x.maxRounds as number) && x.hp > 0 && x.enemyHp > 0);
   if (x.negotiation !== undefined) {
