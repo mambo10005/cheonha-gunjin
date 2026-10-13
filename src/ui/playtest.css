@@ -1,0 +1,35 @@
+/* 플레이테스트: 상단 띠, 설문·관찰자·내보내기 패널, 준비 내역, 추천 경로. 글자는 15px 이상. */
+.pt-bar{position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:10px;padding:6px 12px;background:#2a2416;color:#efe3c4;border-bottom:1px solid #8a7347;font-size:15px}
+.pt-bar .btn{margin-left:auto;font-size:15px}
+.playtest-screen,.playtest-after{max-width:860px;margin:0 auto;padding:12px 16px 40px;color:#efe3c4}
+.playtest-screen h1{font-size:24px}
+.pt-panel{background:#17241c;border:1px solid #7a6b4c;border-radius:8px;padding:14px;display:grid;gap:12px;font-size:16px}
+.pt-panel h3{margin:0;font-size:20px}
+.pt-panel .pt-meta{margin:0;color:#c9bd9a;font-size:15px}
+.pt-panel details>summary{cursor:pointer;font-size:17px;font-weight:700;padding:6px 0}
+.pt-q{display:grid;gap:6px;padding:8px 0;border-top:1px solid #3d4a3f}
+.pt-q p{margin:0;font-size:16px}
+.pt-scale{display:flex;gap:6px;flex-wrap:wrap}
+.pt-scale button{min-width:44px;min-height:44px;font-size:17px;border-radius:6px;border:1px solid #8a7347;background:#223328;color:#efe3c4}
+.pt-scale button[aria-pressed="true"]{background:#c9a35a;color:#1b1b12;font-weight:700}
+.pt-q input,.pt-note-row input{font-size:16px;padding:8px;border-radius:6px;border:1px solid #6f6650;background:#101a14;color:#efe3c4;width:100%;box-sizing:border-box}
+.pt-tags{display:flex;flex-wrap:wrap;gap:6px}
+.pt-tags button{font-size:15px;min-height:40px;padding:6px 10px;border-radius:6px;border:1px solid #8a7347;background:#223328;color:#efe3c4}
+.pt-note-row{display:flex;gap:6px;margin-top:6px}
+.pt-obs{margin:4px 0;font-size:15px;color:#d8ccaa}
+.pt-export{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.pt-export small{font-size:15px;color:#c9bd9a;flex-basis:100%}
+.pt-raw textarea{width:100%;box-sizing:border-box;font-size:15px;background:#101a14;color:#efe3c4;border:1px solid #6f6650;border-radius:6px;padding:8px}
+.pt-prep{background:#17241c;border:1px solid #7a6b4c;border-radius:8px;padding:8px 12px;margin:8px 0;font-size:15px}
+.pt-prep summary{font-size:16px;font-weight:700;cursor:pointer}
+.pt-prep ul{margin:4px 0 8px;padding-left:18px}
+.pt-prep li{margin:2px 0}
+.pt-route{background:#1d1a12;border:1px dashed #8a7347;border-radius:8px;padding:10px 12px;margin:8px 0;font-size:15px}
+.pt-route.open{border-style:solid}
+.pt-route details{margin:6px 0}
+.pt-route summary{font-size:16px;cursor:pointer}
+.title-playtest{margin:8px 0;text-align:left;border:1px solid #8a7347;border-radius:8px;padding:8px 12px}
+.title-playtest summary{cursor:pointer;font-weight:700;font-size:17px}
+.title-playtest .btn{display:block;margin:8px 0}
+.title-playtest p{font-size:15px;color:#c9bd9a;margin:6px 0 0}
+@media(max-width:600px){.pt-bar{font-size:15px;padding:6px 10px}.pt-panel{padding:10px}.pt-scale button{min-width:40px}}

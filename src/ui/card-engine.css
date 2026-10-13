@@ -92,6 +92,15 @@
 .field-status span{padding:5px 10px;border:1px solid #6f6a52;border-radius:4px;background:#26342d}
 .field-status b{color:#f3dca6;margin-left:3px}
 .field-status .field-grade{border-color:#c9a45c}
+.field-status.primary span{font-size:17px;background:#2d3b32;border-color:#9a8657}
+.field-status.primary .field-intent-now{border-color:#e0a46f}
+.field-status-detail{margin:-4px 0 10px}.field-status-detail>summary{font-size:15px;color:#c9bd9a;cursor:pointer}
+.field-status.secondary span{font-size:15px;color:#cdc3a6;background:#1f2a24;border-color:#4f4b3c}.field-status.secondary b{color:#d8caa0}
+.field-badge{font-size:15px;line-height:1;padding:3px 6px;border-radius:3px;background:#3a3522;color:#f3dca6;font-weight:700;letter-spacing:.04em}
+.field-badge.core{background:#c9a45c;color:#1b1b12}.field-badge.danger{background:#9c3f2c;color:#fff}.field-badge.evidence{background:#2f6a52;color:#fff}
+.field-arg.core{font-size:17px}.field-arg.danger{border-color:#c85a3f}.field-arg.evidence{border-color:#5ea87f}.field-arg.threatened{box-shadow:inset 0 0 0 2px #f0a48788}
+.field-arg .field-pips{opacity:.75}.field-pips i{width:10px;height:6px}
+.field-risk-note{margin:10px 0;padding:10px 12px;border:1px solid #c85a3f;border-radius:6px;background:#2c1f1a}.field-risk-note h4{margin:0 0 4px;font-size:17px}.field-risk-note p{margin:0 0 6px;font-size:15px}.field-risk-note li{font-size:15px}
 .field-board{display:grid;grid-template-columns:1fr 0.9fr 1fr;gap:12px}
 .field-side{padding:12px;border:1px solid #6f6a52;border-radius:6px;background:#1c2a26}
 .field-side.mine{border-color:#5f8a6a}.field-side.theirs{border-color:#a8774d}
@@ -135,3 +144,10 @@ button.field-arg{cursor:pointer}button.field-arg.focused{border-color:#f1cf86;bo
 .engine-settlement-options{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
 .engine-settlement-options article{padding:10px 12px;border:1px solid #807250;border-radius:6px;background:#2a3a2b}
 .engine-settlement-options h4{margin:0 0 4px;font-size:18px}.engine-settlement-options p{margin:3px 0;font-size:15px}
+
+/* 준비 전술: 손패와 구분하되, 쓸 수 있을 때는 눈에 띄게. */
+.duel-tactics{margin:8px 0;padding:8px 10px;border:1px dashed #9a8657;border-radius:6px;background:#1f2a24}
+.duel-tactics>h5{margin:0 0 6px;font-size:16px;color:#f3dca6}
+.duel-tactics .duel-hand{margin:0}
+.duel-tactics.ready{border-style:solid;border-color:#e0a46f;box-shadow:0 0 0 2px #e0a46f33}
+.duel-tactics.ready>h5::after{content:' · 지금 사용 가능';color:#ffd58a}

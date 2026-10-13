@@ -1,3 +1,4 @@
+import {validPlaytestFlag} from './playtest-flag.ts';
 import {validCityExploration} from './city-exploration-validation.ts';
 import {ADMIN_CARDS,ADMIN_GENERALS,CITY_DEFS,DISTRICTS,FACILITY_DEFS,ISSUE_DEFS,POLICY_DEFS,PROJECT_DEFS,SEAL_DEFS} from '../data/cities.ts';
 import {GENERALS} from '../data/generals.ts';
@@ -10,7 +11,7 @@ const ids=(x:unknown,table:O)=>list(x)&&x.every(id=>typeof id==='string'&&Object
 const texts=(x:unknown)=>list(x)&&x.every(v=>typeof v==='string'&&v.length<=10000);
 const unique=(x:any[])=>new Set(x).size===x.length;
 export function validCampaign(r:RunState):boolean {
- const x:unknown=r.campaign;if(x===undefined)return true;
+ const x:unknown=r.campaign;if(x===undefined)return true;if(obj(x)&&!validPlaytestFlag(x.playtest))return false;
  if(!obj(x)||x.version!==1||x.dataVersion!=='henan-cities-1'||!num(x.seed)||!num(x.rng,-2147483648,4294967295)||x.faction!==r.lordId||!['approach','conquest','occupation','admin','ready','expedition','complete'].includes(x.stage)||!Object.hasOwn(CITY_DEFS,x.target)||!(x.active===null||Object.hasOwn(CITY_DEFS,x.active))||!obj(x.cities)||Object.keys(x.cities).some(id=>!Object.hasOwn(CITY_DEFS,id)))return false;
  if(!ids(x.roster,x.world?GENERALS:ADMIN_GENERALS)||!unique(x.roster)||(x.world?x.roster.length<1||x.roster.length>12:x.roster.length!==4)||!obj(x.fatigue)||!Object.entries(x.fatigue).every(([id,n])=>x.roster.includes(id)&&num(n,0,6))||!ids(x.captured,CITY_DEFS)||!unique(x.captured)||!list(x.roads)||x.roads.length!==3||!x.roads.every(road=>obj(road)&&Object.hasOwn(CITY_DEFS,road.a)&&Object.hasOwn(CITY_DEFS,road.b)&&road.a!==road.b&&num(road.condition,1,3)&&num(road.distance,1,2)))return false;
  if(!obj(x.approach)||!texts(x.approach.choices)||x.approach.choices.length>2||!unique(x.approach.choices)||!x.approach.choices.every((id:string)=>['scout','supply','protect','cut','raid'].includes(id))||!num(x.approach.intel,0,20)||!num(x.approach.supply,0,20)||!num(x.approach.trust,-3,10)||!num(x.approach.cut,0,20)||!num(x.approach.damage,0,10)||!(x.method===null||['assault','persuade','siege','inside'].includes(x.method))||!(x.activity===null||['conquest','issue'].includes(x.activity))||!texts(x.deferredPromises)||!texts(x.log)||!num(x.departures,0,x.world?100000:20)||!ids(x.unlocks,{settlement:1,trade:1,military:1}))return false;

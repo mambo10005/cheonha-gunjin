@@ -26,6 +26,7 @@ import {CLAUSES} from '../data/clauses.ts';
 import {GATE_PROFILES} from '../data/gate-profiles.ts';
 import type {DebateEvaluation} from '../core/debate-grade.ts';
 import {PLAYTEST,PLAYTEST_ROUTES,SURVEY_QUESTIONS,SURVEY_ANSWERS} from '../data/playtest.ts';
+import {isPlaytest} from '../core/playtest.ts';
 
 const btn=(id:string,label:string,disabled=false,title='')=>`<button class="btn" data-explore-action="${esc(id)}" ${disabled?'disabled':''} ${title?`title="${esc(title)}"`:''}>${esc(label)}</button>`;
 const marksRow=(bag:Partial<Record<Mark,number>>,limit?:number)=>`<ul class="engine-marks">${MARKS.filter(m=>(bag[m]??0)>0||m==='alert').map(m=>`<li class="mark-${m}${m==='alert'&&limit&&(bag.alert??0)>=limit-1?' danger':''}"><span>${MARK_NAMES[m]}</span><strong>${bag[m]??0}${m==='alert'&&limit?`/${limit}`:''}</strong></li>`).join('')}</ul>`;
@@ -79,8 +80,8 @@ export function duelLoadoutView(s:DuelState){if(!s.loadout)return '';const l=s.l
 export const gambitName=(s:DuelState)=>s.loadout?.gambit?`승부수 · ${DUEL_TACTICS[s.loadout.gambit].name}`:'승부수';
 
 /** 지도 서랍: 활동 덱 12장, 책략 2칸, 대결 전술, 논거, 성장, 관문 규칙. */
-export function engineDrawer(r:RunState):string {
- const e=engineOf(r),p=personnelOf(r),x=explorationOf(r);if(!e||!p||!x)return '<p>이 저장 기록은 카드 엔진 이전 규칙을 사용합니다.</p>';
+export function engineDrawer(r:RunState,opts:{playtest?:string;prep?:string}={}):string {
+ const e=engineOf(r),p=personnelOf(r),x=explorationOf(r);const pt=isPlaytest(r);if(!e||!p||!x)return '<p>이 저장 기록은 카드 엔진 이전 규칙을 사용합니다.</p>';
  const comp=deckComposition(r),active=p.loadouts.raising.map(uid=>p.library.find(c=>c.uid===uid)!).filter(Boolean),storage=p.library.filter(l=>!p.loadouts.raising.includes(l.uid)&&l.activities.includes('raising')&&!l.spent);
  const onMap=x.scene==='map';
  const card=(l:typeof active[number],inDeck:boolean)=>{const g=CARD_GRAMMAR[l.id],why=inDeck?null:personnelAvailability(r,l,'raising');return `<article class="engine-deck-card ${why?'locked':''}"><span>${DECK_CATEGORY_NAMES[deckCategory(r,l)]}${l.owners.length&&l.owners[0]!==p.protagonistId?` · ${l.owners.map(o=>OFFICERS[o]?.name??o).join('·')}`:''}</span><h5>${esc(RAISING_CARDS[l.id].name)}${l.upgrade?` <small>${l.upgrade==='bold'?'강행':'정밀'}</small>`:''}</h5><p class="card-grammar">${esc(g?grammarText(g):'')}</p>${why?`<small>${esc(why)}</small>`:''}${btn(`officer:equip:${l.uid}:raising`,inDeck?'보관함으로':'활동 덱에 편성',!onMap||!inDeck&&!!why)}</article>`;};
@@ -93,8 +94,8 @@ export function engineDrawer(r:RunState):string {
  <section><h3>설전 지속 논거</h3>${argumentsList(r)}</section>
  <section><h3>거병 관문의 빌드 시험</h3>${x.unlockedPlans.map(id=>`<p><b>${({assembly:'민회와 격문',barracks:'군영 장악',inside:'성문 내응'})[id]}</b> · ${esc(gateRuleText(id))}</p>`).join('')||'<p>아직 발견한 거병 계획이 없습니다.</p>'}</section>
  <section><h3>휴식 정제 (하루 1회 · 시간 2)</h3><div class="engine-rest">${btn('rest:fatigue','피로 회복')}${active.filter(l=>!l.upgrade).slice(0,3).map(l=>btn(`rest:upgrade:${l.uid}:quiet`,`정밀 강화 · ${RAISING_CARDS[l.id].name}`)).join('')}${active.filter(l=>!l.owners.some(o=>o!==p.protagonistId)).slice(0,3).map(l=>btn(`rest:remove:${l.uid}`,`제거 · ${RAISING_CARDS[l.id].name}`)).join('')}${x.companions.map(id=>btn(`rest:talk:${id}`,`${OFFICERS[id].name}와 대화`)).join('')}</div></section>
- <section><h3>플레이 계측(로컬)</h3><p>카드 사용·미사용, 표식, 책략 발동, 보상 선택, 덱 교체, 사건별 카드 수, 설전·대결 순서, 철회·결과를 이 브라우저에만 저장합니다. 외부로 보내지 않습니다.</p><button class="btn" data-engine-report>디버그 리포트 저장(로컬)</button></section>
- ${playtestPanel(r)}
+ ${pt?`${opts.prep??''}${opts.playtest??''}`:`<section><h3>플레이 계측(로컬)</h3><p>카드 사용·미사용, 표식, 책략 발동, 보상 선택, 덱 교체, 사건별 카드 수, 설전·대결 순서, 철회·결과를 이 브라우저에만 저장합니다. 외부로 보내지 않습니다.</p><button class="btn" data-engine-report>디버그 리포트 저장(로컬)</button></section>
+ ${playtestPanel(r)}`}
  <section><h3>거병 후로 이어질 결과</h3>${e.legacy.map(l=>`<p>${({policy:'정책',obligation:'의무',gate:'관문'} as const)[l.kind]} · ${esc(l.text)}</p>`).join('')||'<p>아직 없습니다.</p>'}</section>
  </div>`;
 }
@@ -119,10 +120,10 @@ export function debateGradePanel(p:{settled:boolean;ev:DebateEvaluation}|null){i
  <p>조항 ${ev.clauses.length?ev.clauses.map(id=>`<b>${esc(CLAUSES[id].name)}</b>${CLAUSES[id].tier==='cost'?'(내준 조건)':CLAUSES[id].tier==='advanced'?'(고급)':''}`).join(' · '):'없음'}</p>
  ${ev.clauses.length?`<ul>${ev.clauses.map(id=>`<li>${esc(CLAUSES[id].name)} — ${esc(CLAUSES[id].text)} <small>${esc(clauseEffectText(id))}</small></li>`).join('')}</ul>`:''}
  ${ev.conflicts.length?`<p>${ev.conflicts.map(esc).join(' · ')}</p>`:''}${ev.pressure?'<p>강한 압박으로 빠르게 얻은 합의 · 거병 후 불신 현안이 남습니다.</p>':''}
- <details${p.settled?' open':''}><summary>등급별 필수 조건</summary>${ev.checks.map(c=>`<div><h4>${esc(c.grade)}</h4><ul>${c.items.map(i=>`<li>${okText(i.ok)} ${esc(i.text)}</li>`).join('')}</ul></div>`).join('')}</details>
- ${ev.missing.length?`<details><summary>얻지 못한 조항 ${ev.missing.length}</summary><ul>${ev.missing.map(m=>`<li><b>${esc(CLAUSES[m.id].name)}</b> — ${esc(m.reason)}</li>`).join('')}</ul></details>`:''}</section>`;}
+ <details${p.settled?' open':''} data-log="예상 등급 열람"><summary>등급별 필수 조건</summary>${ev.checks.map(c=>`<div><h4>${esc(c.grade)}</h4><ul>${c.items.map(i=>`<li>${okText(i.ok)} ${esc(i.text)}</li>`).join('')}</ul></div>`).join('')}</details>
+ ${ev.missing.length?`<details data-log="조항 열람"><summary>얻지 못한 조항 ${ev.missing.length}</summary><ul>${ev.missing.map(m=>`<li><b>${esc(CLAUSES[m.id].name)}</b> — ${esc(m.reason)}</li>`).join('')}</ul></details>`:''}</section>`;}
 /** 관문 난도 프로필(내부 시험용). 표준은 검토 중이며 사람 플레이 전 확정하지 않았다. */
-export function profilePanel(r:RunState){const e=engineOf(r);if(!e)return '';const cur=e.profile??'standard';
+export function profilePanel(r:RunState){const e=engineOf(r);if(!e||isPlaytest(r))return '';const cur=e.profile??'standard';
  return `<section class="engine-profile"><h4>관문 난도 · ${esc(GATE_PROFILES[cur].name)}</h4><p>${esc(GATE_PROFILES[cur].text)}</p><div class="engine-profile-row">${Object.values(GATE_PROFILES).map(p=>`<button data-explore-action="engine:profile:${p.id}" aria-pressed="${cur===p.id}" ${cur===p.id?'disabled':''}>${esc(p.name)}</button>`).join('')}</div><small>시험용 설정입니다. 수치를 일괄로 올리지 않고 상대 순서·지원·거리·라운드·조항 요구를 바꿉니다.</small></section>`;}
 /** 성문 내응: 세 장애(감시·지휘관·병사 지지) 상태와 비밀 우회로가 있을 때 시작 거리 선택. */
 export function insideDistancePanel(r:RunState){const e=engineOf(r);if(!e)return '';const o=insideObstacles(r,null);if(!o)return '';const st=(v:string)=>({resolved:'해결',weakened:'약화',unresolved:'남음'} as Record<string,string>)[v]??v;

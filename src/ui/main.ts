@@ -2,6 +2,9 @@ import {connectIntentArrows} from './battle-arrows.ts';
 import {WorldScreen} from './world-screen.ts';
 import {newWorldCampaign,bindCampaign,reconcileWorld,retreatWorld,marchWorld} from '../core/world.ts';
 import {loadCampaign,importLegacyCampaign} from '../core/campaign-save.ts';
+import {PlaytestSession} from './playtest-session.ts';
+import {startPlaytest,PLAYTEST_SAVE_KEY,PLAYTEST_PRESET,isPlaytest} from '../core/playtest.ts';
+import './playtest.css';
 import {explorationOf,exploreAction} from '../core/city-exploration.ts';
 import {CityScreen} from './city-screen.ts';
 import {newCityCampaign,campaignBattleOutcome} from '../core/city.ts';
@@ -86,7 +89,7 @@ function storage(): KV {
 }
 
 interface UIState {
-  view: 'title' | 'lords' | 'run';
+  view: 'title' | 'lords' | 'run' | 'playtest';
   run: RunState | null;
   meta: MetaState;
   difficulty: Difficulty;
@@ -102,6 +105,8 @@ interface UIState {
 const kv = storage();
 const loadedRun = loadRun(kv);
 const loadedCampaign=loadCampaign(kv);
+const loadedPlaytest=loadCampaign(kv,PLAYTEST_SAVE_KEY);
+const playtest=new PlaytestSession(kv);
 const devTools=import.meta.env.DEV;
 const ui: UIState = {
   view: 'title',
@@ -119,8 +124,8 @@ const ui: UIState = {
 const savedRun: RunState | null = loadedRun.ok ? loadedRun.data : null;
 
 const app = document.getElementById('app')!;
-const worldScreen=new WorldScreen(app,()=>ui.run,fn=>runAct(fn),()=>render());
-const cityScreen=new CityScreen(app,()=>ui.run,fn=>runAct(fn),()=>render());
+const worldScreen=new WorldScreen(app,()=>ui.run,(fn,label)=>runAct(fn,label),()=>render(),playtest);
+const cityScreen=new CityScreen(app,()=>ui.run,(fn,label)=>runAct(fn,label),()=>render());
 const expeditionMap = new ExpeditionMap(app, kv, () => ui.run, () => render(), col => runAct(r => moveTo(r, col)));
 const debatePlayback = new DebatePlayback(app, loadSceneSettings(kv, window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false));
 attachSceneControls(app, () => ui.run?.pending.kind === 'debate' ? ui.run.pending.state : null, debatePlayback);
@@ -141,7 +146,7 @@ function persist(): void {
   if(run.campaign){
     if(run.campaign.world){reconcileWorld(run);bindCampaign(run);if(run.screen==='defeat')retreatWorld(run);}
     else if(run.screen==='defeat')campaignBattleOutcome(run,false,0);
-    if(!saveRun(kv,run))toast('도시 캠페인을 저장하지 못했습니다. 저장 공간을 확인하세요.');
+    if(!saveRun(kv,run,playtest.active&&isPlaytest(run)?PLAYTEST_SAVE_KEY:undefined))toast('도시 캠페인을 저장하지 못했습니다. 저장 공간을 확인하세요.');
     return;
   }
   if (run.screen === 'victory' || run.screen === 'defeat') {
@@ -221,6 +226,11 @@ function titleView(): string {
       ${savedRun && !ui.run ? `<button class="btn primary" data-a="continue">이어하기 — ${esc(LORDS[savedRun.lordId].name)}, ${savedRun.floor + 1}층</button>` : ''}
       ${loadedCampaign.ok?'<button class="btn primary" data-a="world-continue">천하 캠페인 이어하기</button>':''}
       <button class="btn primary" data-a="world-new">천하 캠페인 시작</button>
+      <details class="title-playtest" ${loadedPlaytest.ok?'open':''}><summary>${esc(PLAYTEST_PRESET.name)}</summary>
+        ${loadedPlaytest.ok?'<button class="btn primary" data-a="playtest-continue">플레이테스트 이어하기</button>':''}
+        <button class="btn ${loadedPlaytest.ok?'':'primary'}" data-a="playtest-new">${loadedPlaytest.ok?'플레이테스트 새로 시작(기존 테스트 저장 덮어씀)':'플레이테스트 시작'}</button>
+        ${playtest.hasLog()?'<button class="btn" data-a="playtest-review">설문·기록 내보내기</button>':''}
+        <p>${PLAYTEST_PRESET.conditions.join(' · ')}. 일반 캠페인 저장과 분리됩니다.</p></details>
       ${loadedCampaign.ok||loadedCampaign.reason==='none'?'':'<p>본편 저장을 읽지 못했습니다. 원본을 보존했습니다. 손상 또는 버전 불일치를 확인하세요.</p>'}
       ${savedRun?.campaign&&!savedRun.campaign.world?'<button class="btn" data-a="world-import">기존 도시 저장을 본편으로 변환</button><p>도시·자원·배치·원정을 보존하며, 구 저장을 삭제하지 않습니다.</p>':''}
       <details><summary>원정 도전 · 짧은 연습</summary><button class="btn" data-a="to-lords">원정 도전 시작</button><p>본편과 저장을 분리한 단일 원정 연습입니다.</p></details>
@@ -491,6 +501,7 @@ function modalView(): string {
 function render(): void {
   let html = '';
   if (ui.view === 'title') html = titleView();
+  else if (ui.view === 'playtest') html = `<div class="playtest-screen"><div class="row"><h1 class="grow">플레이테스트 설문·기록</h1><button class="btn ghost" data-a="to-title">돌아가기</button></div>${playtest.panel(ui.run)}</div>`;
   else if (ui.view === 'lords') html = lordsView();
   else if (ui.run) {
     const run = ui.run;
@@ -498,7 +509,7 @@ function render(): void {
     const escortFight=run.screen==='battle'&&!!run.battle&&explorationOf(run)?.inn?.activity?.kind==='battle';
     const world=escortFight?null:worldScreen.view(run);
     const city=world===null&&!escortFight?cityScreen.view(run):null;
-    if(world!==null)html=world;
+    if(world!==null){html=world;const q=run.campaign?.world?.raising;if(playtest.active&&isPlaytest(run)&&q&&['result','escape','founded'].includes(q.phase))html+=`<div class="playtest-after">${playtest.panel(run)}</div>`;}
     else if(city!==null)html=(run.campaign?.world?'<button class="btn world-back" data-world="map">전도로 돌아가기</button>':'')+city;
     else if (run.screen === 'victory' || run.screen === 'defeat') html = endView(run);
     else {
@@ -509,6 +520,7 @@ function render(): void {
       else html += nodeView(run);
     }
   }
+  if(playtest.active&&ui.run&&isPlaytest(ui.run)&&ui.view!=='title')html=`<div class="pt-bar" role="status">플레이테스트 · 행동 ${playtest.log?.actions??0} · 로컬 기록 중<button type="button" class="btn small" data-a="playtest-panel">${ui.view==='playtest'?'게임으로':'설문·기록'}</button></div>`+html;
   html += modalView();
   if (ui.toast) html += `<div class="toast">${esc(ui.toast)}</div>`;
   debatePlayback.cancel();
@@ -572,10 +584,10 @@ function clickCard(i: number): void {
   render();
 }
 
-function runAct(fn: (run: RunState) => { ok: boolean; reason?: string } | void): void {
+function runAct(fn: (run: RunState) => { ok: boolean; reason?: string } | void, label = 'ui'): void {
   const run = ui.run;
   if (!run) return;
-  const r = fn(run);
+  const r = playtest.wrap(run, label, () => fn(run));
   if (r && !r.ok && r.reason) toast(r.reason);
   persist();
   render();
@@ -593,6 +605,7 @@ function startRun(lordId: string): void {
 }
 
 app.addEventListener('click', (ev) => {
+  if(playtest.handle(ev.target as Element,ui.run,document)){render();return;}
   const el = (ev.target as HTMLElement).closest<HTMLElement>('[data-a]');
   if (!el) return;
   if (el.dataset.a === 'close-modal-bg' && (ev.target as HTMLElement).closest('[data-stop]')) return;
@@ -604,6 +617,10 @@ app.addEventListener('click', (ev) => {
   switch (a) {
     case 'world-new': ui.run=newWorldCampaign().activeExpedition!;ui.view='run';ui.endRecorded=false;ui.modal=null;persist();render();return;
     case 'world-continue': if(loadedCampaign.ok){ui.run=loadedCampaign.data.activeExpedition!;ui.view='run';bindCampaign(ui.run);}render();return;
+    case 'playtest-new': ui.run=startPlaytest();ui.view='run';ui.endRecorded=false;ui.modal=null;playtest.start();persist();render();return;
+    case 'playtest-continue': if(loadedPlaytest.ok){ui.run=loadedPlaytest.data.activeExpedition!;ui.view='run';bindCampaign(ui.run);playtest.resume();}render();return;
+    case 'playtest-review': if(playtest.attach()){ui.view='playtest';}else toast('플레이테스트 기록이 없습니다.');render();return;
+    case 'playtest-panel': ui.view=ui.view==='playtest'?'run':'playtest';render();return;
     case 'world-import': if(savedRun){const converted=importLegacyCampaign(kv,savedRun);if(converted.ok){ui.run=converted.data.activeExpedition!;ui.view='run';}else toast('안전한 변환을 확인할 수 없습니다. 기존 저장의 이어하기를 사용하세요. 원본은 보존했습니다.');}render();return;
     case 'city-campaign':
       ui.run=newCityCampaign(ui.seedInput.trim()?Number(ui.seedInput.replace(/\D/g,''))||101001:101001);ui.view='run';ui.endRecorded=false;ui.unlockMsgs=[];ui.selected=null;persist();render();return;
@@ -796,8 +813,9 @@ app.addEventListener('mouseover', (ev) => {
   refreshPreview();
 });
 
+app.addEventListener('toggle',ev=>{const d=ev.target as HTMLElement;if(!(d instanceof HTMLDetailsElement)||!d.dataset.log)return;if(d.open)playtest.ui(ui.run,d.dataset.log,d.dataset.logText??d.querySelector('summary')?.textContent?.trim()??d.dataset.log);},true);
 app.addEventListener('change',ev=>{
- const el=ev.target as HTMLInputElement;if(el.dataset.battleLog){app.querySelectorAll<HTMLElement>('[data-log-kind]').forEach(x=>x.hidden=el.value!=='all'&&el.value!==x.dataset.logKind);return;}
+ const el=ev.target as HTMLInputElement;if(playtest.handleChange(el))return;if(el.dataset.battleLog){app.querySelectorAll<HTMLElement>('[data-log-kind]').forEach(x=>x.hidden=el.value!=='all'&&el.value!==x.dataset.logKind);return;}
  const key=el.dataset.battleSetting;if(!key)return;
  const settings=debatePlayback.settings;if(key==='reduced'||key==='particles'||key==='highContrast')settings[key]=el.checked;else if(key==='speed'&&['normal','fast','instant'].includes(el.value))settings.speed=el.value as 'normal'|'fast'|'instant';else if(key==='textSize')settings.textSize=Math.max(100,Math.min(150,Number(el.value)));
  try{kv.setItem('cheonha-gunjin.presentation',JSON.stringify(settings));}catch{toast('화면 설정 저장 실패');}

@@ -22,8 +22,8 @@ interface Envelope<T> {
   data: T;
 }
 
-export function saveRun(kv: KV, run: RunState): boolean {
-  if(run.campaign?.world)return saveCampaign(kv,run);
+export function saveRun(kv: KV, run: RunState, campaignKey?: string): boolean {
+  if(run.campaign?.world)return saveCampaign(kv,run,campaignKey);
   const env: Envelope<RunState> = { version: RUN_VERSION, savedAt: Date.now(), data: run };
   try { kv.setItem(RUN_KEY, JSON.stringify(env)); return true; } catch { return false; }
 }

@@ -16,7 +16,7 @@ const APPROACH:Record<string,[string,string]>={scout:['정찰','군량 −2, 정
 const CONQUEST:Record<Conquest,[string,string]>={assault:['성문 돌파','기존 전열·후열 카드 전투. 성문 피해 1, 받은 피해 15 이상이면 추가 피해.'],persuade:['수비대 설득','기존 5라운드 설전 덱. 정보 2·책사 필요. 부분 합의도 점령 가능, 약속 저장.'],siege:['장기 포위','원정 군량 −8·병력 −4. 도시 피해 1. 전투를 피하되 물자와 시간이 필요.'],inside:['내부 협력','정보 2·주민 신뢰 2. 군량 −2. 성고는 이용 불가.']};
 export class CityScreen {
  private selected:number|null=null;private district:DistrictId='hall';private drawer='';private scale=1;private contrast=false;
- constructor(root:HTMLElement,run:()=>RunState|null,act:(fn:(r:RunState)=>Result)=>void,render:()=>void){
+ constructor(root:HTMLElement,run:()=>RunState|null,act:(fn:(r:RunState)=>Result,label?:string)=>void,render:()=>void){
   root.addEventListener('click',e=>{const el=(e.target as Element).closest<HTMLElement>('[data-city]');const r=run();if(!el||!r?.campaign)return;const id=el.dataset.id!,a=el.dataset.city!;
    if(a==='district'){this.district=id as DistrictId;this.drawer='';render();return;}if(a==='select-card'){this.selected=Number(id);this.district=ADMIN_CARDS[activeCity(r)!.cards.find(c=>c.uid===this.selected)!.id].district;render();return;}
    if(a==='drawer'){this.drawer=this.drawer===id?'':id;render();return;}if(a==='text'){this.scale=this.scale===1?1.25:1;render();return;}if(a==='contrast'){this.contrast=!this.contrast;render();return;}if(a==='cancel'){this.selected=null;render();return;}

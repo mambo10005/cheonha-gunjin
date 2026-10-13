@@ -28,6 +28,8 @@ export interface CityState {
 export interface CampaignState {
  personnel?:import("./personnel-types.ts").PersonnelState;
  campaignId?:string;saveVersion?:7;scenarioId?:'henan-190';world?:import('./world-types.ts').WorldState;
+ /** 사람 플레이테스트 프리셋 표시(저장 키 분리·로컬 로그). */
+ playtest?:{preset:string;version:1;startedAt:number};
  /** Runtime adapter only; serialized once by campaign-save, never inside RunState. */
  readonly activeExpedition?:import('./types.ts').RunState;
  version:1;dataVersion:'henan-cities-1';seed:number;rng:number;faction:string;
